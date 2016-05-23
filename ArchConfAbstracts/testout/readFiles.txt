@@ -1,0 +1,31 @@
+../ArchConfAbstracts/ECSA2007.txt
+../ArchConfAbstracts/ECSA2008.txt
+../ArchConfAbstracts/ECSA2009.txt
+../ArchConfAbstracts/ECSA2010.txt
+../ArchConfAbstracts/ECSA2011.txt
+../ArchConfAbstracts/ECSA2012.txt
+../ArchConfAbstracts/ECSA2013.txt
+../ArchConfAbstracts/ECSA2014.txt
+../ArchConfAbstracts/QoSA2005.txt
+../ArchConfAbstracts/QoSA2006.txt
+../ArchConfAbstracts/QoSA2007.txt
+../ArchConfAbstracts/QoSA2008.txt
+../ArchConfAbstracts/QoSA2009.txt
+../ArchConfAbstracts/QoSA2010.txt
+../ArchConfAbstracts/QoSA2011.txt
+../ArchConfAbstracts/QoSA2012.txt
+../ArchConfAbstracts/QoSA2013.txt
+../ArchConfAbstracts/QoSA2014.txt
+../ArchConfAbstracts/WICSA1999.txt
+../ArchConfAbstracts/WICSA2001.txt
+../ArchConfAbstracts/WICSA2002.txt
+../ArchConfAbstracts/WICSA2004.txt
+../ArchConfAbstracts/WICSA2005.txt
+../ArchConfAbstracts/WICSA2007.txt
+../ArchConfAbstracts/WICSA2008.txt
+../ArchConfAbstracts/WICSA2009.txt
+../ArchConfAbstracts/WICSA2011.txt
+../ArchConfAbstracts/WICSA2012.txt
+../ArchConfAbstracts/WICSA2014.txt
+Entered successfully:  26 26
+Found error:  3
