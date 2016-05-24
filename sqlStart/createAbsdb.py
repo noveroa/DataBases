@@ -14,15 +14,7 @@ import sys
 '''
 
 #list of the records to add
-cars = (
-    (1, 'Audi', 52642),
-    (2, 'Mercedes', 57127),
-    (3, 'Skoda', 9000),
-    (4, 'Volvo', 29000),
-    (5, 'Bentley', 350000),
-    (6, 'Hummer', 41400),
-    (7, 'Volkswagen', 21600)
-)
+##add hdf read text and pandas frame here?
 
 
 con = lite.connect('Abstracts.db')
@@ -34,8 +26,10 @@ with con:
     #drops the cars table if it exist already 
     cur.execute("DROP TABLE IF EXISTS Abstracts")
     #and recreates it
-    cur.execute("CREATE TABLE Abstracts(Abstract TEXT, 'Author affiliation' TEXT, Authors TEXT, 'Classification Code' TEXT, Conf TEXT, Database TEXT, Source TEXT, Title TEXT, terms TEXT, year TEXT)")
+    cur.execute("CREATE TABLE Abstracts(Abstract TEXT, 'Author affiliation' TEXT,\
+    Authors TEXT, 'Classification Code' TEXT, Conf TEXT, Database TEXT, Source TEXT, \
+    Title TEXT, terms TEXT, year TEXT)")
     
     #The first parameter of this method is a parameterized SQL statement. 
     #The second parameter is the data, in the form of tuple of tuples.
-    #cur.executemany("INSERT INTO Cars VALUES(?, ?, ?)", cars)
+    #cur.executemany("INSERT INTO Abstracts VALUES(?, ?, ?, ?, ?, ?, ?,? ?)", Abstracts)
