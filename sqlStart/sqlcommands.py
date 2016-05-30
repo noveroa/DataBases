@@ -52,7 +52,7 @@ def sqlCMDToPD(table,
 
 
 
-def createAbstractsTable(entries, 
+def createTOTALTable(entries, 
                       db = DEFAULTDB,
                       table = 'ABSTRACTSTOTAL'):
     '''Add entries to the given db
@@ -172,11 +172,11 @@ def createPublicationsTable(entries,
         
         #insert into the table
         for confName, year in entries:
-            print('Conference %s' %confName)
+            #print('Conference %s' %confName)
             cur.execute("INSERT INTO " + table + 
                         "(year, confName) \
                         VALUES ('%s','%s')" %(year, confName))
-            print ('Entry %d added' %year)
+            #print ('Entry %d added' %year)
         
         print "Records created successfully";
         
@@ -185,4 +185,62 @@ def createPublicationsTable(entries,
         
         #return table as Pandas DataFrame for inspection
         return df           
+
     
+def createAbstractsTable(entries ,
+                         db = DEFAULTDB,
+                         table = 'ABSTRACTS',
+                         foreignKey = 'PUBLICATIONS'):
+    
+    ''' Creating the Publications Table with 
+                pubID as AUTOINCREMENTED PRIMARY KEY, 
+                pubYear as FOREIGN KEY reference to year in PUBLICATIONS
+                conf with FOREIGN KEY reference to confName in PUBLICATIONS
+                
+            
+         : param entries : the ABSTRACTSTOTAL table as a matrix 
+         : param db : str. Name of db. (ie. 'Abstracts.db')
+             : default 'TestAbstracts.db'
+         : param table : str. Name of Table to create or insert.
+         : param foreignKey : str. 
+         
+         : output : Pandas DataFrame as output for inspection
+           
+    '''
+    with sqlite3.connect(db) as con:
+        print ("Opened %s database successfully" %db);
+        cur = con.cursor() 
+        #drops the Abstracts table if it exist in db already
+        cur.execute("DROP TABLE IF EXISTS " + table)
+        print ('table dropped')
+        
+        
+        #create the table
+        cur.execute("CREATE TABLE " + table + 
+                    "(pubID INTEGER PRIMARY KEY AUTOINCREMENT, \
+                    pubYear INT NOT NULL, \
+                    conf TEXT NOT NULL, \
+                    abstract TEXT, \
+                    title TEXT, \
+                    source TEXT, \
+                    authors TEXT, \
+                    FOREIGN KEY(pubYear) REFERENCES '%s', \
+                    FOREIGN KEY(conf) REFERENCES '%s'(confName))" % (foreignKey, foreignKey)); 
+        
+        print('Created %s table' %table);
+        
+        #insert into the table
+        for idx, abstr, aFil, aus, code, conf, db, source, title, keys, year in entries:
+            
+            cur.execute("INSERT INTO " + table + 
+                        "(pubYear, conf, abstract, title, source, authors) \
+                        VALUES ('%d','%s', '%s', '%s', '%s', '%s')" 
+                        %(year, conf, abstr, title, source, aus))
+        
+        print "Records created successfully";
+        
+        sql = "SELECT * FROM " + table
+        df = pd.read_sql_query(sql, con)
+        
+        #return table as Pandas DataFrame for inspection
+        return df 
