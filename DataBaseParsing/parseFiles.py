@@ -73,6 +73,8 @@ def makeAbstrDF(absDictionary, fname):
     conf, year = name[:-4], name[-4:]
     df['Conf'] = conf
     df['year'] = year
+    #so can use in sqlite (no list type)
+    df['terms'] = df.terms.apply(str)
     
     return df
 
