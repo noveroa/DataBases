@@ -85,6 +85,32 @@ def reparseAuthors(data_frame, column = 'Authors'):
     
     return df
 
+def reparseAffiliations(data_frame, column = 'Author affiliation'):
+    '''TO remove the superscripts that remained as well as separate
+        multiple authors
+        
+        : param data_frame : Pandas DataFrame. Frame that has been parsed 
+                from patent txt file.  Authors needs to be further parsed
+        : param column : str. String name of column to be reparsed 
+                default = 'Authors'  To remove remaining superscript numbers
+                            separate the authors keeping initials
+        : output : original DataFrame with authors reparsed.  Each row a str
+                so can read into sqliteDB
+                '''
+    df = data_frame
+    
+    #keep alphacharacters and comma.  Remove digits, and split on white space
+    #cannot strip on ',' as lose the initials of each author
+    
+    #df[column] = df[column].apply(lambda affiliation: str(affiliation).split('1', 1)[1].strip())
+    for row in df[column]:
+        try:
+            row
+    #return as a single string for sqlite3 table entry
+    df[column] = df[column].apply(lambda affiliation : str(affiliation))
+    
+    return df
+
 def makeAbstrDF(absDictionary, fname):
     ''' Recast the abstract dictionary as a Pandas DataFrame
         : param absDictionary : Python Dictionary of Dictionaries (see documentation above). 
@@ -103,7 +129,7 @@ def makeAbstrDF(absDictionary, fname):
     
     #reparseAuthors
     df = reparseAuthors(df)
-    
+    df = reparseAffiliations(df)
     return df
 
 
