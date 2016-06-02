@@ -27,5 +27,5 @@
 ../ArchConfAbstracts/WICSA2011.txt
 ../ArchConfAbstracts/WICSA2012.txt
 ../ArchConfAbstracts/WICSA2014.txt
-Entered successfully:  26 26
-Found error:  3
+Entered successfully:  24 24
+Found error:  5

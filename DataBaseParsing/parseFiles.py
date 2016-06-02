@@ -31,7 +31,7 @@ def parseFile(input, Labels = setLabels):
         for line in f:
             if line[0].isdigit():
                 #Only Title Lines Begin with Digit.
-                entry['terms'] = str(terms) #cast as a string for entry to sqlite3 table
+                entry['terms'] = terms #cast as a string for entry to sqlite3 table
                 abstracts[i-1] = entry
                 entry = {}
                 #Title Lines are followed by Authors
@@ -75,13 +75,27 @@ def reparseAuthors(data_frame, column = 'Authors'):
                 '''
     df = data_frame
     
+    alphaComma = re.compile('[^a-zA-Z\,]')
     #keep alphacharacters and comma.  Remove digits, and split on white space
     #cannot strip on ',' as lose the initials of each author
-    alphaComma = re.compile('[^a-zA-Z\,]')
-    df[column] = df[column].apply(lambda authors: alphaComma.sub(' ', authors).split('  '))
+    def reformatAuthors(authors):
+        
+        try:
+            authors =  alphaComma.sub(' ', authors).split('  ')
+            try:
+                authors = str(filter(lambda a: a !='', authors))
+                return authors
+            except:
+                return authors
+        except:
+            return authors
     
     #filter out empty strings, return as a single string for sqlite3 table entry
-    df[column] = df[column].apply(lambda author : str(filter(lambda a: a !='', author)))
+    df[column] = df[column].apply(reformatAuthors)
+    
+    #df[column] = df[column].apply(lambda author : )
+    
+    df[column] = df[column].apply(str)
     
     return df
 
@@ -99,15 +113,65 @@ def reparseAffiliations(data_frame, column = 'Author affiliation'):
                 '''
     df = data_frame
     
-    #keep alphacharacters and comma.  Remove digits, and split on white space
-    #cannot strip on ',' as lose the initials of each author
-    
-    #df[column] = df[column].apply(lambda affiliation: str(affiliation).split('1', 1)[1].strip())
-    for row in df[column]:
+    def reformatAffiliation(a):
         try:
-            row
-    #return as a single string for sqlite3 table entry
-    df[column] = df[column].apply(lambda affiliation : str(affiliation))
+            a = str(a).split('1', 1)[1].strip()
+            return str(a)
+        except:
+            return None
+    
+    df[column] = df[column].apply(reformatAffiliation)
+    df[column] = df[column].apply(str)
+    return df
+
+def reparseTerms(data_frame, column = 'terms'):
+    '''TO remove the superscripts that remained as well as separate
+        multiple authors
+        
+        : param data_frame : Pandas DataFrame. Frame that has been parsed 
+                from patent txt file.  Authors needs to be further parsed
+        : param column : str. String name of column to be reparsed 
+                default = 'Authors'  To remove remaining superscript numbers
+                            separate the authors keeping initials
+        : output : original DataFrame with authors reparsed.  Each row a str
+                so can read into sqliteDB
+                '''
+    df = data_frame
+    
+    def reformatTerms(terms):
+        from itertools import chain
+        try:
+            terms = [entry.split(' - ') for entry in terms]
+            return list(chain(*terms))
+        except:
+            return 'ERROR' + str(terms)
+        
+    df[column] = df[column].apply(reformatTerms)
+    
+    return df
+
+def reparseCodes(data_frame, column = 'Classification Code'):
+    '''TO remove the superscripts that remained as well as separate
+        multiple authors
+        
+        : param data_frame : Pandas DataFrame. Frame that has been parsed 
+                from patent txt file.  Authors needs to be further parsed
+        : param column : str. String name of column to be reparsed 
+                default = 'Authors'  To remove remaining superscript numbers
+                            separate the authors keeping initials
+        : output : original DataFrame with authors reparsed.  Each row a str
+                so can read into sqliteDB
+                '''
+    df = data_frame
+    
+    def reformatcode(classcodes):
+        try:
+            codes = [x.split(' ',1)[1] for x in classcodes.split('   ')]
+            return codes
+        except:
+            return classcodes
+        
+    df[column] = df[column].apply(reformatcode)
     
     return df
 
@@ -127,9 +191,16 @@ def makeAbstrDF(absDictionary, fname):
     df['Conf'] = conf
     df['year'] = year
     
-    #reparseAuthors
+    #Now to reformat and parse each column appropriately
     df = reparseAuthors(df)
     df = reparseAffiliations(df)
+    df = reparseTerms(df)
+    df = reparseCodes(df)
+    
+    df['terms'] = (df['terms'] + df['Classification Code']).apply(str)
+    del df['Classification Code']
+
+    
     return df
 
 
