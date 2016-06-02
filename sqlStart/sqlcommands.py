@@ -9,8 +9,8 @@ import pandas as pd
     Abstracts Data parsed into a DataFrame'''
 
 DEFAULTDB = 'Abstracts_DB.db'
-
-def parseDataFrame(hdffile = '../DataBaseParsing/DFstore2.h5', 
+DEFAULTHDF = '../DataBaseParsing/DFstore3.h5'
+def parseDataFrame(hdffile = DEFAULTHDF, 
                    key = 'df'):
     '''Parse a h5 file into readble rows for a Abstracts Table.
        : param hdffile : str. directory location of the h5 file
@@ -79,15 +79,13 @@ def createTOTALTable(entries,
                     Authors TEXT, \
                     'Classification Code' TEXT, \
                     Conf TEXT, \
-                    Database TEXT, \
-                    Source TEXT, \
                     Title TEXT, \
                     terms TEXT,\
                     year INT\
                     )");
 
         cur.executemany("INSERT INTO " +  table +  
-                        " VALUES(?,?,?,?,?,?,?,?,?,?,?)", entries )
+                        " VALUES(?,?,?,?,?,?,?,?,?)", entries )
         
         sql = "SELECT * FROM " + table
         df = pd.read_sql_query(sql, con)
@@ -222,20 +220,18 @@ def createAbstractsTable(entries ,
                     conf TEXT NOT NULL, \
                     abstract TEXT, \
                     title TEXT, \
-                    source TEXT, \
-                    authors TEXT, \
                     FOREIGN KEY(pubYear) REFERENCES '%s', \
                     FOREIGN KEY(conf) REFERENCES '%s'(confName))" % (foreignKey, foreignKey)); 
         
         print('Created %s table' %table);
         
         #insert into the table
-        for idx, abstr, aFil, aus, code, conf, db, source, title, keys, year in entries:
+        for idx, abstr, aFil, aus, code, conf, title, keys, year in entries:
             
             cur.execute("INSERT INTO " + table + 
-                        "(pubYear, conf, abstract, title, source, authors) \
-                        VALUES ('%d','%s', '%s', '%s', '%s', '%s')" 
-                        %(year, conf, abstr, title, source, aus))
+                        "(pubYear, conf, abstract, title) \
+                        VALUES ('%d','%s', '%s', '%s')" 
+                        %(year, conf, abstr, title))
         
         print "Records created successfully";
         

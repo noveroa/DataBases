@@ -1,6 +1,7 @@
 import pandas as pd
 import sqlite3
 
+DEFAULTDB = 'Abstracts_DB.db'
 ''' Attempt to play with terms data
   using set and strips to get into single instances of each terms.
   - Will need to first strip each row entry and then and send to table.
@@ -40,7 +41,7 @@ def parseTerms(tableDF, keyword = 'terms'):
     
     
 def createKEYSTable(entries, 
-                    db = 'db.db', 
+                    db = DEFAULTDB, 
                     table = 'KEYS' ):
     ''' Creating the KEYS Table with 
         keyID as AUTOINCREMENTED PRIMARY KEY, 
@@ -70,7 +71,7 @@ def createKEYSTable(entries,
             cur.execute("INSERT INTO " + table + 
                         "(keyword)\
                         VALUES ('%s')" %keyword);
-            print 'Entry %s added' %keyword
+            #print 'Entry %s added' %keyword
         
         print "Records created successfully";
         

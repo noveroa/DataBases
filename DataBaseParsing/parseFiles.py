@@ -6,14 +6,16 @@ import sys
 import re
 import pandas as pd
 
-regXstripper = re.compile('[^a-zA-Z0-9]')
-setLabels = ['affiliation', 'Source', 'Abstract', 'terms', 'Database', 'Classification Code']
+
+regXstripper = re.compile('[^a-zA-Z0-9\,]')
+
+setLabels = ['affiliation', 'Abstract', 'terms', 'Classification Code']
 
 def parseFile(input, Labels = setLabels):
     ''' Recast the abstract dictionary as a Pandas DataFrame
         : param input : .txt file from scientific abstracts 
         : param Labels : ['str']. List of only using pre-set labels to parse as strings.
-                : default : ['title', 'authors', 'affiliation', 'Source', 'Abstract', 'terms', 'Database', 'code']
+                : default : ['affiliation', 'Abstract', 'terms', 'Classification Code']
                 
         : output : Python Dictionary of Dictionaries
                 : primary key: value ===> abstractID : Python Dictionary
@@ -29,7 +31,7 @@ def parseFile(input, Labels = setLabels):
         for line in f:
             if line[0].isdigit():
                 #Only Title Lines Begin with Digit.
-                entry['terms'] = terms
+                entry['terms'] = str(terms) #cast as a string for entry to sqlite3 table
                 abstracts[i-1] = entry
                 entry = {}
                 #Title Lines are followed by Authors
@@ -58,6 +60,31 @@ def parseFile(input, Labels = setLabels):
     
     return abstracts
 
+
+def reparseAuthors(data_frame, column = 'Authors'):
+    '''TO remove the superscripts that remained as well as separate
+        multiple authors
+        
+        : param data_frame : Pandas DataFrame. Frame that has been parsed 
+                from patent txt file.  Authors needs to be further parsed
+        : param column : str. String name of column to be reparsed 
+                default = 'Authors'  To remove remaining superscript numbers
+                            separate the authors keeping initials
+        : output : original DataFrame with authors reparsed.  Each row a str
+                so can read into sqliteDB
+                '''
+    df = data_frame
+    
+    #keep alphacharacters and comma.  Remove digits, and split on white space
+    #cannot strip on ',' as lose the initials of each author
+    alphaComma = re.compile('[^a-zA-Z\,]')
+    df[column] = df[column].apply(lambda authors: alphaComma.sub(' ', authors).split('  '))
+    
+    #filter out empty strings, return as a single string for sqlite3 table entry
+    df[column] = df[column].apply(lambda author : str(filter(lambda a: a !='', author)))
+    
+    return df
+
 def makeAbstrDF(absDictionary, fname):
     ''' Recast the abstract dictionary as a Pandas DataFrame
         : param absDictionary : Python Dictionary of Dictionaries (see documentation above). 
@@ -73,8 +100,9 @@ def makeAbstrDF(absDictionary, fname):
     conf, year = name[:-4], name[-4:]
     df['Conf'] = conf
     df['year'] = year
-    #so can use in sqlite (no list type)
-    df['terms'] = df.terms.apply(str)
+    
+    #reparseAuthors
+    df = reparseAuthors(df)
     
     return df
 
