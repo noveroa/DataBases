@@ -8,6 +8,7 @@ import pandas as pd
 
 
 regXstripper = re.compile('[^a-zA-Z0-9\,]')
+alphaComma = re.compile('[^a-zA-Z\,]')
 
 setLabels = ['affiliation', 'Abstract', 'terms', 'Classification Code']
 
@@ -75,7 +76,7 @@ def reparseAuthors(data_frame, column = 'Authors'):
                 '''
     df = data_frame
     
-    alphaComma = re.compile('[^a-zA-Z\,]')
+    
     #keep alphacharacters and comma.  Remove digits, and split on white space
     #cannot strip on ',' as lose the initials of each author
     def reformatAuthors(authors):
@@ -167,6 +168,7 @@ def reparseCodes(data_frame, column = 'Classification Code'):
     def reformatcode(classcodes):
         try:
             codes = [x.split(' ',1)[1] for x in classcodes.split('   ')]
+            codes = [alphaComma.sub(' ', c).strip() for c in codes] 
             return codes
         except:
             return classcodes

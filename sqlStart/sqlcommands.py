@@ -77,7 +77,6 @@ def createTOTALTable(entries,
                     Abstract TEXT, \
                     'Author affiliation' TEXT, \
                     Authors TEXT, \
-                    'Classification Code' TEXT, \
                     Conf TEXT, \
                     Title TEXT, \
                     terms TEXT,\
@@ -85,7 +84,7 @@ def createTOTALTable(entries,
                     )");
 
         cur.executemany("INSERT INTO " +  table +  
-                        " VALUES(?,?,?,?,?,?,?,?,?)", entries )
+                        " VALUES(?,?,?,?,?,?,?,?)", entries )
         
         sql = "SELECT * FROM " + table
         df = pd.read_sql_query(sql, con)
@@ -221,12 +220,12 @@ def createAbstractsTable(entries ,
                     abstract TEXT, \
                     title TEXT, \
                     FOREIGN KEY(pubYear) REFERENCES '%s', \
-                    FOREIGN KEY(conf) REFERENCES '%s'(confName))" % (foreignKey, foreignKey)); 
+                    FOREIGN KEY(conf) REFERENCES '%s'(confName))" % (foreignKey, foreignKey)); ##authors ids?
         
         print('Created %s table' %table);
         
         #insert into the table
-        for idx, abstr, aFil, aus, code, conf, title, keys, year in entries:
+        for idx, abstr, aFil, aus, conf,title,terms, year in entries:
             
             cur.execute("INSERT INTO " + table + 
                         "(pubYear, conf, abstract, title) \
@@ -240,3 +239,43 @@ def createAbstractsTable(entries ,
         
         #return table as Pandas DataFrame for inspection
         return df 
+    
+def createKEYSTable(entries, 
+                    db = DEFAULTDB, 
+                    table = 'KEYS' ):
+    ''' Creating the KEYS Table with 
+        keyID as AUTOINCREMENTED PRIMARY KEY, 
+                #paperID with FOREIGN KEY reference <<--- doesn't exit yet
+                                  or does the paer have the keyID as a FK
+            
+         : param entries : list of list of terms
+             : see above
+         : param db : str. Name of db. (ie. 'Abstracts.db')
+             : default 'Abstracts_DB.db'
+         : param table : str. Name of Table to create or insert.
+         
+         : output : Pandas DataFrame as output for inspection
+     '''
+
+    with sqlite3.connect(db) as con:
+        print ("Opened %s database successfully" %db); 
+        cur = con.cursor() 
+        #drops the Abstracts table if it exist in db already
+        cur.execute("DROP TABLE IF EXISTS " + table)
+        #and recreates it
+        cur.execute("CREATE TABLE " + table + "(\
+        keyID INTEGER PRIMARY KEY AUTOINCREMENT, \
+        keyword TEXT NOT NULL)") 
+        
+        for keyword in entries:
+            cur.execute("INSERT INTO " + table + 
+                        "(keyword)\
+                        VALUES ('%s')" %keyword);
+            #print 'Entry %s added' %keyword
+        
+        print "Records created successfully";
+        
+        #return table as Pandas DataFrame for inspection
+        sql = "SELECT * FROM " + table
+        df = pd.read_sql_query(sql, con)
+        return df
