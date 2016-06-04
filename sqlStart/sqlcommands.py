@@ -9,24 +9,24 @@ import pandas as pd
     Abstracts Data parsed into a DataFrame'''
 
 DEFAULTDB = 'Abstracts_DB.db'
-DEFAULTHDF = '../DataBaseParsing/DFstore3.h5'
-def parseDataFrame(hdffile = DEFAULTHDF, 
-                   key = 'df'):
+DEFAULTHDF = '../DataBaseParsing/DFstore4.h5'
+
+
+def getPatentDataFrame(hdffile = DEFAULTHDF, 
+                       key = 'df'):
     '''Parse a h5 file into readble rows for a Abstracts Table.
        : param hdffile : str. directory location of the h5 file
                default : '../DataBaseParsing/DFstore.h5'
        : param key : str. h5 key for the DF with data.
                default : 'df'
+               
+       : output : Pandas Dataframe! 
     '''
     
     totalDF = pd.read_hdf(hdffile, key)
     print(totalDF.shape)
-    
-    rows = []
-    for x in totalDF.itertuples():
-        rows.extend([x])
         
-    return rows
+    return totalDF
     
 
 def sqlCMDToPD(table, 
@@ -52,20 +52,21 @@ def sqlCMDToPD(table,
 
 
 
-def createTOTALTable(entries, 
-                      db = DEFAULTDB,
-                      table = 'ABSTRACTSTOTAL'):
+def createTOTALTable(db = DEFAULTDB,
+                     table = 'ABSTRACTSTOTAL',
+                     data_frame = getPatentDataFrame()):
     '''Add entries to the given db
-       : param entries : list of tuples 
+        
        : param db : str. Name of db. (ie. 'Abstracts.db'
        : param table : str. Name of Table to create or insert.
-           : [(1, 'Audi', 'A', 'B', 'C', 'D', 'E', 'F', 'G'),
-              (2, 'Passat', 'H', 'I', 'C', 'D', 'J', 'K', 'Z')
-              ]
+       : param data_frame : Pandas DataFrame. Insert into given table by row.
        
-      : output : Pandas DataFrame for inspection
+       
+       : output : Pandas DataFrame for inspection, 
+       : output : sql table created with rows inserted.
       
     '''
+  
     with sqlite3.connect(db) as con:
         cur = con.cursor() 
         #drops the Abstracts table if it exist in db already
@@ -73,7 +74,6 @@ def createTOTALTable(entries,
         #and recreates it
         cur.execute("CREATE TABLE " + table +
                     "(\
-                    ID INT, \
                     Abstract TEXT, \
                     'Author affiliation' TEXT, \
                     Authors TEXT, \
@@ -83,8 +83,10 @@ def createTOTALTable(entries,
                     year INT\
                     )");
 
-        cur.executemany("INSERT INTO " +  table +  
-                        " VALUES(?,?,?,?,?,?,?,?)", entries )
+        data_frame.to_sql(table, con, flavor='sqlite', 
+                       schema=None, if_exists='append', 
+                       index=False, index_label=None,
+                       chunksize=None, dtype=None)
         
         sql = "SELECT * FROM " + table
         df = pd.read_sql_query(sql, con)
@@ -92,19 +94,26 @@ def createTOTALTable(entries,
         #return table as Pandas DataFrame for inspection
         return df  
 
-def createConfTable(entries, 
-                    db = DEFAULTDB, 
-                    table = 'CONFERENCES' ):
+def createConfTable(data_frame,
+                    db = 'test.db', 
+                    DFCol = 'Conf',
+                    table = 'CONFERENCES',
+                    tableCol = ['confName']
+                  ):
     
     ''' Creating the CONFERENCES Table with AutoIncremented PRIMARY Key as ConfID
-         : param entries : list of str. Unique Conference Names, 
-             : default the result of groupby on main table
+         : param data_frame : Pandas DataFrame from which to create the CONFERENCE TABLE
          : param db : str. Name of db. (ie. 'Abstracts.db')
-             : default 'TestAbstracts.db'
+             : default 'test.db'
+         : param DFCol : string Column name of data_frame with information.
+             : default = 'Conf'
+             : alternatively : enter with already unique table.
          : param table : str. Name of Table to create or insert.
              : default : CONFERENCES
+         : param tableCol : tuple of str. Table keyword as a tuple of string
          
          : output : Pandas DataFrame as output for inspection
+         : output : sql table created with rows inserted.
          '''
     
     with sqlite3.connect(db) as con:
@@ -116,39 +125,43 @@ def createConfTable(entries,
         cur.execute("CREATE TABLE " + table + "(\
         confID INTEGER PRIMARY KEY AUTOINCREMENT, \
         confName TEXT NOT NULL)") 
+    
+        dfConf = pd.DataFrame(data_frame[DFCol].unique(), columns = tableCol)
+        print ('Created DataFrame')
+    
+        dfConf.to_sql(table, con, flavor='sqlite', 
+                    schema=None, if_exists='append', 
+                    index=False, index_label=None,
+                    chunksize=None, dtype=None)
+        print("Records created successfully");
         
-        for conference in entries:
-            name = conference
-            cur.execute("INSERT INTO " + table + 
-                        "(confName)\
-                        VALUES ('%s')" %name);
-            print 'Entry %s added' %name
-        
-        print "Records created successfully";
+    sql = "SELECT * FROM " + table
+    df = pd.read_sql_query(sql, con)
         
         #return table as Pandas DataFrame for inspection
-        sql = "SELECT * FROM " + table
-        df = pd.read_sql_query(sql, con)
-        return df
+    return df  
         
-def createPublicationsTable(entries, 
-                            db = DEFAULTDB, 
-                            table = 'PUBLICATIONS', 
+def createPublicationsTable(data_frame, 
+                            db = DEFAULTDB,
+                            DFCol = ('Conf', 'year'),
+                            table = 'PUBLICATIONS',
+                            tableCol = ['confName', 'year'],
                             foreignKey = 'CONFERENCES'):
-    
-    ''' Creating the Publications Table with 
-                pubID as AUTOINCREMENTED PRIMARY KEY, 
-                confName with FOREIGN KEY reference
-            
-         : param entries : list of tuples: 
-             (Conference Name: Year of Publication)
-             : default the result of groupby on main table
-         : param db : str. Name of db. (ie. 'Abstracts.db')
-             : default 'TestAbstracts.db'
-         : param table : str. Name of Table to create or insert.
+    ''' Creating the PUBLICATIONS Table with AutoIncremented PRIMARY Key as pubID
+             : param data_frame : Pandas DataFrame from which to create the PUBLICATIONS TABLE
+             : param db : str. Name of db. (ie. 'Abstracts.db')
+                 : default 'test.db'
+             : param DFCol : tuple of strings Column names of data_frame with groupby cols.
+                 : default = 'Conf'
+                 : alternatively : enter with already unique table.
+             : param table : str. Name of Table to create or insert.
+                 : default : PUBLICATIONS
+             : param tableCols : tuple of str. Table keywords as tuple of strings
+                 : default  : ('confName', 'year')
+             : param foreignKey : str . Name of Foreign key table as str
          
-         : output : Pandas DataFrame as output for inspection
-           
+             : output : Pandas DataFrame as output for inspection
+             : output : sql table created with rows inserted.
     '''
     with sqlite3.connect(db) as con:
         print ("Opened %s database successfully" %db);
@@ -156,7 +169,7 @@ def createPublicationsTable(entries,
         #drops the Abstracts table if it exist in db already
         cur.execute("DROP TABLE IF EXISTS " + table)
         print ('table dropped')
-        
+    
         
         #create the table
         cur.execute("CREATE TABLE " + table + 
@@ -166,29 +179,27 @@ def createPublicationsTable(entries,
                     FOREIGN KEY(confName) REFERENCES '%s'(confID))" % foreignKey); 
         
         print('Created %s table' %table);
-        
+        data = list(data_frame.groupby(DFCol).count().index.get_values())
+        dfPubs = pd.DataFrame(data, columns = tableCol)
+        print('Created DataFrame')
         #insert into the table
-        for confName, year in entries:
-            #print('Conference %s' %confName)
-            cur.execute("INSERT INTO " + table + 
-                        "(year, confName) \
-                        VALUES ('%s','%s')" %(year, confName))
-            #print ('Entry %d added' %year)
+        dfPubs.to_sql(table, con, flavor='sqlite', 
+                    schema=None, if_exists='append', 
+                    index=False, index_label=None,
+                    chunksize=None, dtype=None)
+        print("Records created successfully");
         
-        print "Records created successfully";
-        
-        sql = "SELECT * FROM " + table
-        df = pd.read_sql_query(sql, con)
+    sql = "SELECT * FROM " + table
+    dfPubs = pd.read_sql_query(sql, con)
         
         #return table as Pandas DataFrame for inspection
-        return df           
+    return dfPubs           
 
     
 def createAbstractsTable(entries ,
                          db = DEFAULTDB,
                          table = 'ABSTRACTS',
                          foreignKey = 'PUBLICATIONS'):
-    
     ''' Creating the Publications Table with 
                 pubID as AUTOINCREMENTED PRIMARY KEY, 
                 pubYear as FOREIGN KEY reference to year in PUBLICATIONS
@@ -240,23 +251,50 @@ def createAbstractsTable(entries ,
         #return table as Pandas DataFrame for inspection
         return df 
     
-def createKEYSTable(entries, 
+def createKEYSTable(data_frame, 
                     db = DEFAULTDB, 
-                    table = 'KEYS' ):
+                    DFCol = 'terms',
+                    table = 'KEYS' ,
+                    tableCol = ['keyword']
+                   ):
     ''' Creating the KEYS Table with 
         keyID as AUTOINCREMENTED PRIMARY KEY, 
-                #paperID with FOREIGN KEY reference <<--- doesn't exit yet
-                                  or does the paer have the keyID as a FK
-            
-         : param entries : list of list of terms
-             : see above
-         : param db : str. Name of db. (ie. 'Abstracts.db')
-             : default 'Abstracts_DB.db'
-         : param table : str. Name of Table to create or insert.
+             : param data_frame : Pandas DataFrame from which to create the KEYS TABLE
+             : param db : str. Name of db. (ie. 'Abstracts.db')
+                 : default 'test.db'
+             : param DFCol : tuple of strings Column names of data_frame with groupby cols.
+                 : default = 'terms'
+                 : alternatively : enter with already unique table.
+             : param table : str. Name of Table to create or insert.
+                 : default : KEYS
+             : param tableCols : tuple of str. Table keywords as tuple of strings
+                 : default  : ('keyword')
+             
+             :***NEED TO CREATE COMPOSITE***
          
-         : output : Pandas DataFrame as output for inspection
-     '''
-
+             : output : Pandas DataFrame as output for inspection
+             : output : sql table created with rows inserted.
+         '''
+    
+    def findTermSet(data_frame, DFCol = DFCol):
+        ''' Parse the TOTALABSTRACTS table dataframe terms column.
+        Create a single set of all terms
+        
+        : param tableDF : a Pandas DataFrame (ie TOTALABSTRACTS table as DF)
+        : param keyword : column name to be recast and set of terms found from
+        
+        : output : a master set of terms set as a list (no duplicates)
+        '''
+    
+        
+    
+        #recast - since made a string during the entry into the sqlite db.
+        terms = data_frame[DFCol].apply(lambda x: set([ e.strip(' \'') for e in x.strip('[]\'').split(',')]))
+    
+        #create a single set
+        termset = list(frozenset().union(*terms))
+        return pd.DataFrame(termset, columns = tableCol)
+    
     with sqlite3.connect(db) as con:
         print ("Opened %s database successfully" %db); 
         cur = con.cursor() 
@@ -267,15 +305,160 @@ def createKEYSTable(entries,
         keyID INTEGER PRIMARY KEY AUTOINCREMENT, \
         keyword TEXT NOT NULL)") 
         
-        for keyword in entries:
-            cur.execute("INSERT INTO " + table + 
-                        "(keyword)\
-                        VALUES ('%s')" %keyword);
-            #print 'Entry %s added' %keyword
+        keyDF1 = findTermSet(data_frame)
         
-        print "Records created successfully";
+        print keyDF1.head()
+        print('Created DataFrame')
+        #insert into the table
+        keyDF1.to_sql(table, con, flavor='sqlite', 
+                    schema=None, if_exists='append', 
+                    index=False, index_label=None,
+                    chunksize=None, dtype=None)
+        print("Records created successfully");
+        
+    sql = "SELECT * FROM " + table
+    dfKeys = pd.read_sql_query(sql, con)
         
         #return table as Pandas DataFrame for inspection
-        sql = "SELECT * FROM " + table
-        df = pd.read_sql_query(sql, con)
-        return df
+    return dfKeys  
+
+def createAUTHORSTable(data_frame, 
+                    db = DEFAULTDB, 
+                    DFCol = 'Authors',
+                    table = 'AUTHORS' ,
+                    tableCol = ['AuthorName']
+                   ):
+    ''' Creating the AUTHORS Table with 
+            authorID as AUTOINCREMENTED PRIMARY KEY, 
+             : param data_frame : Pandas DataFrame from which to create the AUTHORS TABLE
+             : param db : str. Name of db. (ie. 'Abstracts.db')
+                 : default 'test.db'
+             : param DFCol : tuple of strings Column names of data_frame with groupby cols.
+                 : default = 'Authors'
+                 : alternatively : enter with already unique table.
+             : param table : str. Name of Table to create or insert.
+                 : default : AUTHORS
+             : param tableCols : tuple of str. Table keywords as tuple of strings
+                 : default  : ('AuthoName')
+             : **NEED TO CREATE COMPOSITE **
+         
+             : output : Pandas DataFrame as output for inspection
+             : output : sql table created with rows inserted.
+         '''
+    
+    def findAuthorsSet(data_frame, DFCol = DFCol):
+        ''' Parse the TOTALABSTRACTS table dataframe terms column.
+        Create a single set of all terms
+        
+        : param data_frame : a Pandas DataFrame (ie TOTALABSTRACTS table as DF)
+        : param DFCol : column name to be recast and set of terms found from
+        
+        : output : a master set of terms set as a list (no duplicates)
+        '''
+        import re
+        commaQuote = re.compile('[\',]')
+        
+    
+        #recast - since made a string during the entry into the sqlite db.
+        authors = data_frame[DFCol].apply(lambda a: a.strip("[]'"))
+        authors = authors.apply(lambda x: filter(lambda a: a != '',
+                                                  commaQuote.sub(' ', x).split('   ')))
+        
+        
+        #create single set and remove leading white space
+        authors = list(frozenset().union(*authors))
+        authors = [anew.strip(' ') for anew in authors]
+        #need to reset becuase of the white space
+        return list(set(authors))
+    with sqlite3.connect(db) as con:
+        print ("Opened %s database successfully" %db); 
+        cur = con.cursor() 
+        #drops the Authors table if it exist in db already
+        cur.execute("DROP TABLE IF EXISTS " + table)
+        #and recreates it
+        cur.execute("CREATE TABLE " + table + "(\
+        authorID INTEGER PRIMARY KEY AUTOINCREMENT, \
+        AuthorName TEXT \
+        )") 
+        authors = findAuthorsSet(data_frame)
+        print ('Author set created')
+        
+        #only take 1 -> becuase first is empty
+        authorsDF = pd.DataFrame(authors[1:], columns = tableCol)
+        
+        #insert into the table
+        authorsDF.to_sql(table, con, flavor='sqlite', 
+                    schema=None, if_exists='append', 
+                    index=False, index_label=None,
+                    chunksize=None, dtype=None)
+        print("Records created successfully");
+        
+    sql = "SELECT * FROM " + table
+    dfAuthors = pd.read_sql_query(sql, con)
+        
+    #return table as Pandas DataFrame for inspection
+    return authors, dfAuthors
+
+def createAFFILIATIONTable(data_frame, 
+                    db = 'test3.db', 
+                    DFCol = 'Author affiliation',
+                    table = 'AFFILIATIONS' ,
+                    tableCol = ['affiliation']
+                   ):
+    ''' Creating the AFFILIATIONS Table with 
+        keyID as AUTOINCREMENTED PRIMARY KEY, 
+             : param data_frame : Pandas DataFrame from which to create the AFFILIATIONS TABLE
+             : param db : str. Name of db. (ie. 'Abstracts.db')
+                 : default 'test.db'
+             : param DFCol : tuple of strings Column names of data_frame with groupby cols.
+                 : default = 'Author affiliation'
+                 : alternatively : enter with already unique table.
+             : param table : str. Name of Table to create or insert.
+                 : default : AFFILATIONS
+             : param tableCols : tuple of str. Table keywords as tuple of strings
+                 : default  : ('affiliation')
+             
+             : output : Pandas DataFrame as output for inspection
+             : output : sql table created with rows inserted.
+         '''
+    
+    def findAffiliationSet(data_frame, DFCol = DFCol):
+        ''' Parse the TOTALABSTRACTS table dataframe terms column.
+        Create a single set of all terms
+        
+        : param tableDF : a Pandas DataFrame (ie TOTALABSTRACTS table as DF)
+        : param keyword : column name to be recast and set of terms found from
+        
+        : output : a master set of terms set as a list (no duplicates)
+        '''
+        #recast - since made a string during the entry into the sqlite db.
+        affiliation = data_frame[DFCol]
+    
+        #create unique using .unique()
+        
+        return pd.DataFrame(affiliation.unique(), columns = tableCol)
+    
+    with sqlite3.connect(db) as con:
+        print ("Opened %s database successfully" %db); 
+        cur = con.cursor() 
+        #drops the Abstracts table if it exist in db already
+        cur.execute("DROP TABLE IF EXISTS " + table)
+        #and recreates it
+        cur.execute("CREATE TABLE " + table + "(\
+        affilID INTEGER PRIMARY KEY AUTOINCREMENT, \
+        affiliation TEXT NOT NULL)") 
+        
+        affilDF = findAffiliationSet(data_frame)
+        print('Created DataFrame')
+        #insert into the table
+        affilDF.to_sql(table, con, flavor='sqlite', 
+                    schema=None, if_exists='append', 
+                    index=False, index_label=None,
+                    chunksize=None, dtype=None)
+        print("Records created successfully");
+        
+    sql = "SELECT * FROM " + table
+    dfAffil = pd.read_sql_query(sql, con)
+        
+        #return table as Pandas DataFrame for inspection
+    return dfAffil

@@ -10,7 +10,7 @@ import pandas as pd
 regXstripper = re.compile('[^a-zA-Z0-9\,]')
 alphaComma = re.compile('[^a-zA-Z\,]')
 
-setLabels = ['affiliation', 'Abstract', 'terms', 'Classification Code']
+setLabels = ['affiliation', 'Abstract', 'terms', 'Classification']
 
 def parseFile(input, Labels = setLabels):
     ''' Recast the abstract dictionary as a Pandas DataFrame
@@ -84,7 +84,7 @@ def reparseAuthors(data_frame, column = 'Authors'):
         try:
             authors =  alphaComma.sub(' ', authors).split('  ')
             try:
-                authors = str(filter(lambda a: a !='', authors))
+                authors = str(filter(lambda a: a !=' ', authors))
                 return authors
             except:
                 return authors
@@ -171,7 +171,7 @@ def reparseCodes(data_frame, column = 'Classification Code'):
             codes = [alphaComma.sub(' ', c).strip() for c in codes] 
             return codes
         except:
-            return classcodes
+            return [classcodes]
         
     df[column] = df[column].apply(reformatcode)
     
