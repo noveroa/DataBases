@@ -95,7 +95,7 @@ def createTOTALTable(db = DEFAULTDB,
         return df  
 
 def createConfTable(data_frame,
-                    db = 'test.db', 
+                    db = DEFAULTDB, 
                     DFCol = 'Conf',
                     table = 'CONFERENCES',
                     tableCol = ['confName']
@@ -196,60 +196,7 @@ def createPublicationsTable(data_frame,
     return dfPubs           
 
     
-def createAbstractsTable(entries ,
-                         db = DEFAULTDB,
-                         table = 'ABSTRACTS',
-                         foreignKey = 'PUBLICATIONS'):
-    ''' Creating the Publications Table with 
-                pubID as AUTOINCREMENTED PRIMARY KEY, 
-                pubYear as FOREIGN KEY reference to year in PUBLICATIONS
-                conf with FOREIGN KEY reference to confName in PUBLICATIONS
-                
-            
-         : param entries : the ABSTRACTSTOTAL table as a matrix 
-         : param db : str. Name of db. (ie. 'Abstracts.db')
-             : default 'TestAbstracts.db'
-         : param table : str. Name of Table to create or insert.
-         : param foreignKey : str. 
-         
-         : output : Pandas DataFrame as output for inspection
-           
-    '''
-    with sqlite3.connect(db) as con:
-        print ("Opened %s database successfully" %db);
-        cur = con.cursor() 
-        #drops the Abstracts table if it exist in db already
-        cur.execute("DROP TABLE IF EXISTS " + table)
-        print ('table dropped')
-        
-        
-        #create the table
-        cur.execute("CREATE TABLE " + table + 
-                    "(pubID INTEGER PRIMARY KEY AUTOINCREMENT, \
-                    pubYear INT NOT NULL, \
-                    conf TEXT NOT NULL, \
-                    abstract TEXT, \
-                    title TEXT, \
-                    FOREIGN KEY(pubYear) REFERENCES '%s', \
-                    FOREIGN KEY(conf) REFERENCES '%s'(confName))" % (foreignKey, foreignKey)); ##authors ids?
-        
-        print('Created %s table' %table);
-        
-        #insert into the table
-        for idx, abstr, aFil, aus, conf,title,terms, year in entries:
-            
-            cur.execute("INSERT INTO " + table + 
-                        "(pubYear, conf, abstract, title) \
-                        VALUES ('%d','%s', '%s', '%s')" 
-                        %(year, conf, abstr, title))
-        
-        print "Records created successfully";
-        
-        sql = "SELECT * FROM " + table
-        df = pd.read_sql_query(sql, con)
-        
-        #return table as Pandas DataFrame for inspection
-        return df 
+
     
 def createKEYSTable(data_frame, 
                     db = DEFAULTDB, 
@@ -400,7 +347,7 @@ def createAUTHORSTable(data_frame,
     return authors, dfAuthors
 
 def createAFFILIATIONTable(data_frame, 
-                    db = 'test3.db', 
+                    db = DEFAULTDB, 
                     DFCol = 'Author affiliation',
                     table = 'AFFILIATIONS' ,
                     tableCol = ['affiliation']
@@ -462,3 +409,67 @@ def createAFFILIATIONTable(data_frame,
         
         #return table as Pandas DataFrame for inspection
     return dfAffil
+
+
+def createPAPERTable(data_frame,
+                         db = 'DEFAULTDB', 
+                         DFCol = ['Abstract','Title','terms','Authors',
+                                  'Author affiliation','year','Conf'],
+                         table = 'PAPER',
+                         tableCol = ['abstract','title','terms',
+                                     'authors', 'affiliation','pubYear','confName'],
+                         foreignKey = ['PUBLICATIONS','CONFERENCES']):
+    ''' Creating the PAPER Table with AutoIncremented PRIMARY Key as paperID
+             : param data_frame : Pandas DataFrame from which to create the PUBLICATIONS TABLE
+             : param db : str. Name of db. (ie. 'Abstracts.db')
+                 : default 'test.db'
+             : param DFCol : tuple of strings Column names of data_frame with groupby cols.
+                 : default = ['Abstract','Title','terms','year','Conf']
+                 : alternatively : enter with already unique table.
+             : param table : str. Name of Table to create or insert.
+                 : default : PAPER
+             : param tableCols : tuple of str. Table keywords as tuple of strings
+                 : default  : ['abstract','title','terms','pubYear','confName']
+             : param foreignKey : str . Name of Foreign key table as str
+                 : ['PUBLICATIONS','CONFERENCES']
+             : output : Pandas DataFrame as output for inspection
+             : output : sql table created with rows inserted.
+    '''
+    with sqlite3.connect(db) as con:
+        print ("Opened %s database successfully" %db);
+        cur = con.cursor() 
+        #drops the Abstracts table if it exist in db already
+        cur.execute("DROP TABLE IF EXISTS " + table)
+        print ('table dropped')
+        #create the table
+        cur.execute("CREATE TABLE " + table +"(\
+                    paperID INTEGER PRIMARY KEY AUTOINCREMENT, \
+                    abstract TEXT, \
+                    title TEXT, \
+                    terms TEXT,\
+                    authors TEXT,\
+                    affiliation TEXT,\
+                    pubYear INT,\
+                    confName TEXT,\
+                    FOREIGN KEY(pubYear) REFERENCES '%s'(pubID), \
+                    FOREIGN KEY(confName) REFERENCES '%s'(confID))" % (foreignKey[0], foreignKey[1])
+                    ); ##authors ids?
+        
+        print('Created %s table' %table);
+        
+        data = list(data_frame.groupby(DFCol).count().index.get_values())
+        dfPaper = pd.DataFrame(data, columns = tableCol)
+        print('Created DataFrame')
+        #insert into the table
+        dfPaper.to_sql(table, con, flavor='sqlite', 
+                    schema=None, if_exists='append', 
+                    index=False, index_label=None,
+                    chunksize=None, dtype=None)
+        print("Records created successfully");
+        
+    sql = "SELECT * FROM " + table
+    dfpaperkey = pd.read_sql_query(sql, con)
+        
+        #return table as Pandas DataFrame for inspection
+    return dfpaperkey 
+
