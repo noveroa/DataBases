@@ -412,7 +412,7 @@ def createAFFILIATIONTable(data_frame,
 
 
 def createPAPERTable(data_frame,
-                         db = 'DEFAULTDB', 
+                         db = DEFAULTDB, 
                          DFCol = ['Abstract','Title','terms','Authors',
                                   'Author affiliation','year','Conf'],
                          table = 'PAPER',
