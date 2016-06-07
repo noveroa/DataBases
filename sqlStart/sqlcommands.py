@@ -473,3 +473,72 @@ def createPAPERTable(data_frame,
         #return table as Pandas DataFrame for inspection
     return dfpaperkey 
 
+def createPAPERKEYTable(data_frame, 
+                    db = DEFAULTDB, 
+                    DFCol = ['paperID','terms'],
+                    table = 'PAPERKEY' ,
+                    tableCol = ['paperID', 'keyword'],
+                    foreignKey = ['PAPER', 'KEYS']
+                   ):
+    ''' Creating the PAPERKEY COMPOSITE Table with 
+    
+             : param data_frame : Pandas DataFrame from which to create the PAPER TABLE 
+                 : - parsed paper table!
+             : param db : str. Name of db. (ie. 'Abstracts.db')
+                 : default 'test.db'
+             : param DFCol : tuple of strings Column names of data_frame with groupby cols.
+                 : default = [paperID','terms']
+                 : alternatively : enter with already unique table.
+             : param table : str. Name of Table to create or insert.
+                 : default : 'PAPERKEY'
+             : param tableCols : tuple of str. Table keywords as tuple of strings
+                 : default  : ('paperID', 'keyword')
+             : param foreignKey : tuple of str. Foreign key names:
+                 : default : 'PAPER', 'KEYS'
+         
+             : output : Pandas DataFrame as output for inspection
+             : output : sql table created with rows inserted.
+         '''
+    parsedPaper = data_frame[DFCol]
+    parsedPaper['NEWTERMS'] = parsedPaper[DFCol[-1]].apply(lambda x: 
+                                                           list(set([e.strip(' \'') 
+                                                                     for e in x.strip('[]\'').split(',')]))  
+                                                          )
+    
+    termsnew = parsedPaper['NEWTERMS'].apply(lambda x: 
+                                             pd.Series(str(x).split(',')))
+    
+    with sqlite3.connect(db) as con:
+        print ("Opened %s database successfully" %db); 
+        cur = con.cursor() 
+        #drops the Authors table if it exist in db already
+        cur.execute("DROP TABLE IF EXISTS " + table)
+        #and recreates it
+        cur.execute("CREATE TABLE " + table + "(\
+            paperid INT,\
+            keyword TEXT,\
+            FOREIGN KEY(paperID) REFERENCES '%s'(paperID),\
+            FOREIGN KEY(keyword) REFERENCES '%s'(keyword))" % 
+                    (foreignKey[0],foreignKey[1]))
+    
+        for entry in zip(parsedPaper[DFCol[0]], termsnew.as_matrix()):
+            
+            paperID = entry[0]
+            terms = entry[1]
+            
+            for term in terms:
+                term = str(term).strip('[]')
+                if term == None:
+                    pass
+                elif term == 'nan':
+                    pass
+                else:
+                    cur.execute("INSERT INTO " + table  + " VALUES(?,?)",(paperID, term))
+        
+        print("Records created successfully");
+        
+    sql = "SELECT * FROM " + table
+    paperKeys = pd.read_sql_query(sql, con)
+        
+        #return table as Pandas DataFrame for inspection
+    return paperKeys 
