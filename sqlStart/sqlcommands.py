@@ -476,7 +476,7 @@ def createPAPERTable(data_frame,
 
 def createAFFILIATIONPAPERTable(data_frameP, data_frameA, 
                                 joinON = 'affiliation', 
-                                db = 'Abstracts_DB', 
+                                db = DEFAULTDB, 
                                 table = 'AFFILIATIONPAPER' ,
                                 tableCol = ['paperID', 'affilID'],
                                 foreignKey = ['PAPER', 'AFFILIATION']
