@@ -344,7 +344,8 @@ def createAUTHORSTable(data_frame,
     dfAuthors = pd.read_sql_query(sql, con)
         
     #return table as Pandas DataFrame for inspection
-    return authors, dfAuthors
+    return dfAuthors
+
 
 def createAFFILIATIONTable(data_frame, 
                     db = DEFAULTDB, 
@@ -473,6 +474,60 @@ def createPAPERTable(data_frame,
         #return table as Pandas DataFrame for inspection
     return dfpaperkey 
 
+def createAFFILIATIONPAPERTable(data_frameP, data_frameA, 
+                                joinON = 'affiliation', 
+                                db = 'Abstracts_DB', 
+                                table = 'AFFILIATIONPAPER' ,
+                                tableCol = ['paperID', 'affilID'],
+                                foreignKey = ['PAPER', 'AFFILIATION']
+                               ):
+    ''' Creating the AUTHORS Table with 
+            authorID as AUTOINCREMENTED PRIMARY KEY, 
+             : param data_frame : Pandas DataFrame from which to create the AUTHORS TABLE
+             : param db : str. Name of db. (ie. 'Abstracts.db')
+                 : default 'test.db'
+             : param DFCol : tuple of strings Column names of data_frame with groupby cols.
+                 : default = 'Authors'
+                 : alternatively : enter with already unique table.
+             : param table : str. Name of Table to create or insert.
+                 : default : AUTHORS
+             : param tableCols : tuple of str. Table keywords as tuple of strings
+                 : default  : ('AuthoName')
+             : **NEED TO CREATE COMPOSITE **
+         
+             : output : Pandas DataFrame as output for inspection
+             : output : sql table created with rows inserted.
+         '''
+    
+    with sqlite3.connect(db) as con:
+        #create dataframe
+        mergedPaperAffiliation = data_frameP.merge(data_frameA, on = joinON)
+        
+        print ("Opened %s database successfully" %db); 
+        cur = con.cursor() 
+        #drops the PaperAffilation table if it exist in db already
+        cur.execute("DROP TABLE IF EXISTS " + table)
+        #and recreates it
+        cur.execute("CREATE TABLE " + table + "(\
+        paperID INT, \
+        affilID INT, \
+        FOREIGN KEY(paperID) REFERENCES '%s'(paperID), \
+        FOREIGN KEY(affilID) REFERENCES '%s'(affilID))" % (foreignKey[0], foreignKey[1])
+                    );
+        
+        #insert into the table
+        mergedPaperAffiliation[tableCol].to_sql(table, con, flavor='sqlite', 
+                    schema=None, if_exists='append', 
+                    index=False, index_label=None,
+                    chunksize=None, dtype=None)
+        print("Records created successfully");
+        
+    sql = "SELECT * FROM " + table
+    paperAffiliationDF = pd.read_sql_query(sql, con)
+        
+    #return table as Pandas DataFrame for inspection
+    return paperAffiliationDF
+
 def createPAPERKEYTable(data_frame, 
                     db = DEFAULTDB, 
                     DFCol = ['paperID','terms'],
@@ -515,7 +570,7 @@ def createPAPERKEYTable(data_frame,
         cur.execute("DROP TABLE IF EXISTS " + table)
         #and recreates it
         cur.execute("CREATE TABLE " + table + "(\
-            paperid INT,\
+            paperID INT,\
             keyword TEXT,\
             FOREIGN KEY(paperID) REFERENCES '%s'(paperID),\
             FOREIGN KEY(keyword) REFERENCES '%s'(keyword))" % 
@@ -541,4 +596,81 @@ def createPAPERKEYTable(data_frame,
     paperKeys = pd.read_sql_query(sql, con)
         
         #return table as Pandas DataFrame for inspection
-    return paperKeys 
+    return paperKeys
+
+def createPAPERAUTHORTable(data_frame, 
+                    db = DEFAULTDB, 
+                    DFCol = ['paperID','authors'],
+                    table = 'PAPERAUTHOR' ,
+                    tableCol = ['paperID', 'author'],
+                    foreignKey = ['PAPER', 'AUTHORS']
+                   ):
+    ''' Creating the PAPERAUTHOR COMPOSITE Table with 
+    
+             : param data_frame : Pandas DataFrame from which to create the PAPER TABLE 
+                 : - parsed paper table!
+             : param db : str. Name of db. (ie. 'Abstracts.db')
+                 : default 'test.db'
+             : param DFCol : tuple of strings Column names of data_frame with groupby cols.
+                 : default = [paperID','terms']
+                 : alternatively : enter with already unique table.
+             : param table : str. Name of Table to create or insert.
+                 : default : 'PAPERAUTHOR'
+             : param tableCols : tuple of str. Table keywords as tuple of strings
+                 : default  : ('paperID', 'authorName')
+             : param foreignKey : tuple of str. Foreign key names:
+                 : default : 'PAPER', 'AUTHORS'
+         
+             : output : Pandas DataFrame as output for inspection
+             : output : sql table created with rows inserted.
+         '''
+    
+    import re
+    commaQuote = re.compile('[\'],')
+    
+    parsedPaper = data_frame[DFCol]
+    parsedPaper['NEWAUTHORS'] = parsedPaper[DFCol[-1]].apply(lambda a: a.strip("[]'"))
+    parsedPaper['NEWAUTHORS'] = parsedPaper['NEWAUTHORS'].apply(lambda x: filter(lambda a: a != '', 
+                                                               commaQuote.sub(' ', x).split('   ')))
+    
+    authors = parsedPaper['NEWAUTHORS'].apply(lambda x: pd.Series(str(x).split('  ')))
+    
+    #return authors
+    with sqlite3.connect(db) as con:
+        print ("Opened %s database successfully" %db); 
+        cur = con.cursor() 
+        #drops the Authors table if it exist in db already
+        cur.execute("DROP TABLE IF EXISTS " + table)
+        #and recreates it
+        cur.execute("CREATE TABLE " + table + "(\
+            paperID INT,\
+            authorName TEXT,\
+            FOREIGN KEY(paperID) REFERENCES '%s'(paperID),\
+            FOREIGN KEY(authorName) REFERENCES '%s'(authorName))" % 
+                    (foreignKey[0],foreignKey[1]))
+    
+        for entry in zip(parsedPaper[DFCol[0]], authors.as_matrix()):
+            
+            paperID = entry[0]
+            authors = entry[1]
+            
+            for author in authors:
+                author = str(author).strip('\"\'[u""]')
+                if author == None or author == 'nan':
+                    pass
+                elif len(author) <= 2:
+                    pass
+                elif '"' in  author:
+                    pass
+                elif "'" in author:
+                    pass
+                else:
+                    cur.execute("INSERT INTO " + table  + " VALUES(?,?)",(paperID, author))
+        
+        print("Records created successfully");
+        
+    sql = "SELECT * FROM " + table
+    paperAuthors = pd.read_sql_query(sql, con)
+        
+    #return table as Pandas DataFrame for inspection
+    return paperAuthors 
