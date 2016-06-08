@@ -1,0 +1,5 @@
+resources: http://pymbook.readthedocs.io/en/latest/flask.html
+
+Access http://127.0.0.1:5000/ this should simply show you in black on white the text “It works!”.
+
+Access http://127.0.0.1:5000/hello/you this should return you the text “Hello you” (see Figure below).
