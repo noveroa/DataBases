@@ -3,3 +3,30 @@ resources: http://pymbook.readthedocs.io/en/latest/flask.html
 Access http://127.0.0.1:5000/ this should simply show you in black on white the text “It works!”.
 
 Access http://127.0.0.1:5000/hello/you this should return you the text “Hello you” (see Figure below).
+
+
+As you can see, in the master.html template we have defined two sections, blocks which are named title and body.
+
+In the template index.html we say that this template relies on the template master.html, then we define the content to put in these two sections (blocks). In the first block title we say to put the word Home, In the second block we define what we want to have in the body of the page.
+
+As an exercise, transform the other template hello.html to use the master.html template as well.
+Add link to the front page from the hello page
+Flask uses a specific syntax to create links from a page to another. This is fact generates the link dynamically according to the decorator set to the function linked to. In addition it takes care of where the application is deployed.
+
+For example, if you website is deployed at: /myapp/ flask will automatically happend /myapp/ to all links without the need for you to specify it.
+
+To create a link in a template, flask relies on the function url_for(). This function takes as first argument the function you want to call (link to). The following arguments are the arguments of function itself (for example the argument name of the function hello.
+
+Adjust the template hello.html to add a link to the front page
+
+<a href="{{ url_for('index') }}"><button>Home</button></a>
+
+
+change in both index.html and hello_.py
+{% extends "master.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block body %}
+It works!
+{% endblock %}
