@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset="utf-12" />
+  <title>{% block title %}{% endblock %} - NEU: Abstracts Database</title>
+  <link type="text/css" rel="stylesheet"
+       href="{{ url_for('static',
+                        filename='welcome.css')}}" />
+</head>
+<body>
+<table border = 1>
+         <thead>
+            <td>confID</td>
+            <td>confName</td>
+         </thead>
+         
+         {% for row in rows %}
+            <tr>
+               <td>{{row["confID"]}}</td>
+               <td>{{row["confName"]}}</td>
+            </tr>
+         {% endfor %}
+      </table>
+    
+<a href="{{ url_for('index') }}"><button>Home</button></a>
+</body>
+</html>

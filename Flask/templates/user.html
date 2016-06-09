@@ -1,20 +1,29 @@
 <!DOCTYPE html>
-{% extends "master.html" %}
-
-{% block title %}Home{% endblock %}
-
-{% block body %}
-<form action = "{{ url_for('addrec') }}" method = "POST">
-        <h3>User Information</h3>
-        userID<br>
-        
-        <input type = "int" name = "userID" /><br>
-        userName<br>
-        <textarea name = "userName" ></textarea><br>
-        
-        password<br>
-        <input type = "text" name = "pw" /><br>
-        
-        <input type = "submit" value = "submit" /><br>
-    </form>
-{% endblock %}
+<html lang='en'>
+<head>
+  <meta charset="utf-12" />
+  <title>{% block title %}{% endblock %} - NEU: Abstracts Database</title>
+  <link type="text/css" rel="stylesheet"
+       href="{{ url_for('static',
+                        filename='welcome.css')}}" />
+</head>
+<body>
+<table border = 1>
+         <thead>
+            <td>userID</td>
+            <td>userName</td>
+            <td>password</td>
+         </thead>
+         
+         {% for row in rows %}
+            <tr>
+               <td>{{row["userID"]}}</td>
+               <td>{{row["userName"]}}</td>
+               <td>{{row['pw']}}</td>	
+            </tr>
+         {% endfor %}
+      </table>
+    
+<a href="{{ url_for('index') }}"><button>Home</button></a>
+</body>
+</html>
