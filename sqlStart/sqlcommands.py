@@ -233,8 +233,6 @@ def createKEYSTable(data_frame,
         : output : a master set of terms set as a list (no duplicates)
         '''
     
-        
-    
         #recast - since made a string during the entry into the sqlite db.
         terms = data_frame[DFCol].apply(lambda x: set([ e.strip(' \'') for e in x.strip('[]\'').split(',')]))
     

@@ -2,15 +2,22 @@
 <!DOCTYPE html>
 <html lang='en'>
 <head>
-  <meta charset="utf-8" />
-  <title>Hello world!</title>
+  <meta charset="utf-12" />
+  <title>NEU: Abstracts Database</title>
   <link type="text/css" rel="stylesheet"
         href="{{ url_for('static',
-              filename='hello.css')}}" />
+              filename='welcome.css')}}" />
 </head>
 <body>
 
-It works!
+{% extends "master.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block body %}
+Welcome to the Database by Novero!!!
+Operated by Flask.
+{% endblock %}
 
 </body>
 </html>
