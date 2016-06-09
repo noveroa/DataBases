@@ -5,6 +5,8 @@
 {% block title %}Home{% endblock %}
 
 {% block body %}
-Hi, {{name}}! Welcome.
-<a href="{{ url_for('index') }}"><button>Home</button></a>
+
+<h1>Hello, ''' + {{name}}  Welcome To ANovero's DatabaseProject'''</h1>
+<h2> <a href="{{ url_for('index') }}"><button>Home</button></a>
+</h2>
 {% endblock %}
