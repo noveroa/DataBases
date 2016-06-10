@@ -1,0 +1,48 @@
+<html>
+  <link href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css" rel="stylesheet">
+  <link href="https://cdn.datatables.net/responsive/2.1.0/css/responsive.dataTables.min.css" rel="stylesheet">
+  <link href="https://cdn.datatables.net/scroller/1.4.2/css/scroller.dataTables.min.css" rel="stylesheet">
+
+  <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/scroller/1.4.2/js/dataTables.scroller.min.js"></script>
+  <script src="https://cdn.datatables.net/responsive/2.1.0/js/dataTables.responsive.min.js"></script>
+  
+  <body>
+        <table id="patents" class="dataTable sig-datatable" width="100%">
+      <thead>
+        <th>patentid</th>
+        <th>smiles</th>
+        <th>year</th>
+        <th>rxntype</th>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+
+  </body>
+  <script>
+        $(document).ready(function(){
+            $('#patents').dataTable( {
+            "bLengthChange": false,
+            "bFilter": true,
+            "bSort": true, 
+            "aaSorting": [],
+            "bInfo": false,
+            "bJQueryUI": true,
+            "bAutoWidth": true,
+            "columns": [
+                { "data":"patentid"},
+                { "data": "smiles" },
+                { "data": "year" },
+                { "data": "rxntype" },
+            ],
+            "ajax": {
+        "url":"http://localhost:8080/apps/ncu/patents-json/",
+            },
+         });   
+        });   
+   </script>
+</html>
+
+
