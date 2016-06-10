@@ -9,12 +9,10 @@
   <script src="https://cdn.datatables.net/responsive/2.1.0/js/dataTables.responsive.min.js"></script>
   
   <body>
-        <table id="patents" class="dataTable sig-datatable" width="100%">
+        <table id="CONFERENCES" class="dataTable sig-datatable" width="100%">
       <thead>
-        <th>patentid</th>
         <th>smiles</th>
         <th>year</th>
-        <th>rxntype</th>
       </thead>
       <tbody>
       </tbody>
@@ -23,7 +21,7 @@
   </body>
   <script>
         $(document).ready(function(){
-            $('#patents').dataTable( {
+            $('#CONFERENCES').dataTable( {
             "bLengthChange": false,
             "bFilter": true,
             "bSort": true, 
@@ -32,17 +30,14 @@
             "bJQueryUI": true,
             "bAutoWidth": true,
             "columns": [
-                { "data":"patentid"},
                 { "data": "smiles" },
                 { "data": "year" },
-                { "data": "rxntype" },
             ],
             "ajax": {
-        "url":"http://localhost:8080/apps/ncu/patents-json/",
+        "url":"http://localhost:8080/apps/ncu//tablejson/CONFERENCES",
             },
          });   
         });   
    </script>
 </html>
-
 
