@@ -7,6 +7,8 @@ import pandas as pd
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
 
 App = flask.Flask(__name__)
+
+
 mydb = '../sqlStart/Abstracts_DB.db'
 def connect_db():
     """Connects to the specific database."""
@@ -50,35 +52,35 @@ def welcome(name):
 
 @App.route('/users')
 def getUsers():
-    with sqlite3.connect('EmpData') as con:
+    with sqlite3.connect('EmpData.sql') as con:
         con.row_factory = sqlite3.Row
         cur = con.cursor()
         cur.execute("SELECT * FROM User")
         rows = cur.fetchall();
         
-        # Check resulting pandas DF shape
-        #print df.shape
+        keys = rows[0].keys()
+   
         
         #return df
-        return render_template('user.html', rows = rows)
+        return render_template('tables.html', title = 'users' , rows = rows, keys = keys)
 
-@App.route('/confs')
-def getConfs():
+@App.route('/total/<table>/')
+def getConfs(table):
     with sqlite3.connect(mydb) as con:
         con.row_factory = sqlite3.Row
         cur = con.cursor()
-        cur.execute("SELECT * FROM CONFERENCES")
+        cur.execute("SELECT * FROM '%s'" %table)
         rows = cur.fetchall();
         
-        # Check resulting pandas DF shape
-        #print df.shape
+        keys = rows[0].keys()
         
-        #return df
-        return render_template('conf.html', rows = rows)
+       
+        return render_template('tables.html', title = table, rows = rows, keys = keys)
 
 if __name__ == '__main__':
    
     App.debug=True
+    
     App.run()
     
     

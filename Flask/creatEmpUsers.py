@@ -1,12 +1,12 @@
 import sqlite3
 import pandas as pd
 
-with sqlite3.connect('EmpData') as con:
+with sqlite3.connect("EmpData.sql") as con:
     
-    print ("Opened database successfully"); 
+    print("Opened database successfully")
     cur = con.cursor() 
         #drops the Abstracts table if it exist in db already
-    cur.execute("DROP TABLE IF EXISTS USERS")
+    cur.execute("DROP TABLE IF EXISTS User")
         #and recreates it
     cur.execute("CREATE TABLE User(\
         userID INTEGER PRIMARY KEY AUTOINCREMENT, \
