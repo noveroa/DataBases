@@ -5,6 +5,7 @@ import os
 import sqlite3
 import pandas as pd
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
+from flask import abort,  jsonify
 
 App = flask.Flask(__name__)
 
@@ -43,7 +44,6 @@ def index():
     """
     return flask.render_template('index.html')
 
-
 @App.route('/welcome/<name>/')
 def welcome(name):
     """ Displays the page greats who ever comes to visit it.
@@ -74,29 +74,23 @@ def getTotalTable(table):
         
         keys = rows[0].keys()
         
-       
         return render_template('tables.html', title = table, rows = rows, keys = keys)
 
-from flask import abort,  jsonify
-
-@app.route("/tablejson/CONFERENCES", methods=('GET',))
-def getTableJson():
+@App.route("/tablejson/<table>", methods=('GET',))
+def getTableJson(table):
     """Retrieve a patent of the form PAT-<OrigFieldIdx>.R<reacant num>"""
     db = sqlite3.Connection(mydb)
-    cur.execute("SELECT * FROM CONFERENCES")
+    cursor = db.execute("SELECT * FROM '%s'" %table)
 
     all_entries = []
     for confName, confID in cursor.fetchall():
-        all_entries.append( {'smiles':confName,
-                             'year':confID
+        all_entries.append( {'confName':confName,
+                             'confID':confID
                              } )
-    return jsonify( dict( data=all_entries ) )
-
+    return jsonify(dict(data=all_entries))
 
 if __name__ == '__main__':
    
     App.debug=True
     
     App.run()
-    
-    
