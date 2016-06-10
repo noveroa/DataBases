@@ -76,11 +76,11 @@ def getTotalTable(table):
         
         return render_template('tables.html', title = table, rows = rows, keys = keys)
 
-@App.route("/tablejson/<table>", methods=('GET',))
-def getTableJson(table):
+@App.route("/tablejson/CONFERENCES/", methods=('GET',))
+def getTableJson():
     """Retrieve a patent of the form PAT-<OrigFieldIdx>.R<reacant num>"""
     db = sqlite3.Connection(mydb)
-    cursor = db.execute("SELECT * FROM '%s'" %table)
+    cursor = db.execute("SELECT * FROM CONFERENCES")
 
     all_entries = []
     for confName, confID in cursor.fetchall():
