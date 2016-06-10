@@ -65,7 +65,7 @@ def getUsers():
         return render_template('tables.html', title = 'users' , rows = rows, keys = keys)
 
 @App.route('/total/<table>/')
-def getConfs(table):
+def getTotalTable(table):
     with sqlite3.connect(mydb) as con:
         con.row_factory = sqlite3.Row
         cur = con.cursor()
@@ -76,6 +76,22 @@ def getConfs(table):
         
        
         return render_template('tables.html', title = table, rows = rows, keys = keys)
+
+from flask import abort,  jsonify
+
+@app.route("/tablejson/CONFERENCES", methods=('GET',))
+def getTableJson():
+    """Retrieve a patent of the form PAT-<OrigFieldIdx>.R<reacant num>"""
+    db = sqlite3.Connection(mydb)
+    cur.execute("SELECT * FROM CONFERENCES")
+
+    all_entries = []
+    for confName, confID in cursor.fetchall():
+        all_entries.append( {'smiles':confName,
+                             'year':confID
+                             } )
+    return jsonify( dict( data=all_entries ) )
+
 
 if __name__ == '__main__':
    
