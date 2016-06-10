@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+{% extends "master.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block body %}
+result of addition : {{ msg }}
+<a href="{{ url_for('index') }}"><button>Home</button></a>
+{% endblock %}
