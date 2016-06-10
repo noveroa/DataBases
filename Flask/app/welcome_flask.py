@@ -88,6 +88,10 @@ def getTableJson():
                              'confID':confID
                              } )
     return jsonify(dict(data=all_entries))
+    
+@App.route("/tables", methods = ('GET',))
+def jasonhtml():
+    return render_template('jasontable.html')
 
 if __name__ == '__main__':
    
