@@ -11,8 +11,8 @@
   <body>
         <table id="CONFERENCES" class="dataTable sig-datatable" width="100%">
       <thead>
-        <th>smiles</th>
-        <th>year</th>
+        <th>confID</th>
+        <th>confName</th>
       </thead>
       <tbody>
       </tbody>
@@ -30,14 +30,13 @@
             "bJQueryUI": true,
             "bAutoWidth": true,
             "columns": [
-                { "data": "smiles" },
-                { "data": "year" },
+                { "data": "confID" },
+                { "data": "confName" },
             ],
             "ajax": {
-        "url":"http://localhost:8080/apps/ncu//tablejson/CONFERENCES",
+        "url":"http://127.0.0.1:5000/tablejson/",
             },
          });   
         });   
    </script>
 </html>
-
