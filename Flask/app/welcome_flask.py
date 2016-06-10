@@ -9,7 +9,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, render_t
 App = flask.Flask(__name__)
 
 
-mydb = '../sqlStart/Abstracts_DB.db'
+mydb = '../../sqlStart/Abstracts_DB.db'
 def connect_db():
     """Connects to the specific database."""
     rv = sqlite3.connect(mydb)
@@ -26,7 +26,7 @@ def get_db():
 
 def init_db():
     db = get_db()
-    with App.open_resource('creatEmpUsers.py', mode='r') as f:
+    with App.open_resource('../creatEmpUsers.py', mode='r') as f:
         db.cursor().executescript(f.read())
     db.commit()
 #init myabstracts_db?
@@ -52,7 +52,7 @@ def welcome(name):
 
 @App.route('/users')
 def getUsers():
-    with sqlite3.connect('EmpData.sql') as con:
+    with sqlite3.connect('../EmpData.sql') as con:
         con.row_factory = sqlite3.Row
         cur = con.cursor()
         cur.execute("SELECT * FROM User")
