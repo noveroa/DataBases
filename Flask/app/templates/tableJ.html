@@ -10,14 +10,16 @@
   <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/scroller/1.4.2/js/dataTables.scroller.min.js"></script>
   <script src="https://cdn.datatables.net/responsive/2.1.0/js/dataTables.responsive.min.js"></script>
-  <h2> <a href="{{ url_for('index') }}"><button>Home</button></a></h2>
     
   <head>
   <meta charset="utf-12" />
     <title>{% block title %}{% endblock %} - NEU: Abstracts Database</title>
     </head>
     <body>
-        {% block body %}{% endblock %}
+        {% block content %}{% endblock %}
     </body>
+  <h2> <a href="{{ url_for('index') }}"><button>Home</button></a></h2>
+  <h2> <a href="{{ url_for('getUsers') }}"><button>Users</button></a></h2>
+  <h4> <a href="{{ url_for('aboutme') }}"><button>AboutMe!</button></a></h4>
  
 </html>

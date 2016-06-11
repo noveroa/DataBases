@@ -1,21 +1,10 @@
  
-<html>
-  <link href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css" rel="stylesheet">
-  <link href="https://cdn.datatables.net/responsive/2.1.0/css/responsive.dataTables.min.css" rel="stylesheet">
-  <link href="https://cdn.datatables.net/scroller/1.4.2/css/scroller.dataTables.min.css" rel="stylesheet">
+<!-- extend tablej layout -->
+{% extends "tablej.html" %}
 
-  <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-  <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/scroller/1.4.2/js/dataTables.scroller.min.js"></script>
-  <script src="https://cdn.datatables.net/responsive/2.1.0/js/dataTables.responsive.min.js"></script>
-  <h2> <a href="{{ url_for('index') }}"><button>Home</button></a></h2>
-  <h3> <a href="{{ url_for('getUsers') }}"><button>Users</button></a></h3>
-  <h4> <a href="{{ url_for('aboutme') }}"><button>AboutMe!</button></a></h4>
-  <head>
-  <meta charset="utf-12" />
-    <title>{% block title %}PAPERS{% endblock %} - NEU: Abstracts Database</title>
-    </head>
-    
+{% block title %}PAPERS{% endblock %}
+
+{% block content %}   
   <body>
       <table id="PAPER" class="dataTable sig-datatable" width="100%">
       <thead>
@@ -58,4 +47,4 @@
          });   
         });   
    </script>
-</html>
+{% endblock %}
