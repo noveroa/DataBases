@@ -44,14 +44,21 @@ def index():
     """
     return flask.render_template('index.html')
 
+@App.route('/aboutme/')
+def aboutme():
+    """ TODO: Displays the page about the coolest person around.
+    """
+    
+    return flask.render_template('index.html')
 @App.route('/welcome/<name>/')
 def welcome(name):
-    """ Displays the page greats who ever comes to visit it.
+    """ Displays the welcome screen.
     """
     return flask.render_template('welcome.html', name=name)
 
 @App.route('/users')
 def getUsers():
+    '''TODO: USERS FOR ABSTRACTS_DB'''
     with sqlite3.connect('../EmpData.sql') as con:
         con.row_factory = sqlite3.Row
         cur = con.cursor()
@@ -59,39 +66,36 @@ def getUsers():
         rows = cur.fetchall();
         
         keys = rows[0].keys()
-   
-        
+
         #return df
         return render_template('tables.html', title = 'users' , rows = rows, keys = keys)
 
-@App.route('/total/<table>/')
-def getTotalTable(table):
-    with sqlite3.connect(mydb) as con:
-        con.row_factory = sqlite3.Row
+
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
+@App.route("/jsonTotal/<table>", methods=('GET',))
+def getjsonTotal(table):
+    '''Return Jsonified table SELECT *'''
+    
+    with sqlite3.connect("../../sqlStart/Abstracts_DB.db") as con:
+        con.row_factory = dict_factory
         cur = con.cursor()
         cur.execute("SELECT * FROM '%s'" %table)
-        rows = cur.fetchall();
-        
-        keys = rows[0].keys()
-        
-        return render_template('tables.html', title = table, rows = rows, keys = keys)
-
-@App.route("/tablejson/CONFERENCES/", methods=('GET',))
-def getTableJson():
-    """Retrieve a patent of the form PAT-<OrigFieldIdx>.R<reacant num>"""
-    db = sqlite3.Connection(mydb)
-    cursor = db.execute("SELECT * FROM CONFERENCES")
-
-    all_entries = []
-    for confName, confID in cursor.fetchall():
-        all_entries.append( {'confName':confName,
-                             'confID':confID
-                             } )
-    return jsonify(dict(data=all_entries))
+        entries = cur.fetchall()
+        #data = {'data' : entries}
     
-@App.route("/tables", methods = ('GET',))
-def jasonhtml():
-    return render_template('jasontable.html')
+    return jsonify(dict(data=entries))
+
+@App.route("/totals/<table>", methods = ('GET',))
+def jasonhtml(table):
+    '''Display the total table'''
+    html = 'jsonTotal' + table + '.html'
+    print html
+    return render_template(html)
 
 if __name__ == '__main__':
    
