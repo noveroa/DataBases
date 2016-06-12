@@ -6,6 +6,14 @@ import sqlite3
 import pandas as pd
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
 from flask import abort,  jsonify
+import matplotlib
+matplotlib.use('Agg')
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from cStringIO import StringIO
+import base64
 
 App = flask.Flask(__name__)
 
@@ -31,6 +39,33 @@ def init_db():
         db.cursor().executescript(f.read())
     db.commit()
 #init myabstracts_db?
+
+def getTotalPD():
+    with sqlite3.connect(mydb) as con:
+        sqlcmd = "SELECT * FROM ABSTRACTSTOTAL"
+        df = pd.read_sql_query(sqlcmd, con)
+        print df.shape
+        
+    return df
+@App.route('/mmmmPie')
+def getPie(start = getTotalPD()):
+    html = '''
+    <html>
+        <body>
+            <img src="data:image/png;base64,{}" />
+        </body>
+    </html>
+    '''
+    df = pd.DataFrame(start[["Conf"]])
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    df.groupby('Conf')['Conf'].count().plot(kind = 'pie', ax = ax)
+
+    io = StringIO()
+    fig.savefig(io, format='png')
+    data = base64.encodestring(io.getvalue())
+
+    return html.format(data)
 
 @App.teardown_appcontext
 def close_db(error):
