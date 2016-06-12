@@ -46,10 +46,10 @@ def index():
 
 @App.route('/aboutme/')
 def aboutme():
-    """ TODO: Displays the page about the coolest person around.
+    """ Displays the page about the coolest person around.
     """
-    
-    return flask.render_template('index.html')
+    return flask.render_template('aboutMe.html')
+
 @App.route('/welcome/<name>/')
 def welcome(name):
     """ Displays the welcome screen.
@@ -81,7 +81,7 @@ def dict_factory(cursor, row):
 def getjsonTotal(table):
     '''Return Jsonified table SELECT *'''
     
-    with sqlite3.connect("../../sqlStart/Abstracts_DB.db") as con:
+    with sqlite3.connect(mydb) as con:
         con.row_factory = dict_factory
         cur = con.cursor()
         cur.execute("SELECT * FROM '%s'" %table)
@@ -89,13 +89,38 @@ def getjsonTotal(table):
         #data = {'data' : entries}
     
     return jsonify(dict(data=entries))
-
 @App.route("/totals/<table>", methods = ('GET',))
 def jasonhtml(table):
     '''Display the total table'''
-    html = 'jsonTotal' + table + '.html'
-    print html
+    html = 'totaltables/jsonTotal' + table + '.html'
     return render_template(html)
+
+
+@App.route("/jsonContents", methods = ('GET',))
+def getContents():
+    with sqlite3.connect(mydb) as con:
+    
+        cursor = con.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        mytables = (cursor.fetchall())
+        myt = []
+        for x in mytables[1:]:
+            table_entry = {}
+            table_name = x[0]
+            table_entry['name'] = table_name
+            html = 'http://127.0.0.1:5000/totals/%s' % table_name
+            table_entry['html'] = "<a href='%s'<button>click</button>></a>" %html
+            table_entry['count'] = cursor.execute("SELECT COUNT(*) FROM %s"%table_name).fetchone()[0]
+        
+            myt.append(table_entry) 
+            
+    return jsonify(dict(data = myt))
+    #render_template('/jsonContents.html')
+@App.route("/contents", methods = ('GET',))
+def jsonContents():
+    '''Display the total table'''
+    return render_template('/jsonContents.html')
+
 
 if __name__ == '__main__':
    

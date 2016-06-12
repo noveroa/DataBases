@@ -1,14 +1,9 @@
 <!DOCTYPE html>
-<html lang='en'>
-<head>
-  <meta charset="utf-12" />
-  <title>{{title}}</title>
-  <link type="text/css" rel="stylesheet"
-       href="{{ url_for('static',
-                        filename='welcome.css')}}" />
-</head>
-<body>
-<table border = 1>
+{% extends "master.html" %}
+
+{% block content %}
+<h3>
+<table border = 3>
          <thead>
              {% for key in keys %}
             <td>{{key}}</td>
@@ -24,7 +19,5 @@
             </tr>
          {% endfor %}
       </table>
-
-<a href="{{ url_for('index') }}"><button>Home</button></a>
-</body>
-</html>
+</h3>
+{% endblock %}
