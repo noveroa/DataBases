@@ -56,6 +56,24 @@ def getPie(start = getTotalPD()):
         </body>
     </html>
     '''
+    '''subplots? 
+    import matplotlib.pyplot as plt
+def getPie(start = getTotalPD()):
+    df = pd.DataFrame(start[["Conf", "year"]])
+    fig = plt.figure()
+    
+    df.groupby(['Conf'])["Conf"].count().plot(kind = 'pie', 
+                                              colormap = 'ocean', 
+                                              subplots = True, 
+                                              title = 'Conferences', 
+                                              )
+    for conference in df['Conf'].unique():
+        df.query('Conf == "%s"' % conference).groupby('year').count().plot(kind = 'pie', 
+                                                                           subplots = True,
+                                                                           colormap = 'ocean',
+                                                                           title = conference, 
+                                                                          )
+        plt.legend(bbox_to_anchor=(1, 1), bbox_transform=plt.gcf().transFigure)'''
     df = pd.DataFrame(start[["Conf"]])
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)
