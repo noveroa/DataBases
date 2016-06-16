@@ -47,25 +47,46 @@ def getTotalPD():
         print df.shape
         
     return df
-@App.route('/mmmmPie')
-def getPie(start = getTotalPD()):
+
+@App.route('/mmmmPie2')
+def getPie2(start = getTotalPD()):
+    import matplotlib.pyplot as plt
+
+    df = pd.DataFrame(start[["Conf", "year"]])
+    keys = list(df['Conf'].unique())
+    
+    fig, axes = plt.subplots(nrows=len(keys) + 1, ncols=1,
+                             sharex=False, figsize = (15, 20), 
+                            )
+    fig = df.groupby(['Conf'])["Conf"].count().plot(kind = 'pie', colormap = 'ocean', 
+                                                subplots = True, ax = axes[0] )    
+    for i, conference in enumerate(keys):
+        fig = df.query('Conf == "%s"' % conference).groupby('year').count().plot(kind = 'pie', 
+                                                                           ax = axes[i+1],
+                                                                           colormap = 'ocean',
+                                                                           subplots = True)
+                                                    
+                                                                          
     html = '''
     <html>
-        <body>
-            <img src="data:image/png;base64,{}" />
-        </body>
+    <head>
+         <h1> Conferences by year %s</h1>
+    </head>
+    <body> 
+        
+        <img src="data:image/png;base64,{}" />
+        
+    </body>
     </html>
-    '''
-    df = pd.DataFrame(start[["Conf"]])
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
-    df.groupby('Conf')['Conf'].count().plot(kind = 'pie', ax = ax)
-
+    '''%keys
+    
     io = StringIO()
-    fig.savefig(io, format='png')
+    plt.savefig(io, format='png')
     data = base64.encodestring(io.getvalue())
 
     return html.format(data)
+    
+
 
 @App.teardown_appcontext
 def close_db(error):
@@ -156,9 +177,26 @@ def jsonContents():
     '''Display the total table'''
     return render_template('/jsonContents.html')
 
+@App.route("/conf2", methods = ('GET',))
+def group(start = getTotalPD()):
+    dfs = {}
+    df = pd.DataFrame(start[["Conf", "year"]])
+    keys = list(df['Conf'].unique())
+
+    dfs['TOTAL'] = dict(data = df.groupby(['Conf'])["Conf"].count().to_dict())
+    for conference in keys:
+        dfs[conference] = df.query('Conf == "%s"' % conference).groupby('year').count().to_dict()
+                                                    
+                                                                        
+    return jsonify(data = dfs)
+@App.route("/confsyear", methods = ('GET',))
+def jsonConfs():
+    '''Display the total table'''
+    return render_template('/conferences2.html')
 
 if __name__ == '__main__':
    
     App.debug=True
     
     App.run()
+    
