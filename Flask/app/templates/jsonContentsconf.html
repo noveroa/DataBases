@@ -1,11 +1,11 @@
 <!-- extend tablej layout -->
 {% extends "tablej.html" %}
 
-{% block title %}Contents{% endblock %}
+{% block title %}Contents2{% endblock %}
 
 {% block content %}
   <body>
-      <table id="Contents" class="dataTable sig-datatable" width="100%">
+      <table id="Contents2" class="dataTable sig-datatable" width="100%">
       <thead>
         <th>conf</th>
         <th>counts</th>
@@ -18,7 +18,7 @@
   </body>
   <script>
         $(document).ready(function(){
-            $('#Contents').dataTable( {
+            $('#Contents2').dataTable( {
             "bLengthChange": false,
             "bFilter": true,
             "bSort": true, 
@@ -27,8 +27,8 @@
             "bJQueryUI": true,
             "bAutoWidth": true,
             "columns":  [
-                { "data": "conf" },
-                { "data": "counts" },
+                { "data": "conf"},
+                { "data": "counts"},
                 { "data": "Pie"}, 
                 { "data": "Bar" }
             ],

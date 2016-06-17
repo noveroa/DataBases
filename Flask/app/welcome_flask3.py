@@ -186,7 +186,7 @@ def getContentsconf():
             entry['counts'] = subDF.to_json()
             
             image = getPieOne(subDF, conf)
-            entry['Pie']  = "<img src='%s'/>" %image2
+            entry['Pie']  = "<img src='%s'/>" %image
         
             image2 = getBar(subDF, conf)
             entry['Bar'] = "<img src='%s'/>" %image2
