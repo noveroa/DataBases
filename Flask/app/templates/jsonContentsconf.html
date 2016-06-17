@@ -1,0 +1,41 @@
+<!-- extend tablej layout -->
+{% extends "tablej.html" %}
+
+{% block title %}Contents{% endblock %}
+
+{% block content %}
+  <body>
+      <table id="Contents" class="dataTable sig-datatable" width="100%">
+      <thead>
+        <th>conf</th>
+        <th>counts</th>
+        <th>Pie</th>
+        <th>Bar</th>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </body>
+  <script>
+        $(document).ready(function(){
+            $('#Contents').dataTable( {
+            "bLengthChange": false,
+            "bFilter": true,
+            "bSort": true, 
+            "aaSorting": [],
+            "bInfo": false,
+            "bJQueryUI": true,
+            "bAutoWidth": true,
+            "columns":  [
+                { "data": "conf" },
+                { "data": "counts" },
+                { "data": "Pie"}, 
+                { "data": "Bar" }
+            ],
+            "ajax": {
+        "url":"http://127.0.0.1:5000/jsonContentsconf",
+            },
+         });   
+        });   
+   </script>
+{% endblock %}
