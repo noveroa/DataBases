@@ -271,7 +271,7 @@ def createAUTHORSTable(data_frame,
                     db = DEFAULTDB, 
                     DFCol = 'Authors',
                     table = 'AUTHORS' ,
-                    tableCol = ['AuthorName']
+                    tableCol = ['authorName']
                    ):
     ''' Creating the AUTHORS Table with 
             authorID as AUTOINCREMENTED PRIMARY KEY, 
@@ -284,7 +284,7 @@ def createAUTHORSTable(data_frame,
              : param table : str. Name of Table to create or insert.
                  : default : AUTHORS
              : param tableCols : tuple of str. Table keywords as tuple of strings
-                 : default  : ('AuthoName')
+                 : default  : ('authorName')
              : **NEED TO CREATE COMPOSITE **
          
              : output : Pandas DataFrame as output for inspection
@@ -323,7 +323,7 @@ def createAUTHORSTable(data_frame,
         #and recreates it
         cur.execute("CREATE TABLE " + table + "(\
         authorID INTEGER PRIMARY KEY AUTOINCREMENT, \
-        AuthorName TEXT \
+        authorName TEXT \
         )") 
         authors = findAuthorsSet(data_frame)
         print ('Author set created')
@@ -490,7 +490,7 @@ def createAFFILIATIONPAPERTable(data_frameP, data_frameA,
              : param table : str. Name of Table to create or insert.
                  : default : AUTHORS
              : param tableCols : tuple of str. Table keywords as tuple of strings
-                 : default  : ('AuthoName')
+                 : default  : ('authoName')
              : **NEED TO CREATE COMPOSITE **
          
              : output : Pandas DataFrame as output for inspection

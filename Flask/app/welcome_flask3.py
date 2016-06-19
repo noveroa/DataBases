@@ -15,6 +15,9 @@ import pandas as pd
 from cStringIO import StringIO
 import base64
 
+import images as images
+images = reload(images)
+
 App = flask.Flask(__name__)
 
 
@@ -44,7 +47,7 @@ def getTotalPD(db):
     with sqlite3.connect(db) as con:
         sqlcmd = "SELECT * FROM ABSTRACTSTOTAL"
         df = pd.read_sql_query(sqlcmd, con)
-        print df.shape
+        print ('Datbase : ', df.shape)
         
     return df
 
@@ -105,6 +108,7 @@ def getjsonTotal(table):
         #data = {'data' : entries}
     
     return jsonify(dict(data=entries))
+
 @App.route("/totals/<table>", methods = ('GET',))
 def jasonhtml(table):
     '''Display the total table'''
@@ -138,32 +142,7 @@ def jsonContents():
     return render_template('/jsonContents.html')
 
 
-def getPieOne(df, conference):
-    
-    fig = df.plot(kind = 'pie', colormap = 'ocean', title = conference, subplots = True,legend = False)
-   
-    io = StringIO()
-    plt.savefig(io, format='png')
-    img = base64.encodestring(io.getvalue())
-    
-    io = StringIO()
-    plt.savefig(io, format='png')
-    data = base64.encodestring(io.getvalue())
 
-    return data
-
-def getBar(df, conference):
-    
-    fig =  df.plot(kind = 'bar', colormap = 'ocean', title = conference, subplots = True,legend = False)
-    io = StringIO()
-    plt.savefig(io, format='png')
-    img = base64.encodestring(io.getvalue())
-   
-    io = StringIO()
-    plt.savefig(io, format='png')
-    data = base64.encodestring(io.getvalue())
-
-    return data
 
 @App.route("/jsonContentsconf", methods = ('GET',))
 def getContentsconf():
@@ -183,89 +162,59 @@ def getContentsconf():
         
         
             subDF = df.query('Conf == "%s"' % conf).groupby('year').count()
-            entry['counts'] = subDF.to_json()
+            entry['counts'] = subDF.to_html()
             
-            image = getPieOne(subDF, conf)
-            entry['Pie']  = "<img src='%s'/>" %image
+            image = images.getPieOne(subDF, conf)
+            entry['Pie']  = image
         
-            image2 = getBar(subDF, conf)
-            entry['Bar'] = "<img src='%s'/>" %image2
+            image2 = images.getBar(subDF, conf)
+            entry['Bar'] = image2
         
             myt.append(entry)
     
     return jsonify(dict(data = myt))
 
+@App.route("/jsonconfyrpapers/<year>/<conf>", methods=('GET',))
+def getPapersConfYr(year, conf):
+    with sqlite3.connect(mydb) as con:
+        sqlcmd = "SELECT pubYear, confName, paperID, title, abstract FROM PAPER"
+        PAPdf = pd.read_sql_query(sqlcmd, con)
+    
+        group = PAPdf.groupby(['pubYear', 'confName'], axis = 0)
+    
+        try:
+            subgroup =  group.get_group((int(year), conf))
+        
+            mytable = []
+            for idx in subgroup.index.get_values():
+                entry = {}
+                entry['paperID'] = subgroup.loc[idx]['paperID']
+                entry['Title'] = subgroup.loc[idx]['title']
+                entry['Abstract'] = subgroup.loc[idx]['abstract']    
+                mytable.append(entry)
+       
+            return jsonify( dict(data = mytable))
+        
+        except:
+           
+            entry = {'paperID': 'NoConference',
+                     'Title': 'NoConference',
+                     'Abstract': 'NoConference',
+                     }
+            mytable = [entry]
+            return jsonify(dict(data = mytable))
+
+@App.route("/confyrpapers/<year>/<conf>", methods = ('GET',))
+def jsonConfYrPaper(year, conf):
+    '''Display the papers from a given year and conference table'''
+    
+    return render_template('/ConfYrPaper.html', entry = [year, conf])
 
 @App.route("/contentsconf", methods = ('GET',))
 def jsonContentsconf():
     '''Display the total table'''
+    
     return render_template('/jsonContentsconf.html')
-
-
-@App.route('/mmmmPie2')
-def getPie2():
-    import matplotlib.pyplot as plt
-
-    with sqlite3.connect(mydb) as con:
-        sqlcmd = "SELECT Conf, Year FROM ABSTRACTSTOTAL"
-        df = pd.read_sql_query(sqlcmd, con)
-        keys = list(df['Conf'].unique())
-    
-        fig, axes = plt.subplots(nrows=len(keys) + 1, ncols=1,
-                             sharex=False, figsize = (15, 20), 
-                            )
-        fig = df.groupby(['Conf'])["Conf"].count().plot(kind = 'pie', colormap = 'ocean', 
-                                                subplots = True, ax = axes[0] )    
-        for i, conference in enumerate(keys):
-            fig = df.query('Conf == "%s"' % conference).groupby('year').count().plot(kind = 'pie', 
-                                                                           ax = axes[i+1],
-                                                                           colormap = 'ocean',
-                                                                           subplots = True)
-                                                    
-                                                                          
-        html = '''
-        <html>
-        <head>
-         <h1> Conferences by year %s</h1>
-        </head>
-        <body> 
-        
-            <img src="data:image/png;base64,{}" />
-        
-        </body>
-        </html>
-        '''
-        io = StringIO()
-        plt.savefig(io, format='png')
-        data = base64.encodestring(io.getvalue())
-
-    return html.format(data)
-
-
-def getPie(start = getTotalPD(mydb)):
-    df = pd.DataFrame(start[["Conf", "year"]])
-    fig = plt.figure()
-    
-    df.groupby(['Conf'])["Conf"].count().plot(kind = 'pie', 
-                                              colormap = 'ocean', 
-                                              subplots = True, 
-                                              title = 'Conferences', 
-                                              )
-    for conference in df['Conf'].unique():
-        df.query('Conf == "%s"' % conference).groupby('year').count().plot(kind = 'pie', 
-                                                                           subplots = True,
-                                                                           colormap = 'ocean',
-                                                                           title = conference, 
-                                                                          )
-        plt.legend(bbox_to_anchor=(1, 1), bbox_transform=plt.gcf().transFigure)
-    
-    io = StringIO()
-    plt.savefig(io, format='png')
-    data = base64.encodestring(io.getvalue())
-
-    return html.format(data)
-    
-
 
 
 

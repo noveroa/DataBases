@@ -6,8 +6,9 @@
     <link type="text/css" rel="stylesheet"
        href="{{ url_for('static',
                         filename='welcome.css')}}" />
-    </head>
-    <style>
+  
+ </head>
+ <style>
     body { background-color: lightblue;
         }
     h1 {
@@ -24,24 +25,42 @@
         } 
    table {
        
-       margin: 0 auto;
-       border-collapse: collapse;
+        margin: 0 auto;
+        border-collapse: collapse;
         }
 
-    th, td {
+    caption, th, td {
         padding: 8px;
         text-align: center;
+        border: 1px solid #fff;
         border-bottom: 1px solid #ddd;
         }
+     caption {
+        font-weight: bold;
+        font-size: 1.1em;
+     }
 
-    tr:hover{background-color:#f5f5f5}
+     tr:hover{background-color:#f5f5f5}
 
-        </style>
+    </style>
+    
     <body>
+      <h1> BANNER SET
+      </h1>
         {% block content %}{% endblock %}
     </body>
-  <h3> <a href="{{ url_for('index') }}"><button>Home</button></a></h3>
-  <h3> <a href="{{ url_for('getUsers') }}"><button>Users</button></a></h3>
-  <h3> <a href="{{ url_for('aboutme') }}"><button>AboutMe!</button></a></h3>
-  <h3> <a href="{{ url_for('jsonContents') }}"><button>What Do We Have?</button></a></h3>
+
+    
+    <table BORDER="0">
+        <Caption> Let's Navigate </Caption>
+        
+        <tr> <td > <a href="{{ url_for('index') }}"><button>Home</button></a></td>
+            <td > <a href="{{ url_for('getUsers') }}"><button>Users</button></a></td>
+            <td > <a href="{{ url_for('aboutme') }}"><button>AboutMe!</button></a></td>
+            <td > <a href="{{ url_for('jsonContents') }}"><button>What Do We Have?</button></a></td>
+        </tr>
+    </table>
+    <iframe src="http://www.myneu.neu.edu">
+          <p>Your browser does not support iframes.</p>
+     </iframe> 
 </html>
