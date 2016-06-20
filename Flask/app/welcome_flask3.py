@@ -6,14 +6,6 @@ import sqlite3
 import pandas as pd
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
 from flask import abort,  jsonify
-import matplotlib
-matplotlib.use('Agg')
-
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-from cStringIO import StringIO
-import base64
 
 import images as images
 images = reload(images)
@@ -135,7 +127,8 @@ def getContents():
             myt.append(table_entry) 
             
     return jsonify(dict(data = myt))
-    #render_template('/jsonContents.html')
+    
+
 @App.route("/contents", methods = ('GET',))
 def jsonContents():
     '''Display the total table'''
