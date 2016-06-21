@@ -644,7 +644,7 @@ def createPAPERAUTHORTable(data_frame,
             paperID INT,\
             authorName TEXT,\
             FOREIGN KEY(paperID) REFERENCES '%s'(paperID),\
-            FOREIGN KEY(authorName) REFERENCES '%s'(authorName))" % 
+            FOREIGN KEY(authorID) REFERENCES '%s'(authorID))" % 
                     (foreignKey[0],foreignKey[1]))
     
         for entry in zip(parsedPaper[DFCol[0]], authors.as_matrix()):

@@ -210,6 +210,35 @@ def jsonContentsconf():
     return render_template('/jsonContentsconf.html')
 
 
+def getPapersKWgroup(grouper):
+    with sqlite3.connect(mydb) as con:
+        sqlcmd = "SELECT paperID, title, confName, pubYear FROM PAPER "
+        paperdf = pd.read_sql_query(sqlcmd, con)
+        sqlcmd2 = "SELECT paperID, keyword FROM PAPERKEY "
+        kwdf = pd.read_sql_query(sqlcmd2, con)
+        
+        merged = kwdf.merge(paperdf, on = 'paperID')
+        
+        subgrp = merged.groupby(grouper)
+        
+        return subgrp
+    
+@App.route("/papers/keywords", methods = ('GET',))    
+def getPaperKW():
+    data_frame = getPapersKWgroup('paperID')
+    entries = []
+    for each in data_frame.groups:
+        entry = {}
+        entry['paperID'] = each
+        entry['keywords'] = [str(eval(key)) for key in data_frame.get_group(each)['keyword']]
+        entries.append(entry)
+    return jsonify(dict(data = entries))
+
+@App.route("/paperKWs.html", methods = ('GET',))
+def jsonPaperKW():
+    '''Display the total table'''
+    
+    return render_template('/paperKWs.html')
 
 if __name__ == '__main__':
    
