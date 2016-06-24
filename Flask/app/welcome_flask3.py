@@ -240,6 +240,12 @@ def jsonPaperKW():
     
     return render_template('/paperKWs.html')
 
+@App.route('/findaConf',methods=('GET', ))
+def findaconf():
+    return render_template('/findaConf.html')
+
+
+
 if __name__ == '__main__':
    
     App.debug=True
