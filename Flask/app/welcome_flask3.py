@@ -269,6 +269,44 @@ def jsonPaperKW():
 def findaconf():
     return render_template('/findaConf.html')
 
+@App.route('/search')
+def search():
+    return render_template("search.html")
+
+@App.route('/search/<param1>/<param2>', methods=['GET'])
+def search_params(param1, param2):
+    print "param1", param1
+    print "param2", param2
+    
+    with sqlite3.connect(mydb) as con:
+        sqlcmd = "SELECT pubYear, confName, paperID, title, abstract FROM PAPER"
+        PAPdf = pd.read_sql_query(sqlcmd, con)
+    
+        group = PAPdf.groupby(['pubYear', 'confName'], axis = 0)
+       
+        try:
+            subgroup =  group.get_group(int(param1), param2)
+            print ('Subgroup Made')
+            mytable = []
+            for idx in subgroup.index.get_values():
+                entry = {}
+                entry['paperID'] = subgroup.loc[idx]['paperID']
+                entry['Title'] = subgroup.loc[idx]['title']
+                entry['Abstract'] = subgroup.loc[idx]['abstract']    
+                mytable.append(entry)
+       
+            return jsonify({"data": mytable})
+        
+        except:
+           
+            entry = {'paperID': 'NoConference',
+                     'Title': 'NoConference',
+                     'Abstract': 'NoConference',
+                     }
+            mytable = [entry]
+            
+            return jsonify({"data": mytable})
+
 if __name__ == '__main__':
    
     App.debug=True

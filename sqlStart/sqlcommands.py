@@ -593,7 +593,8 @@ def createPAPERKEYTable(data_frame,
     sql = "SELECT * FROM " + table
     paperKeys = pd.read_sql_query(sql, con)
         
-        #return table as Pandas DataFrame for inspection
+    paperKeys['keyword'] = paperKeys['keyword'].apply(lambda word: eval(word))
+    
     return paperKeys
 
 def createPAPERAUTHORTable(data_frame, 
