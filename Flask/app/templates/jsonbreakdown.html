@@ -1,17 +1,15 @@
 <!-- extend tablej layout -->
 {% extends "tablej.html" %}
 
-{% block title %}Contents2{% endblock %}
+{% block title %}Breakdown{% endblock %}
 
 {% block contents %}
-
   <body>
-      <table id="Contents2" class="dataTable sig-datatable" width="100%">
+      <table id="Breakdown" class="dataTable sig-datatable">
       <thead>
-        <th>conf</th>
-        <th>counts</th>
-        <th>Pie</th>
-        <th>Bar</th>
+        <th>conference</th>
+        <th>year</th>
+        <th>html</th>
       </thead>
       <tbody>
       </tbody>
@@ -19,14 +17,10 @@
   </body>
   <script>
         $(document).ready(function(){
-            $('#Contents2').dataTable( {
-            "buttons" : ["print"],  
+            $('#Breakdown').dataTable( {
             "colReorder" : true,
             "rowReorder" : true,
             "ajax" : '/api/data',
-            "scrollY" : 500,
-            "deferRender" : true,
-            "scroller" : true,
             "bLengthChange": false,
             "bFilter": true,
             "bSort": true, 
@@ -35,22 +29,18 @@
             "bJQueryUI": true,
             "bAutoWidth": true,
             "columns":  [
-                { "data": "conf"},
-                { "data": "counts"},
-                { "data": "Pie"}, 
-                { "data": "Bar" }
+                { "data": "conference" },
+                { "data": "year" },
+                { "data": "html" }
             ],
             "ajax": {
-        "url":"http://127.0.0.1:5000/jsonContentsconf",
+        "url":"http://127.0.0.1:5000/jsonconfyrbreakdown",
             },
          });   
         });   
    </script>
-
  <table BORDER="1">
-        <tr> <td > <a href="{{ url_for('confbreakdown') }}"><button>Conference Breakdowns by Year</button></a></td>\
+        <tr> <td > <a href="{{ url_for('jsonContentsconf') }}"><button>Back to Conferences</button></a></td>
         </tr>
 </table>
-
- 
 {% endblock %}

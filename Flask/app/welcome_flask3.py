@@ -197,6 +197,26 @@ def getPapersConfYr(year, conf):
             mytable = [entry]
             return jsonify(dict(data = mytable))
 
+@App.route("/jsonconfyrbreakdown", methods=('GET',))
+def getPapersConfYrTable():
+    with sqlite3.connect(mydb) as con:
+        sqlcmd = "SELECT pubYear, confName, paperID, title, abstract FROM PAPER"
+        PAPdf = pd.read_sql_query(sqlcmd, con)
+    
+        group = PAPdf.groupby(['pubYear', 'confName'], axis = 0)
+        entries = []
+        for year, conf in group.groups.keys():
+            entry = {}
+            entry['conference'] = conf
+            entry['year'] = year
+            
+            html = "http://127.0.0.1:5000/confyrpapers/" + str(year) + '/' + conf
+            entry['html'] =  "<a href='%s'<button>click</button>></a>" %html
+            
+            entries.append(entry)
+        
+        return jsonify(dict(data  = entries))
+
 @App.route("/confyrpapers/<year>/<conf>", methods = ('GET',))
 def jsonConfYrPaper(year, conf):
     '''Display the papers from a given year and conference table'''
@@ -209,6 +229,11 @@ def jsonContentsconf():
     
     return render_template('/jsonContentsconf.html')
 
+@App.route("/confbreakdown", methods = ('GET',))
+def confbreakdown():
+    '''Display the total table'''
+    
+    return render_template('/jsonbreakdown.html')
 
 def getPapersKWgroup(grouper):
     with sqlite3.connect(mydb) as con:
@@ -243,8 +268,6 @@ def jsonPaperKW():
 @App.route('/findaConf',methods=('GET', ))
 def findaconf():
     return render_template('/findaConf.html')
-
-
 
 if __name__ == '__main__':
    
