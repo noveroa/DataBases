@@ -88,6 +88,10 @@ def dict_factory(cursor, row):
         d[col[0]] = row[idx]
     return d
 
+
+'''
+                                                TOTAL TABLES
+''' 
 @App.route("/jsonTotal/<table>", methods=('GET',))
 def getjsonTotal(table):
     '''Return Jsonified table SELECT *'''
@@ -134,7 +138,9 @@ def jsonContents():
     '''Display the total table'''
     return render_template('/jsonContents.html')
 
-
+'''
+                                        CONFERENCE BREAKDOWNS AND FUNCTIONS - BY YEAR
+'''
 
 
 @App.route("/jsonContentsconf", methods = ('GET',))
@@ -166,6 +172,8 @@ def getContentsconf():
             myt.append(entry)
     
     return jsonify(dict(data = myt))
+
+                            
 
 @App.route("/jsonconfyrpapers/<year>/<conf>", methods=('GET',))
 def getPapersConfYr(year, conf):
@@ -277,28 +285,33 @@ def search_params(param1, param2):
             mytable = [entry]
             return jsonify(dict(data = mytable))
 
-        
+'''
+                                                PAPERS BREAKDOWNS AND FUNCTIONS
+'''       
 def getPapersKWgroup(grouper):
     with sqlite3.connect(mydb) as con:
         sqlcmd = "SELECT paperID, title, confName, pubYear FROM PAPER "
+        
         paperdf = pd.read_sql_query(sqlcmd, con)
+        
         sqlcmd2 = "SELECT paperID, keyword FROM PAPERKEY "
         kwdf = pd.read_sql_query(sqlcmd2, con)
+        kwdf['keyword'] = kwdf['keyword'].apply(lambda word: eval(word))
         
         merged = kwdf.merge(paperdf, on = 'paperID')
         
         subgrp = merged.groupby(grouper)
         
-        return subgrp
+        return merged, subgrp
     
 @App.route("/papers/keywords", methods = ('GET',))    
 def getPaperKW():
-    data_frame = getPapersKWgroup('paperID')
+    m, data_frame = getPapersKWgroup('paperID')
     entries = []
     for each in data_frame.groups:
         entry = {}
         entry['paperID'] = each
-        entry['keywords'] = [str(eval(key)) for key in data_frame.get_group(each)['keyword']]
+        entry['keywords'] = [key for key in data_frame.get_group(each)['keyword']]
         entries.append(entry)
     return jsonify(dict(data = entries))
 
@@ -307,6 +320,49 @@ def jsonPaperKW():
     '''Display the total table'''
     
     return render_template('/paperKWs.html')
+
+@App.route('/search_kw')
+def search_kw():
+    return render_template("search_kw.html")
+
+@App.route('/search_kw/<param>', methods=('GET',))
+def search_kw_params(param):
+    print "keyword search: ", param
+    
+    
+    m, f = getPapersKWgroup('keyword')
+    print('got group1')
+    cts = m.groupby(["keyword"])["keyword"].count().reset_index(name="counts")
+    print('got cts')
+    ctsmerge = cts.merge(m, on = 'keyword').groupby('keyword')   
+    print('merged')
+    try:
+        print 'Starting Collection:' 
+        print param
+        
+        subgroup = ctsmerge.get_group(param)
+        print 'GotSub ', subgroup
+        mytable = []
+            
+        for idx in subgroup.index.get_values():
+            print idx
+            entry = {}
+            entry['paperID'] = subgroup.loc[idx].paperID
+            entry['Title'] = subgroup.loc[idx]['title']
+            entry['Conference'] = subgroup.loc[idx]['confName']   
+            entry['PublicationYear'] = subgroup.loc[idx]['pubYear'] 
+            mytable.append(entry)
+       
+        return jsonify(dict(data = mytable))
+    except:
+        print (param, 'subgroupfail')
+        entry = {'paperID': 'No Keyword Found',
+                     'Title': 'No Keyword Found',
+                     'Conference': 'No Keyword Found',
+                     'PublicationYear': 'No Keyword Found'
+                     }
+        mytable = [entry]
+        return jsonify(dict(data = mytable))
 
 
 if __name__ == '__main__':
