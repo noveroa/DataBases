@@ -4,11 +4,21 @@ import numpy as np
 import pandas as pd
 from cStringIO import StringIO
 import base64
+import seaborn as sns
 
 
 def getPieOne(df, conference):
-    
-    fig = df.plot(kind = 'pie', colormap = 'ocean', title = conference, subplots = True,legend = False)
+    fig = plt.figure()
+    fig = df.plot(kind = 'pie', 
+                  colormap = 'Blues', 
+                  title = conference, 
+                  subplots = True, 
+                  legend = False, 
+                  labels = ['' for x in np.arange(len(df))])
+    plt.ylabel('')
+    plt.legend( list(df.index), 
+               bbox_to_anchor=(1.1, 1),
+              fontsize = "xx-small")
     
     io = StringIO()
     plt.savefig(io, format='png')
@@ -21,8 +31,9 @@ def getPieOne(df, conference):
     return script.format(data)
 
 def getBar(df, conference):
-    plt.figure(figsize = (20,20))
+    plt.figure()
     fig =  df.plot(kind = 'bar', colormap = 'ocean', title = conference, subplots = True,legend = False)
+   
     io = StringIO()
     plt.savefig(io, format='png')
     img = base64.encodestring(io.getvalue())
@@ -33,8 +44,21 @@ def getBar(df, conference):
     script = '''<img src="data:image/png;base64,{}";/>'''
     return script.format(data)
 
-
-
+def getBarKW(df, conference):
+    plt.cla()
+    fig = sns.barplot(data = df, y = 'keyword', x = 'count', palette='Blues', orient = 'h')
+    
+    for l in fig.get_ymajorticklabels():
+        l.set_visible(False)
+    io = StringIO()
+    plt.savefig(io, format='png')
+    img = base64.encodestring(io.getvalue())
+   
+    io = StringIO()
+    plt.savefig(io, format='png')
+    data = base64.encodestring(io.getvalue())
+    script = '''<img src="data:image/png;base64,{}";/>'''
+    return script.format(data)
 ##DRAFTS##
 def getPie2():
     import matplotlib.pyplot as plt
@@ -45,7 +69,7 @@ def getPie2():
         keys = list(df['Conf'].unique())
     
         fig, axes = plt.subplots(nrows=len(keys) + 1, ncols=1,
-                             sharex=False, figsize = (15, 20), 
+                             sharex=False
                             )
         fig = df.groupby(['Conf'])["Conf"].count().plot(kind = 'pie', colormap = 'ocean', 
                                                 subplots = True, ax = axes[0] )    

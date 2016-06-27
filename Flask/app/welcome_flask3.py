@@ -220,7 +220,9 @@ def getPapersConfYrTable():
             entry['year'] = year
             
             html = "http://127.0.0.1:5000/confyrpapers/" + str(year) + '/' + conf
-            entry['html'] =  "<a href='%s'<button>click</button>></a>" %html
+            entry['paperbreakdown'] =  "<a href='%s'<button>See Papers</button>></a>" %html
+            html2 = "http://127.0.0.1:5000/confKWbreakdown/"+ conf + '/' + str(year)
+            entry['kwbreakdown'] =  "<a href='%s'<button>Top 10 Keywords</button>></a>" %html2
             
             entries.append(entry)
         
@@ -303,7 +305,58 @@ def getPapersKWgroup(grouper):
         subgrp = merged.groupby(grouper)
         
         return merged, subgrp
+@App.route("/jsonContentskeys/<conf>/<year>", methods = ('GET',))
+def confYrKeywords(year, conf, top = 10):
     
+    print 'Conf: ', conf, 'Year' , year
+    grouper = ['confName', 'pubYear']
+    m, f = getPapersKWgroup(grouper)
+    print 'Got F'
+    myentries = []
+    try:
+        group = (conf, int(year))
+        print group
+        keywordcts = f.get_group(group).groupby(["keyword"])["keyword"].count()
+        print keywordcts
+        kwdftop = keywordcts.sort_values(ascending = False).head(top)
+        
+        resetKW = pd.DataFrame(kwdftop).rename(columns = {'keyword' : 'count'})
+        entry = {}
+        entry['Group'] = group
+        entry['Counts'] = resetKW.to_html()
+        
+        image = images.getPieOne(resetKW, group)
+        entry['Pie'] = image
+        
+        resetKW.reset_index(inplace = True)
+        image2 = images.getBarKW(resetKW, group)
+        entry['Bar'] = image2
+        
+        
+        
+        myentries.append(entry)
+    
+    
+        return jsonify(dict(data = myentries)) 
+    except:
+        entry = {
+            'Group' :  "No Conference Data",
+            'Counts' :  "No Conference Data",
+            'Pie' :  "No Conference Data",
+            'Bar' :  "No Conference Data"
+            }
+        myentries.append(entry)
+    
+    
+        return jsonify(dict(data = myentries)) 
+
+
+@App.route("/confKWbreakdown/<conf>/<year>", methods = ('GET',))
+def jsonConfYrKW(conf, year):
+    '''Display the total table'''
+    
+    return render_template('/jsonContentsconfyrkw.html', entry = [conf, year])
+
 @App.route("/papers/keywords", methods = ('GET',))    
 def getPaperKW():
     m, data_frame = getPapersKWgroup('paperID')
@@ -331,17 +384,17 @@ def search_kw_params(param):
     
     
     m, f = getPapersKWgroup('keyword')
-    print('got group1')
+    
     cts = m.groupby(["keyword"])["keyword"].count().reset_index(name="counts")
-    print('got cts')
+   
     ctsmerge = cts.merge(m, on = 'keyword').groupby('keyword')   
-    print('merged')
+    
     try:
-        print 'Starting Collection:' 
+        
         print param
         
         subgroup = ctsmerge.get_group(param)
-        print 'GotSub ', subgroup
+        
         mytable = []
             
         for idx in subgroup.index.get_values():
