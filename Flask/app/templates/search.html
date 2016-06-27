@@ -1,14 +1,17 @@
-<html>
-  <head>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
-    <style type="text/css" class="init">
-    </style>
-    </head>
+<!-- extend tablej layout -->
+{% extends "tablej.html" %}
+
+{% block title %}ConfYr{% endblock %}
+
+{% block contents %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
+<style type="text/css" class="init">
+</style>
   <body>
-  <div id="moleditor-container" class="absolute panel panel-default">
+  <div id="confyr-container" class="absolute panel panel-default">
     <select class="fp-value fp-target">
-      <option name="ECSA">ECSA</option>
       <option name="QoSA">QoSA</option>
+      <option name="ECSA">ECSA</option>
       <option name="WICSA">WICSA</option>
     </select>
     <input type="int" class="fp-value fp-threshold" min="2003" max="2014"
@@ -71,10 +74,10 @@ function navigateToURI(uri) {
 }
 
 function doit(table) {
-    var $molEditorContainer = $('#moleditor-container');
-    var $threshold = $molEditorContainer.find('.fp-threshold');
-    var $target = $molEditorContainer.find('.fp-target');
-    var url = "/search/" + $target.val() + "/" + $threshold.val();
+    var $confyrContainer = $('#confyr-container');
+    var $threshold = $confyrContainer.find('.fp-threshold');
+    var $target = $confyrContainer.find('.fp-target');
+    var url = "/search/" + $threshold.val()+ "/" + $target.val() ;
     
     $.ajax({
         url: url, 
@@ -96,9 +99,9 @@ function doit(table) {
 
 
 $(document).ready(function () {
-    var $molEditorContainer = $('#moleditor-container');
-    var $threshold = $molEditorContainer.find('.fp-threshold');
-    var $target = $molEditorContainer.find('.fp-target');
+    var $confyrContainer = $('#confyr-container');
+    var $threshold = $confyrContainer.find('.fp-threshold');
+    var $target = $confyrContainer.find('.fp-target');
     
     //get fp-threshold from URL else use default
     var threshold = 2010; // default
@@ -108,14 +111,23 @@ $(document).ready(function () {
         if (_thresh > 2003 && _thresh <= 2015)
             threshold = _thresh;
         else
-            showAlert('threshold must be > 0 and equals or smaller than 1');
+            showAlert('Years avalable for 2004 to 2015');
     }
     $threshold.val(threshold);
     
     // Make the table
     var table = $('#example').DataTable( {
       ajax: "/search/" + $threshold.val() + "/" + $target.val(),
-      dataSrc: "data", // prop in the return json
+      dataSrc: "data", // prop in the return json 
+      "scrollY" : 500,
+      "deferRender" : true,
+      "scroller" : true,
+      "bLengthChange": false,
+      "bFilter": true,
+      "bSort": true, 
+      "aaSorting": [],
+      "bInfo": false,
+      "bAutoWidth": true,
       "processing": true,
       "serverSide": true,
       "columns": [
@@ -145,4 +157,4 @@ $(document).ready(function () {
 })
 </script>
   
-</html>
+{% endblock %}

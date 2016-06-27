@@ -1,12 +1,12 @@
 <!-- extend tablej layout -->
 {% extends "tablej.html" %}
 
-{% block title %}Contents2{% endblock %}
+{% block title %}AllConfs{% endblock %}
 
 {% block contents %}
 
   <body>
-      <table id="Contents2" class="dataTable sig-datatable" width="100%">
+      <table id="AllConfs" class="dataTable sig-datatable" width="100%">
       <thead>
         <th>conf</th>
         <th>counts</th>
@@ -19,7 +19,7 @@
   </body>
   <script>
         $(document).ready(function(){
-            $('#Contents2').dataTable( {
+            $('#AllConfs').dataTable( {
             "buttons" : ["print"],  
             "colReorder" : true,
             "rowReorder" : true,
@@ -49,6 +49,7 @@
 
  <table BORDER="1">
         <tr> <td > <a href="{{ url_for('confbreakdown') }}"><button>Conference Breakdowns by Year</button></a></td>
+             <td > <a href="{{ url_for('search') }}"><button>Search Conferences</button></a></td>
         </tr>
 </table>
 
