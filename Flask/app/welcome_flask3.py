@@ -165,8 +165,14 @@ def getContentsconf():
             
             image = images.getPieOne(subDF, conf)
             entry['Pie']  = image
-        
-            image2 = images.getBar(subDF, conf)
+            
+            subDF.reset_index(inplace = True)
+            image2 = images.getBar(subDF, 
+                                    conf, 
+                                    xaxis = 'year', yaxis = 'Conf', 
+                                    orientation = "v",
+                                    ylabel = 'Count', xlabel = 'Publication Year')
+            
             entry['Bar'] = image2
         
             myt.append(entry)
@@ -329,7 +335,11 @@ def confYrKeywords(year, conf, top = 10):
         entry['Pie'] = image
         
         resetKW.reset_index(inplace = True)
-        image2 = images.getBarKW(resetKW, group)
+        image2 = images.getBar(resetKW, 
+                                  group, 
+                                  xaxis = 'count', yaxis = 'keyword',
+                                  orientation = 'h',
+                                  ylabel = 'keyword', xlabel = 'Count')
         entry['Bar'] = image2
         
         

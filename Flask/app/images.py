@@ -31,35 +31,19 @@ def getPieOne(df, conference):
     plt.close()
     return script.format(data)
 
-def getBar(df, conference):
-    plt.figure()
-    fig =  df.plot(kind = 'bar', 
-                   colormap = 'ocean', 
-                   title = conference, 
-                   subplots = True,
-                   legend = False)
-   
-    io = StringIO()
-    plt.savefig(io, format='png')
-    img = base64.encodestring(io.getvalue())
-   
-    io = StringIO()
-    plt.savefig(io, format='png')
-    data = base64.encodestring(io.getvalue())
-    script = '''<img src="data:image/png;base64,{}";/>'''
-    plt.close()
-    return script.format(data)
 
-def getBarKW(df, conference):
+def getBar(df, conference, xaxis, yaxis, orientation, ylabel = 'count', xlabel = 'trada'):
     plt.cla()
     fig = sns.barplot(data = df, 
-                      y = 'keyword', 
-                      x = 'count', 
+                      y =  yaxis,#'keyword', 
+                      x = xaxis, #'count', 
                       palette='Blues', 
-                      orient = 'h')
+                      orient = orientation)
+    fig.set_ylabel(ylabel)
+    fig.set_xlabel(xlabel)
     
-    for l in fig.get_ymajorticklabels():
-        l.set_visible(False)
+    #for l in fig.get_ymajorticklabels():
+        #l.set_visible(False)
     io = StringIO()
     plt.savefig(io, format='png')
     img = base64.encodestring(io.getvalue())
@@ -173,3 +157,21 @@ def getPie(start):
 
     return html.format(data)
     
+def getBardd(df, conference):
+    plt.figure()
+    fig =  df.plot(kind = 'bar', 
+                   colormap = 'ocean', 
+                   title = conference, 
+                   subplots = True,
+                   legend = False)
+   
+    io = StringIO()
+    plt.savefig(io, format='png')
+    img = base64.encodestring(io.getvalue())
+   
+    io = StringIO()
+    plt.savefig(io, format='png')
+    data = base64.encodestring(io.getvalue())
+    script = '''<img src="data:image/png;base64,{}";/>'''
+    plt.close()
+    return script.format(data)
