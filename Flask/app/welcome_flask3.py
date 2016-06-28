@@ -417,6 +417,43 @@ def search_kw_params(param):
         mytable = [entry]
         return jsonify(dict(data = mytable))
 
+@App.route('/seeKWTrend/<param>', methods=('GET',))
+def seeKWTrend(param, grouper = 'keyword'):
+    print('My keyword: ' , param)
+    m, f = getPapersKWgroup(grouper)
+    
+    query2 = '"%s" == keyword' %param
+    
+    data_frame = m.copy()
+    data_frame.query(query2, inplace = True)
+    new = data_frame.copy()
+    
+    def findKWTrend(df, KWgrouper = ["pubYear", "confName"]):
+        #labels = {'ECSA' : 0,
+                  #'QoSA' : 1,
+                  #'WICSA' : 2}
+        df = df.groupby(KWgrouper)['keyword'].count().reset_index(name="counts")
+        #df['confCode'] = df.confName.apply(lambda name: labels[name])
+        try:
+            return df, images.getHeatMap(df)
+        except:
+            return df, 'no data'
+        
+    
+    df, image = findKWTrend(new)
+    
+    myentry = [{'table' : new.to_html(),
+               'cts' : df.to_html(),
+               'trend'  : image
+               }]
+    
+    return jsonify(dict(data = myentry))    
+
+@App.route('/seeKWTrends', methods=('GET',))
+def seeKWTrends():
+    
+    return render_template('jsonKWTrends2.html')
+    
 
 if __name__ == '__main__':
    

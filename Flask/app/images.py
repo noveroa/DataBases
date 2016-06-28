@@ -28,11 +28,16 @@ def getPieOne(df, conference):
     plt.savefig(io, format='png')
     data = base64.encodestring(io.getvalue())
     script = '''<img src="data:image/png;base64,{}";/>'''
+    plt.close()
     return script.format(data)
 
 def getBar(df, conference):
     plt.figure()
-    fig =  df.plot(kind = 'bar', colormap = 'ocean', title = conference, subplots = True,legend = False)
+    fig =  df.plot(kind = 'bar', 
+                   colormap = 'ocean', 
+                   title = conference, 
+                   subplots = True,
+                   legend = False)
    
     io = StringIO()
     plt.savefig(io, format='png')
@@ -42,11 +47,16 @@ def getBar(df, conference):
     plt.savefig(io, format='png')
     data = base64.encodestring(io.getvalue())
     script = '''<img src="data:image/png;base64,{}";/>'''
+    plt.close()
     return script.format(data)
 
 def getBarKW(df, conference):
     plt.cla()
-    fig = sns.barplot(data = df, y = 'keyword', x = 'count', palette='Blues', orient = 'h')
+    fig = sns.barplot(data = df, 
+                      y = 'keyword', 
+                      x = 'count', 
+                      palette='Blues', 
+                      orient = 'h')
     
     for l in fig.get_ymajorticklabels():
         l.set_visible(False)
@@ -58,7 +68,48 @@ def getBarKW(df, conference):
     plt.savefig(io, format='png')
     data = base64.encodestring(io.getvalue())
     script = '''<img src="data:image/png;base64,{}";/>'''
+    plt.close()
     return script.format(data)
+
+
+def getHeatMap(data_frame, indexCol = 'confName', cols = 'pubYear', vals = 'counts'):
+    plt.cla()
+    
+    fig = sns.heatmap(data_frame.pivot_table(index=indexCol, 
+                                             columns=cols, 
+                                             values=vals),
+                                             cmap = 'Blues')
+    
+    io = StringIO()
+    plt.savefig(io, format='png')
+    img = base64.encodestring(io.getvalue())
+   
+    io = StringIO()
+    plt.savefig(io, format='png')
+    data = base64.encodestring(io.getvalue())
+    script = '''<img src="data:image/png;base64,{}";/>'''
+    plt.close()
+    return script.format(data)
+
+def getLine(data_frame, xaxis = 'confName', yaxis = 'counts'):
+    plt.cla()
+    fig = sns.swarmplot(data = data_frame, 
+                        x=xaxis, 
+                        y = yaxis,
+                        palette = 'Blues')
+    
+    io = StringIO()
+    plt.savefig(io, format='png')
+    img = base64.encodestring(io.getvalue())
+   
+    io = StringIO()
+    plt.savefig(io, format='png')
+    data = base64.encodestring(io.getvalue())
+    script = '''<img src="data:image/png;base64,{}";/>'''
+    return script.format(data)
+
+
+
 ##DRAFTS##
 def getPie2():
     import matplotlib.pyplot as plt
