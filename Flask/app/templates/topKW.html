@@ -1,0 +1,56 @@
+<!-- extend tablej layout -->
+{% extends "tablej.html" %}
+
+{% block title %}Top 20 KeyWords{% endblock %}
+
+{% block contents %}
+<style>
+    caption, th, td {
+        padding: 8px;
+        text-align: left;
+        border: 1px solid #fff;
+        border-bottom: 1px solid #ddd;
+        }
+     caption {
+        font-weight: bold;
+        font-size: 1.1em;
+     }
+</style>
+<h2>Top 20 Keywords Over Time</h2>
+  <body>
+      <table id="TopKW" class="dataTable sig-datatable" width="100%">
+      <thead>
+        <th>Top20</th>
+        <th>HeatMap</th>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </body>
+  <script>
+        $(document).ready(function(){
+            $('#TopKW').dataTable( {  
+            "colReorder" : true,
+            "rowReorder" : true,
+            "ajax" : '/api/data',
+            "bLengthChange": false,
+            "bFilter": true,
+            "bSort": true, 
+            "aaSorting": [],
+            "bInfo": false,
+            "bJQueryUI": true,
+            "bAutoWidth": false,
+            "scrollY" : 6,
+            "deferRender" : false,
+            "scroller" : true,
+            "columns":  [
+                { "data": "Top20"},
+                { "data": "HeatMap"},
+            ],
+            "ajax": {
+        "url":"http://127.0.0.1:5000/seeKWTop"
+            },
+         });   
+        });   
+   </script>
+{% endblock %}
