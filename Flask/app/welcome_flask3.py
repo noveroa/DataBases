@@ -493,6 +493,64 @@ def topKW():
     
     return render_template('topKW.html')
 
+
+'''
+                                                AUTHORS BREAKDOWNS AND FUNCTIONS
+''' 
+
+def AuthoredPapersDF(boolean):
+    if boolean == 'start':
+    
+        with sqlite3.connect(mydb) as con:
+            sqlcmd = "SELECT * FROM PAPERAUTHOR"
+        
+            papaudf = pd.read_sql_query(sqlcmd, con)
+        
+            sqlcmd2 = "SELECT paperID,title,confName, pubYear FROM PAPER"
+        
+            pap  = pd.read_sql_query(sqlcmd2, con)
+        
+            merged = papaudf.merge(pap, on =  'paperID')
+            merged['counts'] = merged.groupby(['authorName'])['authorName'].transform('count')
+        
+            return merged.sort_values(by = ['counts','authorName'], ascending = False)
+            
+            
+
+@App.route('/AuthoredPapers', methods=('GET',))
+def AuthoredPapers():
+        ap = AuthoredPapersDF('start')
+        entries = []
+        for row in ap.as_matrix():
+            entry = {key: value for (key, value) in zip(ap.columns, row)}
+            entries.append(entry)
+        return jsonify(dict(data = entries))
+
+@App.route('/authoredpapers', methods=('GET',))
+def authoredpapers():
+    
+    return render_template('authoredpapers.html')
+    
+
+@App.route('/getauthors/<paperID>', methods=('GET',))
+def getauthors(paperID):
+    print paperID
+    ap = AuthoredPapersDF('start')
+    query = 'paperID == %d' %int(paperID)
+    
+    ap = ap.query(query)
+    entries = []
+    
+    for row in ap.as_matrix():
+        entry = {key: value for (key, value) in zip(ap.columns, row)}
+        entries.append(entry)
+    return jsonify(dict(data = entries))
+
+@App.route('/seeAuthors', methods=('GET',))
+def seeAuthors():
+    
+    return render_template('seeAuthors.html')
+
 if __name__ == '__main__':
    
     App.debug=True
