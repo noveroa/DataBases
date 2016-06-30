@@ -33,16 +33,16 @@
     <table BORDER="2">
         <Caption color = "white" > Let's Navigate </Caption>
         
-        <tr> <td > <a href="{{ url_for('index') }}"><button>Home</button></a></td>
-            <td > <a href="{{ url_for('getUsers') }}"><button>Users</button></a></td>
-            <td > <a href="{{ url_for('aboutme') }}"><button>AboutMe!</button></a></td>
-            <td > <a href="{{ url_for('jsonContents') }}"><button>What Do We Have?</button></a></td>
+        <tr> 
+            <td > <a href="{{ url_for('index') }}"><button>Home</button></a></td>
+            <td> <a href="{{ url_for('getUsers') }}"><button>Users</button></a></td>
+            <td ><a href="{{ url_for('aboutme') }}"><button>AboutMe!</button></a></td>
+            <td ><a href="{{ url_for('jsonContents') }}"><button>What Do We Have?</button></a></td>   
+            <td><td>
+            <td> <a href="{{ url_for('jsonContentsconf') }}"><button>Visual Conference Breakdown</button></a></td>
+            <td><td> <a href="{{ url_for('jsonPaperKW') }}"><button>Papers and their Keywords</button></a></td>
             
-        </tr>
         <tr>
-            <td> <td > <a href="{{ url_for('jsonContentsconf') }}"><button>Visual Conference Breakdown</button></a></td>
-            <td> <td > <a href="{{ url_for('jsonPaperKW') }}"><button>Papers and their Keywords</button></a></td>
-            <tr>
     </table>
     <iframe src="http://www.myneu.neu.edu">
           <p>Your browser does not support iframes.</p>

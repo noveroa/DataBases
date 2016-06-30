@@ -64,6 +64,7 @@ def getHeatMap(data_frame, indexCol = 'confName', cols = 'pubYear', vals = 'coun
                                              values=vals),
                                              cmap = 'Blues')
     
+    
     io = StringIO()
     plt.savefig(io, format='png')
     img = base64.encodestring(io.getvalue())

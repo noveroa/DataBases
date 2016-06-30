@@ -470,11 +470,11 @@ def seeKWTop(top = 20):
     
     topWds = f.count().sort_values(by = 'confName', ascending = False)[:top]
     
-    mTop20 = m[m['keyword'].isin(topWds.index)]
+    mTop = m[m['keyword'].isin(topWds.index)]
     
-    mTop20['counts'] = mTop20.groupby(['confName', 'pubYear', 'keyword'])['keyword'].transform('count')
+    mTop['counts'] = mTop.groupby(['confName', 'pubYear', 'keyword'])['keyword'].transform('count')
     
-    image = images.getHeatMap(mTop20, indexCol='keyword', cols = ['confName', 'pubYear'], vals = 'counts')
+    image = images.getHeatMap(mTop, indexCol='keyword', cols = ['confName', 'pubYear'], vals = 'counts')
     
     topWds.reset_index(inplace = True)
     topWds.rename(columns = {'confName' : 'OverallCount'}, inplace = True)
@@ -483,7 +483,7 @@ def seeKWTop(top = 20):
     
     
     return jsonify(dict(data = 
-                        [{'Top20' : cts.to_html(),
+                        [{'Top' : cts.to_html(),
                        'HeatMap' : image}]
                        )
                     )

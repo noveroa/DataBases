@@ -20,7 +20,7 @@
   <body>
       <table id="TopKW" class="dataTable sig-datatable" width="100%">
       <thead>
-        <th>Top20</th>
+        <th>Top</th>
         <th>HeatMap</th>
       </thead>
       <tbody>
@@ -40,11 +40,11 @@
             "bInfo": false,
             "bJQueryUI": true,
             "bAutoWidth": false,
-            "scrollY" : 6,
+            "scrollY" : 600,
             "deferRender" : false,
             "scroller" : true,
             "columns":  [
-                { "data": "Top20"},
+                { "data": "Top"},
                 { "data": "HeatMap"},
             ],
             "ajax": {
@@ -53,4 +53,11 @@
          });   
         });   
    </script>
+<table BORDER="1">
+        <tr> 
+             <td > <a href="{{ url_for('search_kw') }}"><button>Search Keywords</button></a></td>
+             <td > <a href="{{ url_for('seeKWTrends') }}"><button>See A Trend</button></a></td>
+             <td > <a href="{{ url_for('topKW') }}"><button>See Top 20 Trend</button></a></td>
+        </tr>
+</table>
 {% endblock %}
