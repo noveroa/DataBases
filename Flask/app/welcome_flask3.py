@@ -445,7 +445,7 @@ def seeKWTrend(param, grouper = 'keyword'):
         df = df.groupby(KWgrouper)['keyword'].count().reset_index(name="counts")
         #df['confCode'] = df.confName.apply(lambda name: labels[name])
         try:
-            return df, images.getHeatMap(df)
+            return df, images.getHeatMap(df, annotation = True)
         except:
             return df, 'no data'
         
@@ -551,6 +551,54 @@ def seeAuthors():
     
     return render_template('seeAuthors.html')
 
+@App.route('/getauthorsbyname/<name>', methods=('GET',))
+def getauthorsbyname(name):
+    print name
+    ap = AuthoredPapersDF('start')
+    query = 'authorName == "%s"' %name
+    
+    ap = ap.query(query)
+    entries = []
+    
+    for row in ap.as_matrix():
+        entry = {key: value for (key, value) in zip(ap.columns, row)}
+        entries.append(entry)
+    return jsonify(dict(data = entries))
+
+@App.route('/seeAuthorsName', methods=('GET',))
+def seeAuthorsName():
+    
+    return render_template('seeAuthorsName.html')
+
+@App.route('/confyrAuthor', methods=('GET',))
+def confYrAuthor():
+    grouper = ['confName', 'pubYear']
+    f = AuthoredPapersDF('start')
+    grouper = ['confName', 'pubYear']
+    testgroup = f.groupby(grouper)
+    
+    myentries = []
+    for group in testgroup.groups.keys():
+        authorcts = testgroup.get_group((group)).groupby(["authorName"])["authorName"].count()
+        
+        resetAU = pd.DataFrame(authorcts).rename(columns = {'authorName' : 'IndivCt'})
+        resetAU.reset_index(inplace = True)
+        
+        mer = pd.merge(resetAU, testgroup.get_group((group)))
+            
+        entry = {}
+        entry['Group'] = group
+        entry['AuthoredPapers'] = mer.to_html()
+        
+        
+        myentries.append(entry)
+    
+    return jsonify(dict(data = myentries))
+
+@App.route('/seeAuthorsCY', methods=('GET',))
+def seeAuthorsCY():
+    
+    return render_template('seeAuthorsCY.html')
 if __name__ == '__main__':
    
     App.debug=True
