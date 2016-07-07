@@ -1,4 +1,4 @@
-<!-- extend tablej layout -->
+<!-- extend tablej layout Returns a table of Authors and their associated papers by conference and year The count is the total number of papers the author has been ascribed over the entirety of the database -->
 {% extends "tablej.html" %}
 
 {% block title %}AuthoredPapers{% endblock %}
@@ -7,8 +7,11 @@
   <body>
       <table id="AuthoredPapers" class="dataTable sig-datatable" width="100%">
       <thead>
-        <th>Group</th>
-        <th>AuthoredPapers</th>
+        <th>Author</th>
+        <th>Paper Title</th>
+        <th>Conference</th>
+        <th>pubYear</th>
+        <th>count</th>
       </thead>
       <tbody>
       </tbody>
@@ -25,11 +28,14 @@
             "bJQueryUI": true,
             "bAutoWidth": true,
             "columns":  [
-                { "data": "Group" },
-                { "data": "AuthoredPapers" }
+                { "data": "authorName" },
+                { "data": "title" },
+                { "data": "confName" },
+                { "data": "pubYear" },
+                { "data": "counts" }
             ],
             "ajax": {
-        "url":"http://127.0.0.1:5000/confyrAuthor",
+        "url":"http://127.0.0.1:5000/AuthoredPapers",
             },
          });   
         });   

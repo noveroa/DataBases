@@ -60,13 +60,13 @@ def index():
 def aboutme():
     """ Displays the page about the coolest person around.
     """
-    return flask.render_template('aboutMe.html')
+    return flask.render_template('extras/aboutMe.html')
 
 @App.route('/welcome/<name>/')
 def welcome(name):
     """ Displays the welcome screen.
     """
-    return flask.render_template('welcome.html', name=name)
+    return flask.render_template('extras/welcome.html', name=name)
 
 @App.route('/users')
 def getUsers():
@@ -80,7 +80,7 @@ def getUsers():
         keys = rows[0].keys()
 
         #return df
-        return render_template('tables.html', title = 'users' , rows = rows, keys = keys)
+        return render_template('extras/tables.html', title = 'users' , rows = rows, keys = keys)
 
 def dict_factory(cursor, row):
     d = {}
@@ -136,7 +136,7 @@ def getContents():
 @App.route("/contents", methods = ('GET',))
 def jsonContents():
     '''Display the total table'''
-    return render_template('/jsonContents.html')
+    return render_template('/totaltables/jsonContents.html')
 
 '''
                                         CONFERENCE BREAKDOWNS AND FUNCTIONS - BY YEAR
@@ -229,6 +229,8 @@ def getPapersConfYrTable():
             entry['paperbreakdown'] =  "<a href='%s'<button>See Papers</button>></a>" %html
             html2 = "http://127.0.0.1:5000/confKWbreakdown/"+ conf + '/' + str(year)
             entry['kwbreakdown'] =  "<a href='%s'<button>Top 10 Keywords</button>></a>" %html2
+            html3 = "http://127.0.0.1:5000/jsonconfyrAuthorbd/"+ conf + '/' + str(year)
+            entry['authors'] =  "<a href='%s'<button>Authors</button>></a>" %html3
             
             entries.append(entry)
         
@@ -238,23 +240,23 @@ def getPapersConfYrTable():
 def jsonConfYrPaper(year, conf):
     '''Display the papers from a given year and conference table'''
     
-    return render_template('/ConfYrPaper.html', entry = [year, conf])
+    return render_template('/conferences/ConfYrPaper.html', entry = [year, conf])
 
 @App.route("/contentsconf", methods = ('GET',))
 def jsonContentsconf():
     '''Display the total table'''
     
-    return render_template('/jsonContentsconf.html')
+    return render_template('/conferences/jsonContentsconf.html')
 
 @App.route("/confbreakdown", methods = ('GET',))
 def confbreakdown():
     '''Display the total table'''
     
-    return render_template('/jsonbreakdown.html')
+    return render_template('/conferences/jsonbreakdown.html')
 
 @App.route('/search')
 def search():
-    return render_template("search.html")
+    return render_template("/conferences/search.html")
 
 @App.route('/search/<param1>/<param2>', methods=('GET',))
 def search_params(param1, param2):
@@ -297,6 +299,12 @@ def search_params(param1, param2):
                                                 PAPERS BREAKDOWNS AND FUNCTIONS
 '''       
 def getPapersKWgroup(grouper):
+    '''
+    : param grouper: parameters to group paper keyword merged table by (ie. [confName, pubYear])
+    : output : Returns two python Pandas DataFrames . 
+            merged: PAPER and PAPERKEY merged on paperID
+            subgroup : merged grouped by given grouper
+    '''
     with sqlite3.connect(mydb) as con:
         sqlcmd = "SELECT paperID, title, confName, pubYear FROM PAPER "
         
@@ -313,7 +321,13 @@ def getPapersKWgroup(grouper):
         return merged, subgrp
 @App.route("/jsonContentskeys/<conf>/<year>", methods = ('GET',))
 def confYrKeywords(year, conf, top = 10):
-    
+    '''
+    : param conf str : Valid Conference Name (WICSA, ECSA, QoSA)
+    : param year str/int : Year of a conference within range of database 2004 - 2014
+    : param top int : number of keywords to return, default 10
+    : output : Returns a json dictionary of the top 10 keywords for the given conference/year. 
+                And a bie and bar graph representation
+    '''    
     print 'Conf: ', conf, 'Year' , year
     grouper = ['confName', 'pubYear']
     m, f = getPapersKWgroup(grouper)
@@ -363,12 +377,17 @@ def confYrKeywords(year, conf, top = 10):
 
 @App.route("/confKWbreakdown/<conf>/<year>", methods = ('GET',))
 def jsonConfYrKW(conf, year):
-    '''Display the total table'''
-    
-    return render_template('/jsonContentsconfyrkw.html', entry = [conf, year])
+    '''
+    Renders confYrKeywords() as html
+    '''
+    return render_template('/keywords/jsonContentsconfyrkw.html', entry = [conf, year])
 
 @App.route("/papers/keywords", methods = ('GET',))    
 def getPaperKW():
+    '''
+    : param NONE
+    : output : Returns a json dictionary of paperIDs and their keywords
+    '''
     m, data_frame = getPapersKWgroup('paperID')
     entries = []
     for each in data_frame.groups:
@@ -380,16 +399,24 @@ def getPaperKW():
 
 @App.route("/paperKWs.html", methods = ('GET',))
 def jsonPaperKW():
-    '''Display the total table'''
-    
-    return render_template('/paperKWs.html')
+    '''
+    Renders getPaperKW() as html
+    '''
+    return render_template('/keywords/paperKWs.html')
 
 @App.route('/search_kw')
 def search_kw():
-    return render_template("search_kw.html")
+    '''
+    Renders search_kw_params() as html
+    '''
+    return render_template("/keywords/search_kw.html")
 
 @App.route('/search_kw/<param>', methods=('GET',))
 def search_kw_params(param):
+    '''
+    : param param str: keyword string to be searched for
+    : output : Returns a json dictionary of papers associated to the given keyword
+    '''
     print "keyword search: ", param
     
     
@@ -429,6 +456,11 @@ def search_kw_params(param):
 
 @App.route('/seeKWTrend/<param>', methods=('GET',))
 def seeKWTrend(param, grouper = 'keyword'):
+    '''
+    : param param str: keyword string to be searched for
+    : output : Returns a json dicitonary of a table with the given keyword's associated papers, counts per conference and year,
+                and a heatmap represenation
+    '''
     print('My keyword: ' , param)
     m, f = getPapersKWgroup(grouper)
     
@@ -461,11 +493,18 @@ def seeKWTrend(param, grouper = 'keyword'):
 
 @App.route('/seeKWTrends', methods=('GET',))
 def seeKWTrends():
+    '''
+    Renders seeKWTrend() as html
+    '''
     
-    return render_template('jsonKWTrends2.html')
+    return render_template('keywords/jsonKWTrends2.html')
 
 @App.route('/seeKWTop', methods=('GET',))
 def seeKWTop(top = 20):
+    '''
+    : param top int: number of top keywords to return, default 20
+    : output : Returns a json dicitonary of the frequency of the top keywords over all years and a heatmap
+    '''
     m, f = getPapersKWgroup('keyword')
     
     topWds = f.count().sort_values(by = 'confName', ascending = False)[:top]
@@ -490,8 +529,10 @@ def seeKWTop(top = 20):
 
 @App.route('/topKW', methods=('GET',))
 def topKW():
-    
-    return render_template('topKW.html')
+    '''
+    Renders seeKWTop() as html
+    '''
+    return render_template('keywords/topKW.html')
 
 
 '''
@@ -499,6 +540,10 @@ def topKW():
 ''' 
 
 def AuthoredPapersDF(boolean):
+    '''
+    : param boolean: control flow boolean
+    : output : Returns a python Pandas DataFrane of total database of paperIDs merged to authors 
+    '''
     if boolean == 'start':
     
         with sqlite3.connect(mydb) as con:
@@ -519,21 +564,35 @@ def AuthoredPapersDF(boolean):
 
 @App.route('/AuthoredPapers', methods=('GET',))
 def AuthoredPapers():
-        ap = AuthoredPapersDF('start')
-        entries = []
-        for row in ap.as_matrix():
-            entry = {key: value for (key, value) in zip(ap.columns, row)}
-            entries.append(entry)
-        return jsonify(dict(data = entries))
+    '''
+    : param NONE:
+    : output : Returns a json dictionary of Authors and their associated papers by conference and year.
+               The count is the total number of papers the author has been ascribed over the entirety of the database 
+    '''
+    ap = AuthoredPapersDF('start')
+    entries = []
+    for row in ap.as_matrix():
+        entry = {key: value for (key, value) in zip(ap.columns, row)}
+        entries.append(entry)
+        
+    return jsonify(dict(data = entries))
 
-@App.route('/authoredpapers', methods=('GET',))
+@App.route('/authors/authoredpapers', methods=('GET',))
 def authoredpapers():
-    
-    return render_template('authoredpapers.html')
+    '''
+    Renders AuthoredPapers() as html
+    '''
+    return render_template('authors/authoredpapers.html')
     
 
 @App.route('/getauthors/<paperID>', methods=('GET',))
 def getauthors(paperID):
+    '''
+        : param paperID int: integer corresponding to the paperID
+        : output : Given a valid paperID returns a json dictionary of authors ascribed to the given paper, 
+                   Though redundant, paper title, conference, year is also returned.
+                   The count is the total number of papers the author has been ascribed over the entirety of the database
+    '''
     print paperID
     ap = AuthoredPapersDF('start')
     query = 'paperID == %d' %int(paperID)
@@ -546,13 +605,20 @@ def getauthors(paperID):
         entries.append(entry)
     return jsonify(dict(data = entries))
 
-@App.route('/seeAuthors', methods=('GET',))
+@App.route('/authors/seeAuthors', methods=('GET',))
 def seeAuthors():
-    
-    return render_template('seeAuthors.html')
+    '''
+    Renders getAuthors() as html
+    '''
+    return render_template('authors/seeAuthors.html')
 
 @App.route('/getauthorsbyname/<name>', methods=('GET',))
 def getauthorsbyname(name):
+    '''
+        : param name str: string corresponding to an authors name. SPACE SENSITIVE
+        : output : Given a valid author name returns a json dictionary of papers ascribed to the author, 
+                    the conference, title, and year.
+    '''
     print name
     ap = AuthoredPapersDF('start')
     query = 'authorName == "%s"' %name
@@ -565,13 +631,20 @@ def getauthorsbyname(name):
         entries.append(entry)
     return jsonify(dict(data = entries))
 
-@App.route('/seeAuthorsName', methods=('GET',))
+@App.route('/authors/seeAuthorsName', methods=('GET',))
 def seeAuthorsName():
-    
-    return render_template('seeAuthorsName.html')
+    '''
+    Renders getauthorsbyname() as html
+    '''
+    return render_template('authors/seeAuthorsName.html')
 
 @App.route('/confyrAuthor', methods=('GET',))
 def confYrAuthor():
+    '''
+        : param NONE
+        : output : Returns a json dictionary containing Papers,Authors merged grouped by Conference and Year. 
+        Used for inspection
+    '''
     grouper = ['confName', 'pubYear']
     f = AuthoredPapersDF('start')
     grouper = ['confName', 'pubYear']
@@ -595,10 +668,69 @@ def confYrAuthor():
     
     return jsonify(dict(data = myentries))
 
-@App.route('/seeAuthorsCY', methods=('GET',))
+@App.route('/authors/seeAuthorsCY', methods=('GET',))
 def seeAuthorsCY():
+    '''
+    Renders confYrAuthor() as html
+    '''
+    return render_template('authors/seeAuthorsCY.html')
+
+@App.route('/confyrAuthor_bd/<conf>/<year>', methods=('GET',))
+def confYrAuthor2(conf, year):
+    '''
+        : param conf str : Valid Conference Name (WICSA, ECSA, QoSA)
+        : param year str/int : Year of a conference within range of database 2004 - 2014
+        : output : Returns a json dictionary containing Authors, paperIds, titles of papers published in given conf/year
+                    AuuthorYrCount is the total number of papers ascribd to a given author in the given conf/year
+    '''
+    grouper = ['confName', 'pubYear']
+    f = AuthoredPapersDF('start')
+    grouper = ['confName', 'pubYear']
+    group = f.groupby(grouper)
     
-    return render_template('seeAuthorsCY.html')
+    try:
+        print (conf, year)
+        subgroup =  group.get_group((conf, int(year)))
+                                  
+        print ('subgroupmade')
+        cts = subgroup.groupby(["authorName"])["authorName"].count()
+        
+            
+        resetAU = pd.DataFrame(cts).rename(columns = {'authorName' : 'IndivCt'})
+        resetAU.reset_index(inplace = True)
+        
+        merged = pd.merge(resetAU, subgroup)
+
+        mytable = []
+        for idx in merged.index.get_values():
+            entry = {}
+            entry['Author'] = merged.loc[idx]['authorName']
+            entry['paperID'] = merged.loc[idx]['paperID']
+            entry['Title'] = merged.loc[idx]['title']
+            entry['AuthorYrCount'] = merged.loc[idx]['IndivCt']    
+            
+            mytable.append(entry)
+        
+        return jsonify(dict(data = mytable))
+    
+    except:
+        print('Conference Year error')
+        mytable = {entry['Author'] : 'No Conference Data',
+                   entry['paperID'] : 'No Conference Data',
+                   entry['Title'] : 'No Conference Data',
+                   entry['AuthorYrCount'] : 'No Conference Data'
+                   }
+        return jsonify(dict(data = mytable))
+
+    
+@App.route("/jsonconfyrAuthorbd/<conf>/<year>", methods = ('GET',))
+def jsonconfyrAuthorbd(conf, year):
+    '''
+    Renders confYrAuthor2() as html
+    '''
+    
+    return render_template('authors/seeAuthorsCYbd.html', entry = [conf, year]) 
+
 if __name__ == '__main__':
    
     App.debug=True

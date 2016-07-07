@@ -1,18 +1,14 @@
-<!-- extend tablej layout -->
+<!-- extend tablej layout Returns a tables of Papers,Authors merged grouped by Conference and Year. Used for inspection-->
 {% extends "tablej.html" %}
 
-{% block title %}BreakDownKeywords{% endblock %}
+{% block title %}AuthoredPapers{% endblock %}
 
 {% block contents %}
-<h2> Conference: {{entry[0]}} Year: {{entry[1]}} </h2>
-<h3> Top 10 Keywords </h3>
   <body>
-      <table id="BreakDownKeywords" class="dataTable sig-datatable">
+      <table id="AuthoredPapers" class="dataTable sig-datatable" width="100%">
       <thead>
         <th>Group</th>
-        <th>Counts</th>
-        <th>Pie</th>
-        <th>Bar</th>
+        <th>AuthoredPapers</th>
       </thead>
       <tbody>
       </tbody>
@@ -20,13 +16,7 @@
   </body>
   <script>
         $(document).ready(function(){
-            $('#BreakDownKeywords').dataTable( {
-            "buttons" : ["print"],  
-            "colReorder" : true,
-            "ajax" : '/api/data',
-            "scrollY" : 550,
-            "deferRender" : false,
-            "scroller" : true,
+            $('#AuthoredPapers').dataTable( {
             "bLengthChange": false,
             "bFilter": true,
             "bSort": true, 
@@ -35,13 +25,11 @@
             "bJQueryUI": true,
             "bAutoWidth": true,
             "columns":  [
-                { "data": "Group"},
-                { "data": "Counts"},
-                { "data": "Pie"}, 
-                { "data": "Bar" }
+                { "data": "Group" },
+                { "data": "AuthoredPapers" }
             ],
             "ajax": {
-        "url":"http://127.0.0.1:5000/jsonContentskeys/{{entry[0]}}/{{entry[1]}}",
+        "url":"http://127.0.0.1:5000/confyrAuthor",
             },
          });   
         });   
@@ -50,8 +38,8 @@
 <table BORDER="1">
         <tr> <td > <a href="{{ url_for('confbreakdown') }}"><button>Conference Breakdowns by Year</button></a></td>
              <td > <a href="{{ url_for('search_kw') }}"><button>Search Keywords</button></a></td>
+             <td > <a href="{{ url_for('authoredpapers') }}"><button>Look at Authored Papers</button></a></td>
+            <td > <a href="{{ url_for('seeAuthors') }}"><button>Find Another Paper's Authors</button></a></td>
         </tr>
 </table>
-
- 
 {% endblock %}
