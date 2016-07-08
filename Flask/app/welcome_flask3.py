@@ -539,7 +539,7 @@ def topKW():
     '''
     return render_template('keywords/topKW.html')
 
-
+'''
 @App.route('/dictKWcloud', methods=('GET',))
 def dictKWcloud():
     '''
@@ -559,7 +559,7 @@ def KWcloud2():
     '''
     
     return render_template('/wordcloudtest2.html')
-
+'''
 @App.route('/KWcloud', methods=('GET',))
 def KWcloud():
     '''
