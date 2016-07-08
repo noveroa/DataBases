@@ -17,9 +17,6 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud, STOPWORDS#, ImageColorGenerator
 import random
 
-#for saving image to use in flask?
-from cStringIO import StringIO
-import base64
 
 def prep_KWcloud():
     '''
@@ -38,7 +35,8 @@ def prep_KWcloud():
 def KWcloud(outputfile = 'Images/pawtest.png'):
     '''
     : param NONE
-    : output : Returns a saved .png file of the generated wordcloud
+    : output : Returns a saved .png file of the generated wordcloud.  Creating/saving
+                a new image eachtime.
     
     '''
     #IF WANT TO ADD CERTAIN WORDS TO BE EXCLUDED>>>
@@ -50,7 +48,7 @@ def KWcloud(outputfile = 'Images/pawtest.png'):
 
     #wc.generate(text)
     #Image from : https://lifebeinghusky.files.wordpress.com/2010/02/paw.jpg
-    NortheasternHusky = np.array(Image.open("Images/paw.jpg"))
+    NortheasternHusky = np.array(Image.open("static/Images/paw.jpg"))
     
     # take relative word frequencies into account, lower max_font_size
     wc = WordCloud(background_color="white", 
@@ -67,36 +65,3 @@ def KWcloud(outputfile = 'Images/pawtest.png'):
     
     return wc
 
-def KWcloud2():
-    '''
-    : param NONE
-    : output : Returns a saved .png file of the generated wordcloud
-    
-    '''
-    #IF WANT TO ADD CERTAIN WORDS TO BE EXCLUDED>>>
-    #stopwords = set(STOPWORDS)
-    #stopwords.add("said")
-    
-    #generate a single string of ALL the keywords!
-    text = prep_KWcloud()
-
-    #wc.generate(text)
-    #Image from : https://lifebeinghusky.files.wordpress.com/2010/02/paw.jpg
-    NortheasternHusky = np.array(Image.open("Images/paw.jpg"))
-    
-    # take relative word frequencies into account, lower max_font_size
-    wc = WordCloud(background_color="white", 
-                   max_font_size=40, 
-                   relative_scaling=.5, 
-                   mask=NortheasternHusky).generate(text)
-
-    plt.figure()
-    #plt.imshow(wc)
-    plt.axis("off")
-   
-    io = StringIO()
-    plt.savefig(io, format='png')
-    data = base64.encodestring(io.getvalue())
-    script = '''<img src="data:image/png;base64,{}";/>'''
-    
-    return script.format(data)
