@@ -539,27 +539,27 @@ def topKW():
     '''
     return render_template('keywords/topKW.html')
 
-'''
-@App.route('/dictKWcloud', methods=('GET',))
-def dictKWcloud():
-    '''
-    Renders KWs word cloud in html
-    '''
-    #get the word cloud!
-    wordCloud =  wcg.KWcloud2()
-    return jsonify(dict(data = 
-                        [{'image' : wordCloud}]
-                       )
-                    )
 
-@App.route('/KWcloud2', methods=('GET',))
-def KWcloud2():
-    '''
-    Renders KWs word cloud in html
-    '''
-    
-    return render_template('/wordcloudtest2.html')
-'''
+#@App.route('/dictKWcloud', methods=('GET',))
+#def dictKWcloud():
+    #'''
+    #Renders KWs word cloud in html
+    #'''
+    #get the word cloud!
+    #wordCloud =  wcg.KWcloud2()
+    #return jsonify(dict(data = 
+    #                    [{'image' : wordCloud}]
+    #                   )
+    #                )
+#
+#@App.route('/KWcloud2', methods=('GET',))
+#def KWcloud2():
+#    '''
+#    #Renders KWs word cloud in html
+#    '''
+#    
+#    return render_template('/wordcloudtest2.html')
+#'''
 @App.route('/KWcloud', methods=('GET',))
 def KWcloud():
     '''
