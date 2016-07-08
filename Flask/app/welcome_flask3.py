@@ -9,6 +9,8 @@ from flask import abort,  jsonify
 
 import images as images
 images = reload(images)
+import wordcloud_generator as wcg
+wcg = reload(wcg)
 
 App = flask.Flask(__name__)
 
@@ -458,7 +460,8 @@ def search_kw_params(param):
 def seeKWTrend(param, grouper = 'keyword'):
     '''
     : param param str: keyword string to be searched for
-    : output : Returns a json dicitonary of a table with the given keyword's associated papers, counts per conference and year,
+    : output : Returns a json dicitonary of a table with the given keyword's associated 
+                papers, counts per conference and year,
                 and a heatmap represenation
     '''
     print('My keyword: ' , param)
@@ -503,7 +506,8 @@ def seeKWTrends():
 def seeKWTop(top = 20):
     '''
     : param top int: number of top keywords to return, default 20
-    : output : Returns a json dicitonary of the frequency of the top keywords over all years and a heatmap
+    : output : Returns a json dicitonary of the frequency of the top 
+                keywords over all years and a heatmap
     '''
     m, f = getPapersKWgroup('keyword')
     
@@ -513,7 +517,8 @@ def seeKWTop(top = 20):
     
     mTop['counts'] = mTop.groupby(['confName', 'pubYear', 'keyword'])['keyword'].transform('count')
     
-    image = images.getHeatMap(mTop, indexCol='keyword', cols = ['confName', 'pubYear'], vals = 'counts')
+    image = images.getHeatMap(mTop, indexCol='keyword', 
+                              cols = ['confName', 'pubYear'], vals = 'counts')
     
     topWds.reset_index(inplace = True)
     topWds.rename(columns = {'confName' : 'OverallCount'}, inplace = True)
@@ -534,6 +539,34 @@ def topKW():
     '''
     return render_template('keywords/topKW.html')
 
+
+@App.route('/dictKWcloud', methods=('GET',))
+def dictKWcloud():
+    '''
+    Renders KWs word cloud in html
+    '''
+    #get the word cloud!
+    wordCloud =  wcg.KWcloud2()
+    return jsonify(dict(data = 
+                        [{'image' : wordCloud}]
+                       )
+                    )
+
+@App.route('/KWcloud2', methods=('GET',))
+def KWcloud2():
+    '''
+    Renders KWs word cloud in html
+    '''
+    
+    return render_template('/wordcloudtest2.html')
+
+@App.route('/KWcloud', methods=('GET',))
+def KWcloud():
+    '''
+    Renders KWs word cloud in html
+    '''
+    wordCloud =  wcg.KWcloud("Images/pawtest2.png")
+    return render_template('/wordcloudtest.html')
 
 '''
                                                 AUTHORS BREAKDOWNS AND FUNCTIONS
