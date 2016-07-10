@@ -1,7 +1,7 @@
-<!-- extend tablej layout Returns a table of given PaperId and the associated authors by conference and year though redundant.  The count is the total number of papers the author has been ascribed over the entirety of the database -->
+<!-- extend tablej layout Returns a table of papers, titles conferences and years associated with the given keyword -->
 {% extends "tablej.html" %}
 
-{% block title %}Paper's Authors{% endblock %}
+{% block title %}{{title}}{% endblock %}
 
 {% block contents %}
 <body>
@@ -13,15 +13,12 @@
     <table id="example" class="display dataTable" cellspacing="0" width="100%">
         <thead>
             <tr>
-                <th>PaperID</th>
-                <th>Author</th>
-                <th>Paper Title</th>
-                <th>Conference</th>
-                <th>pubYear</th>
-                <th>count</th>
+                <th>paperID</th>
+                <th>Affiliation</th>
+                <th>Link to Paper</th>
             </tr>
         </thead>
-        <tfoot>
+
     </table>
 </body>
 
@@ -65,7 +62,7 @@ function navigateToURI(uri) {
 function doit(table) {
     var $confyrContainer = $('#confyr-container');
     var $target = $confyrContainer.find('.fp-target');
-    var url = "/getauthors/" + $target.val() ;
+    var url = "/searchAffiliation/" + $target.val() ;
     
     $.ajax({
         url: url, 
@@ -91,7 +88,7 @@ $(document).ready(function () {
     
     // Make the table
     var table = $('#example').DataTable( {
-      ajax: "/getauthors/" + $target.val(),
+      ajax: "/searchAffiliation/" + $target.val(),
       dataSrc: "data", // prop in the return json 
       "colReorder" : true,
       "scrollY" : 550,
@@ -107,12 +104,9 @@ $(document).ready(function () {
       "processing": true,
       "serverSide": true,
       "columns": [
-                { "data": "paperID" },
-                { "data": "authorName" },
-                { "data": "title" },
-                { "data": "confName" },
-                { "data": "pubYear" },
-                { "data": "counts" }
+            { "data": "paperID" },
+            { "data": "affiliation" },
+            { "data": "getPaper" }
          ],
     } );  
 
@@ -125,15 +119,10 @@ $(document).ready(function () {
 })
 </script>
 <table BORDER="1">
-        <tr> <td > <a href="{{ url_for('confbreakdown') }}"><button>Conference Breakdowns by Year</button></a></td>
-             <td > <a href="{{ url_for('search_kw') }}"><button>Search Keywords</button></a></td>
-             <td > <a href="{{ url_for('authoredpapers') }}"><button>Look at Authored Papers</button></a></td>
-            <td > <a href="{{ url_for('seeAuthors') }}"><button>Find Another Paper's Authors</button></a></td>
+        <tr>
+            <td > <a href="{{ url_for('seeAuthorsID') }}"><button>Find Paper's Authors by ID</button></a></td>
+
         </tr>
 </table>
 
 {% endblock %}
-
-
-
-

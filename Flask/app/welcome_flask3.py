@@ -60,7 +60,7 @@ def index():
 
 @App.route('/aboutme/')
 def aboutme():
-    """ Displays the page about the coolest person around.
+    """ Displays the page about author
     """
     return flask.render_template('extras/aboutMe.html')
 
@@ -82,7 +82,8 @@ def getUsers():
         keys = rows[0].keys()
 
         #return df
-        return render_template('extras/tables.html', title = 'users' , rows = rows, keys = keys)
+        return render_template('extras/tables.html', 
+                               title = 'users' , rows = rows, keys = keys)
 
 def dict_factory(cursor, row):
     d = {}
@@ -321,6 +322,28 @@ def getPapersKWgroup(grouper):
         subgrp = merged.groupby(grouper)
         
         return merged, subgrp
+
+@App.route("/jsonPaperID/<paperid>", methods = ('GET',))
+def getpaperbyID(paperid):
+    '''
+    : param id integer: PaperID to return 
+    : output : Returns python dataframe of the paper with 
+    '''
+    with sqlite3.connect(mydb) as con:
+        sqlcmd = "SELECT paperID, title, confName, pubYear, abstract FROM PAPER WHERE paperID == %d" %int(paperid)
+        con.row_factory = dict_factory
+        cur = con.cursor()
+        cur.execute(sqlcmd)
+        entries = cur.fetchall()
+    return jsonify(dict(data=entries))
+
+@App.route("/PaperID/<paperid>", methods = ('GET',))
+def PaperID(paperid):
+    '''
+    Renders jsonPaperID(id) as html
+    '''
+    return render_template('/papers/paperbyID.html', entry = paperid)
+    
 @App.route("/jsonContentskeys/<conf>/<year>", methods = ('GET',))
 def confYrKeywords(year, conf, top = 10):
     '''
@@ -456,20 +479,22 @@ def search_kw_params(param):
         mytable = [entry]
         return jsonify(dict(data = mytable))
 
-@App.route('/seeKWTrend/<param>', methods=('GET',))
-def seeKWTrend(param, grouper = 'keyword'):
+@App.route('/seeKWTrend/<kw>', methods=('GET',))
+def seeKWTrend(kw, grouper = 'keyword'):
     '''
     : param param str: keyword string to be searched for
     : output : Returns a json dicitonary of a table with the given keyword's associated 
                 papers, counts per conference and year,
                 and a heatmap represenation
     '''
-    print('My keyword: ' , param)
+    print('My keyword: ' , kw)
     m, f = getPapersKWgroup(grouper)
     
-    query2 = '"%s" == keyword' %param
+    query2 = '"%s" == keyword' %kw
     
     data_frame = m.copy()
+    ##could use this if want approx equality
+    #data_frame = m[m['keyword'].str.contains(kw)==True]
     data_frame.query(query2, inplace = True)
     new = data_frame.copy()
     
@@ -568,6 +593,52 @@ def KWcloud():
     wordCloud =  wcg.KWcloud("static/Images/pawtest2.png")
     return render_template('keywords/wordcloudtest.html')
 
+def getAffiliation():
+    
+    with sqlite3.connect(mydb.db) as con:
+        sqlcmd = "SELECT paperID, affiliation, confName, pubYear FROM PAPER "
+        
+        paperdf = pd.read_sql_query(sqlcmd, con)
+        
+        
+        return paperdf
+'''
+                                                AFFILIATION FUNCTIONS
+''' 
+
+@App.route('/searchAffiliation/<term>', methods=('GET',))
+def searchAffiliation(term):
+    '''
+    : param term: term by which to search Affiliations (ie country, number, abbreviation)
+    : output : json dictionary of paperID, affilation, and link to the PaperID Info 
+    '''
+   
+    with sqlite3.connect(mydb) as con:
+        sqlcmd = "SELECT paperID, affiliation, confName, pubYear FROM PAPER "
+        
+        paperdf = pd.read_sql_query(sqlcmd, con)
+        
+        datadf = paperdf[paperdf['affiliation'].str.contains(term or term.lower())==True]
+        
+        mytable = []
+        for idx in datadf.index.get_values():
+            entry = {}
+            entry['paperID'] = datadf.loc[idx]['paperID']
+            entry['affiliation'] = datadf.loc[idx]['affiliation']
+            html2 = "http://127.0.0.1:5000/PaperID/"+ str(datadf.loc[idx]['paperID'])
+            entry['getPaper'] =  "<a href='%s'<button>getPaper</button>></a>" %html2  
+            
+            mytable.append(entry)
+        
+        return jsonify(dict(data = mytable))
+
+@App.route('/seeAffil', methods=('GET',))
+def seeAffil():
+    '''
+    Renders searchAffiliation(country) as html
+    '''
+    return render_template('papers/seeAffil.html')
+
 '''
                                                 AUTHORS BREAKDOWNS AND FUNCTIONS
 ''' 
@@ -618,8 +689,8 @@ def authoredpapers():
     return render_template('authors/authoredpapers.html')
     
 
-@App.route('/getauthors/<paperID>', methods=('GET',))
-def getauthors(paperID):
+@App.route('/getauthorsbyID/<paperID>', methods=('GET',))
+def getauthorsbyID(paperID):
     '''
         : param paperID int: integer corresponding to the paperID
         : output : Given a valid paperID returns a json dictionary of authors ascribed to the given paper, 
@@ -638,12 +709,12 @@ def getauthors(paperID):
         entries.append(entry)
     return jsonify(dict(data = entries))
 
-@App.route('/authors/seeAuthors', methods=('GET',))
-def seeAuthors():
+@App.route('/authors/seeAuthorsID', methods=('GET',))
+def seeAuthorsID():
     '''
     Renders getAuthors() as html
     '''
-    return render_template('authors/seeAuthors.html')
+    return render_template('authors/seeAuthorsID.html')
 
 @App.route('/getauthorsbyname/<name>', methods=('GET',))
 def getauthorsbyname(name):
@@ -654,9 +725,9 @@ def getauthorsbyname(name):
     '''
     print name
     ap = AuthoredPapersDF('start')
-    query = 'authorName == "%s"' %name
     
-    ap = ap.query(query)
+    #for author with name containing the name, thus only have to enter the last name.
+    ap = ap[ap['authorName'].str.contains(name)==True]
     entries = []
     
     for row in ap.as_matrix():
