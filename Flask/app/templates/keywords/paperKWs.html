@@ -22,6 +22,7 @@
       <thead>
         <th>paperID</th>
         <th>keywords</th>
+        <th>Link to Paper Information</th>
       </thead>
       <tbody>
       </tbody>
@@ -45,6 +46,7 @@
             "columns":  [
                 { "data": "paperID"},
                 { "data": "keywords"},
+                { "data": "getPaper"},
             ],
             "ajax": {
         "url":"http://127.0.0.1:5000/papers/keywords",
@@ -54,6 +56,7 @@
    </script>
 <table BORDER="1">
         <tr> 
+            <td > <a href="{{ url_for('seeAuthorsID') }}"><button>Find Paper's Authors</button></a></td>
             <td > <a href="{{ url_for('search_kw') }}"><button>Search For a Keyword</button></a></td>
             <td > <a href="{{ url_for('seeKWTrends') }}"><button>See A Trend</button></a></td>
         </tr>

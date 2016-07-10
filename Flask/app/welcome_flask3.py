@@ -17,13 +17,16 @@ App = flask.Flask(__name__)
 
 mydb = '../../sqlStart/Abstracts_DB.db'
 def connect_db():
-    """Connects to the specific database."""
+    """
+    Connects to the specific database.
+    """
     rv = sqlite3.connect(mydb)
     rv.row_factory = sqlite3.Row
     return rv
 
 def get_db():
-    """Opens a new database connection if there is none yet for the
+    """
+    Opens a new database connection if there is none yet for the
     current application context.
     """
     if not hasattr(g, mydb):
@@ -35,16 +38,18 @@ def init_db():
     with App.open_resource('../creatEmpUsers.py', mode='r') as f:
         db.cursor().executescript(f.read())
     db.commit()
-#init myabstracts_db?
 
 def getTotalPD(db):
+    """ 
+    : param db str : address of the data_base to query
+    : output : pandas dataframe represenaton of sql database
+    """
     with sqlite3.connect(db) as con:
         sqlcmd = "SELECT * FROM ABSTRACTSTOTAL"
         df = pd.read_sql_query(sqlcmd, con)
         print ('Datbase : ', df.shape)
         
     return df
-
 
 @App.teardown_appcontext
 def close_db(error):
@@ -54,19 +59,23 @@ def close_db(error):
         
 @App.route('/')
 def index():
-    """ Displays the index page accessible at '/'
+    """ 
+    Renders aboutme page html for '/' the index page
     """
     return flask.render_template('index.html')
 
 @App.route('/aboutme/')
 def aboutme():
-    """ Displays the page about author
+    """ 
+    Renders aboutme page html for sit author
     """
     return flask.render_template('extras/aboutMe.html')
 
 @App.route('/welcome/<name>/')
 def welcome(name):
-    """ Displays the welcome screen.
+    """ 
+    : param name str : name of person surfing the site
+    Renders welcome html for person...
     """
     return flask.render_template('extras/welcome.html', name=name)
 
@@ -86,6 +95,10 @@ def getUsers():
                                title = 'users' , rows = rows, keys = keys)
 
 def dict_factory(cursor, row):
+    '''
+    : 
+    : output : Returns a json dictionary of rows and columns
+    ''' 
     d = {}
     for idx, col in enumerate(cursor.description):
         d[col[0]] = row[idx]
@@ -97,8 +110,10 @@ def dict_factory(cursor, row):
 ''' 
 @App.route("/jsonTotal/<table>", methods=('GET',))
 def getjsonTotal(table):
-    '''Return Jsonified table SELECT *'''
-    
+    '''
+    : param Table
+    : output : Returns a json dictionary of the given table's attributes
+    ''' 
     with sqlite3.connect(mydb) as con:
         con.row_factory = dict_factory
         cur = con.cursor()
@@ -110,13 +125,20 @@ def getjsonTotal(table):
 
 @App.route("/totals/<table>", methods = ('GET',))
 def jasonhtml(table):
-    '''Display the total table'''
+    '''
+    Renders getjsonTotal(table) as html
+    '''
     html = 'totaltables/jsonTotal' + table + '.html'
     return render_template(html)
 
 
 @App.route("/jsonContents", methods = ('GET',))
 def getContents():
+    '''
+    : param NONE
+    : output : Returns a json dictionary of the table names, entry counts, and links to tables 
+                of all table names in the database
+    ''' 
     with sqlite3.connect(mydb) as con:
     
         cursor = con.cursor()
@@ -138,7 +160,9 @@ def getContents():
 
 @App.route("/contents", methods = ('GET',))
 def jsonContents():
-    '''Display the total table'''
+    '''
+    Renders getContents() as html
+    '''
     return render_template('/totaltables/jsonContents.html')
 
 '''
@@ -148,6 +172,11 @@ def jsonContents():
 
 @App.route("/jsonContentsconf", methods = ('GET',))
 def getContentsconf():
+    '''
+    : param NONE
+    : output : Returns a json dictionary of each conference with 
+                pie and bar chart visualizations of each broken down by year
+    '''  
     with sqlite3.connect(mydb) as con:
         sqlcmd = "SELECT Conf, Year FROM ABSTRACTSTOTAL"
         df = pd.read_sql_query(sqlcmd, con)
@@ -182,10 +211,21 @@ def getContentsconf():
     
     return jsonify(dict(data = myt))
 
-                            
+@App.route("/contentsconf", methods = ('GET',))
+def jsonContentsconf():
+    '''
+    Renders getContentsconf() as html
+    '''
+    return render_template('/conferences/jsonContentsconf.html')
+
 
 @App.route("/jsonconfyrpapers/<year>/<conf>", methods=('GET',))
 def getPapersConfYr(year, conf):
+    '''
+    : param year str/int : Year of a conference within range of database 2004 - 2014
+    : param conf str : Valid Conference Name (WICSA, ECSA, QoSA)
+    : output : Returns a json dictionary of paperID, title, Abstract for given conf, year
+    '''  
     with sqlite3.connect(mydb) as con:
         sqlcmd = "SELECT pubYear, confName, paperID, title, abstract FROM PAPER"
         PAPdf = pd.read_sql_query(sqlcmd, con)
@@ -214,9 +254,22 @@ def getPapersConfYr(year, conf):
                      }
             mytable = [entry]
             return jsonify(dict(data = mytable))
+        
+@App.route("/confyrpapers/<year>/<conf>", methods = ('GET',))
+def jsonConfYrPaper(year, conf):
+    '''
+    Renders getPapersConfYr(year, conf) as html
+    '''
+    return render_template('/conferences/ConfYrPaper.html', entry = [year, conf])
+
 
 @App.route("/jsonconfyrbreakdown", methods=('GET',))
 def getPapersConfYrTable():
+    '''
+    : param NONE
+    : output : Returns a json dictionary of conferences, publication years, 
+                links to each conf/yr papers, top keywords, and authors
+    '''    
     with sqlite3.connect(mydb) as con:
         sqlcmd = "SELECT pubYear, confName, paperID, title, abstract FROM PAPER"
         PAPdf = pd.read_sql_query(sqlcmd, con)
@@ -239,32 +292,23 @@ def getPapersConfYrTable():
         
         return jsonify(dict(data  = entries))
 
-@App.route("/confyrpapers/<year>/<conf>", methods = ('GET',))
-def jsonConfYrPaper(year, conf):
-    '''Display the papers from a given year and conference table'''
-    
-    return render_template('/conferences/ConfYrPaper.html', entry = [year, conf])
-
-@App.route("/contentsconf", methods = ('GET',))
-def jsonContentsconf():
-    '''Display the total table'''
-    
-    return render_template('/conferences/jsonContentsconf.html')
 
 @App.route("/confbreakdown", methods = ('GET',))
 def confbreakdown():
-    '''Display the total table'''
-    
+    '''
+    Renders getPapersConfYrTable as html
+    '''
     return render_template('/conferences/jsonbreakdown.html')
-
-@App.route('/search')
-def search():
-    return render_template("/conferences/search.html")
-
-@App.route('/search/<param1>/<param2>', methods=('GET',))
-def search_params(param1, param2):
-    print "param1", param1
-    print "param2", param2
+                            
+@App.route('/search/<year>/<conf>', methods=('GET',))
+def search_params(year, conf):
+    '''
+    : param year str/int : Year of a conference within range of database 2004 - 2014
+    : param conf str : Valid Conference Name (WICSA, ECSA, QoSA)
+    : output : Returns a json dictionary of publication year, name, paperIDs, titles
+    '''    
+    print "publication year", year
+    print "conference", conf
     
     with sqlite3.connect(mydb) as con:
         sqlcmd = "SELECT pubYear, confName, paperID, title, abstract FROM PAPER"
@@ -273,12 +317,8 @@ def search_params(param1, param2):
         group = PAPdf.groupby(['pubYear', 'confName'], axis = 0)
        
         try:
-            print (param1, param2)
-            subgroup =  group.get_group((int(param1), param2))
-            print (param1, param2, 'subgroupmade')
-            
-                                     
-        
+            subgroup =  group.get_group((int(year), conf))
+
             mytable = []
             
             for idx in subgroup.index.get_values():
@@ -290,13 +330,20 @@ def search_params(param1, param2):
        
             return jsonify( dict(data = mytable))
         except:
-            print (param1, param2, 'subgroupfail')
+            print (year, conf, 'subgroupfail')
             entry = {'paperID': 'NoConference',
                      'Title': 'NoConference',
                      'Abstract': 'NoConference',
                      }
             mytable = [entry]
             return jsonify(dict(data = mytable))
+
+@App.route('/search')
+def search():
+    '''
+    Renders search_params(year, conf) as html
+    '''
+    return render_template("/conferences/search.html")
 
 '''
                                                 PAPERS BREAKDOWNS AND FUNCTIONS
@@ -407,7 +454,7 @@ def jsonConfYrKW(conf, year):
     '''
     return render_template('/keywords/jsonContentsconfyrkw.html', entry = [conf, year])
 
-@App.route("/papers/keywords", methods = ('GET',))    
+@App.route("/papers/keywords", methods = ('GET',))
 def getPaperKW():
     '''
     : param NONE
@@ -419,6 +466,8 @@ def getPaperKW():
         entry = {}
         entry['paperID'] = each
         entry['keywords'] = [key for key in data_frame.get_group(each)['keyword']]
+        html2 = "http://127.0.0.1:5000/PaperID/"+ str(each)
+        entry['getPaper'] =  "<a href='%s'<button>Paper Information</button>></a>" %html2  
         entries.append(entry)
     return jsonify(dict(data = entries))
 
@@ -564,27 +613,6 @@ def topKW():
     '''
     return render_template('keywords/topKW.html')
 
-
-#@App.route('/dictKWcloud', methods=('GET',))
-#def dictKWcloud():
-    #'''
-    #Renders KWs word cloud in html
-    #'''
-    #get the word cloud!
-    #wordCloud =  wcg.KWcloud2()
-    #return jsonify(dict(data = 
-    #                    [{'image' : wordCloud}]
-    #                   )
-    #                )
-#
-#@App.route('/KWcloud2', methods=('GET',))
-#def KWcloud2():
-#    '''
-#    #Renders KWs word cloud in html
-#    '''
-#    
-#    return render_template('/wordcloudtest2.html')
-#'''
 @App.route('/KWcloud', methods=('GET',))
 def KWcloud():
     '''
@@ -626,7 +654,7 @@ def searchAffiliation(term):
             entry['paperID'] = datadf.loc[idx]['paperID']
             entry['affiliation'] = datadf.loc[idx]['affiliation']
             html2 = "http://127.0.0.1:5000/PaperID/"+ str(datadf.loc[idx]['paperID'])
-            entry['getPaper'] =  "<a href='%s'<button>getPaper</button>></a>" %html2  
+            entry['getPaper'] =  "<a href='%s'<button>Paper Information</button>></a>" %html2  
             
             mytable.append(entry)
         
