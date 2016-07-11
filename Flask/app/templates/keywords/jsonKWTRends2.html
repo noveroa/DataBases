@@ -7,7 +7,7 @@
 <body>
   <div id="confyr-container" class="absolute panel panel-default">
 
-    <input class="fp-value fp-target" >
+    <input class="fp-value fp-target" value = "vulnerability">
   </div>
 
     <table id="example" class="display dataTable" cellspacing="0" width="100%">
@@ -18,13 +18,10 @@
                 <th>Trend</th>
             </tr>
         </thead>
-        <tfoot>
+        
     </table>
 </body>
 
-<script src="https://code.jquery.com/jquery-3.0.0.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.18.1/URI.js"></script>
-<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
 
 <script>
     function getURLParameter(parameterName) {
@@ -88,11 +85,10 @@ $(document).ready(function () {
     
     // Make the table
     var table = $('#example').DataTable( {
-      ajax: "/search_kw/" + $target.val(),
+      ajax: "/seeKWTrend/" + $target.val(),
       dataSrc: "data", // prop in the return json 
       "colReorder" : true,
       "scrollY" : 550,
-      "deferRender" : false,
       "scroller" : true,
       "bLengthChange": false,
       "bFilter": true,
@@ -101,8 +97,6 @@ $(document).ready(function () {
       "bInfo": false,
       "bJQueryUI": true,
       "bAutoWidth": true,
-      "processing": true,
-      "serverSide": true,
       "columns": [
             { "data": "table" },
             { "data": "cts" },

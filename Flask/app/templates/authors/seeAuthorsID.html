@@ -1,15 +1,13 @@
 <!-- extend tablej layout Returns a table of given PaperId and the associated authors by conference and year though redundant.  The count is the total number of papers the author has been ascribed over the entirety of the database -->
 {% extends "tablej.html" %}
 
-{% block title %}Paper's Authors{% endblock %}
+{% block title %}Paper's Authors by ID{% endblock %}
 
 {% block contents %}
 <body>
   <div id="confyr-container" class="absolute panel panel-default">
-
-    <input class="fp-value fp-target" >
+    <input class="fp-value fp-target" value="1">
   </div>
-
     <table id="example" class="display dataTable" cellspacing="0" width="100%">
         <thead>
             <tr>
@@ -20,14 +18,9 @@
                 <th>pubYear</th>
                 <th>count</th>
             </tr>
-        </thead>
-        <tfoot>
+        </thead>       
     </table>
 </body>
-
-<script src="https://code.jquery.com/jquery-3.0.0.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.18.1/URI.js"></script>
-<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
 
 <script>
     function getURLParameter(parameterName) {
@@ -76,7 +69,7 @@ function doit(table) {
     }).fail(function() {
         alert("failed");
         // we can change stuff now!
-        $target.val("vulnerability");
+        $target.val("1");
     });
 
     // or reload the table
@@ -93,20 +86,15 @@ $(document).ready(function () {
     var table = $('#example').DataTable( {
       ajax: "/getauthorsbyID/" + $target.val(),
       dataSrc: "data", // prop in the return json 
-      "colReorder" : true,
-      "scrollY" : 550,
-      "deferRender" : false,
-      "scroller" : true,
-      "bLengthChange": false,
-      "bFilter": true,
-      "bSort": true, 
-      "aaSorting": [],
-      "bInfo": false,
-      "bJQueryUI": true,
-      "bAutoWidth": true,
-      "processing": true,
-      "serverSide": true,
-      "columns": [
+            "colReorder" : true,
+            "bLengthChange": false,
+            "bFilter": true,
+            "bSort": true, 
+            "aaSorting": [],
+            "bInfo": false,
+            "bJQueryUI": true,
+            "bAutoWidth": true,
+             "columns": [
                 { "data": "paperID" },
                 { "data": "authorName" },
                 { "data": "title" },

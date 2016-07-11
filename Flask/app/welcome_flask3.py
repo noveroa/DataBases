@@ -619,7 +619,7 @@ def KWcloud():
     Renders KWs word cloud in html - creates and SAVES a newimage eachtime
     '''
     wordCloud =  wcg.KWcloud("static/Images/pawtest2.png")
-    return render_template('keywords/wordcloudtest.html')
+    return render_template('keywords/wordcloudrender.html')
 
 def getAffiliation():
     

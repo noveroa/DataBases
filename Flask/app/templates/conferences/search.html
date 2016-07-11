@@ -1,12 +1,10 @@
-<!-- extend tablej layout -->
+<!-- extend tablej layout.  Given a conference and year, displays the paperID, Titles, and abstracts attributed to that grouping  -->
 {% extends "tablej.html" %}
 
-{% block title %}ConfYr{% endblock %}
+{% block title %}Conference by Year{% endblock %}
 
 {% block contents %}
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
-<style type="text/css" class="init">
-</style>
+
   <body>
   <div id="confyr-container" class="absolute panel panel-default">
     <select class="fp-value fp-target">
@@ -35,10 +33,6 @@
         </tfoot>
     </table>
 </body>
-
-<script src="https://code.jquery.com/jquery-3.0.0.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.18.1/URI.js"></script>
-<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
 
 <script>
     function getURLParameter(parameterName) {
@@ -119,21 +113,18 @@ $(document).ready(function () {
     var table = $('#example').DataTable( {
       ajax: "/search/" + $threshold.val() + "/" + $target.val(),
       dataSrc: "data", // prop in the return json 
-      "scrollY" : 500,
-      "deferRender" : true,
-      "scroller" : true,
-      "bLengthChange": false,
-      "bFilter": true,
-      "bSort": true, 
-      "aaSorting": [],
-      "bInfo": false,
-      "bAutoWidth": true,
-      "processing": true,
-      "serverSide": true,
-      "columns": [
-            { "data": "paperID" },
-            { "data": "Title" },
-            { "data": "Abstract" }
+            "colReorder" : true,
+            "bLengthChange": false,
+            "bFilter": true,
+            "bSort": true, 
+            "aaSorting": [],
+            "bInfo": false,
+            "bJQueryUI": true,
+            "bAutoWidth": true,
+            "columns": [
+                { "data": "paperID" },
+                { "data": "Title" },
+                { "data": "Abstract" }
          ],
     } );
 
@@ -149,10 +140,6 @@ $(document).ready(function () {
         doit(table);
     });
     
-    
-
-
- 
 
 })
 </script>
