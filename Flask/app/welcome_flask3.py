@@ -663,9 +663,64 @@ def searchAffiliation(term):
 @App.route('/seeAffil', methods=('GET',))
 def seeAffil():
     '''
-    Renders searchAffiliation(country) as html
+    Renders searchAffiliation(term) as html
     '''
     return render_template('papers/seeAffil.html')
+
+def getBasicAffiliationCount():
+    '''
+    : param NONE:
+    : output : Dictionary of the found countries and their counts, barchart too
+    '''
+    from pycountry import countries 
+    with sqlite3.connect(mydb) as con:
+        sqlcmd = "SELECT affiliation FROM PAPER "
+        
+        affildf = pd.read_sql_query(sqlcmd, con)
+        countries = [country.name for country in countries]
+        
+        counts = {}
+        for c in countries:
+            count = len(affildf[affildf['affiliation'].str.contains(c or c.lower())==True])
+            if count > 0:
+                counts[c] = count
+        image = images.getaffilbar(xaxis = counts.keys(), 
+                                   yaxis = counts.values())
+        
+    
+        
+        return counts, image
+    
+@App.route('/seeCountries', methods=('GET',))
+def seeCountries():
+    '''
+    Renders getBasicAffiliationCount() as html
+    '''
+    seeCountries, image = getBasicAffiliationCount()
+    
+    return render_template('papers/seeCountries.html')
+
+@App.route('/getCountryCounts', methods=('GET',))
+def getCountryCounts():
+    '''
+    : param : NONE
+    : output : json dictionary of the affiliation count and country 
+        (dictionary output of  getBasicAffiliationCount())
+    '''
+    cts, img = getBasicAffiliationCount()
+    datadic=[]
+    for i, (k, v) in enumerate(cts.iteritems()):
+        datadic.append({'country' : k, 'count' : v})
+    
+    return jsonify(dict(data = datadic))
+
+@App.route('/countryCts', methods=('GET',))
+def seeCountryCounts():
+    '''
+    Renders  getCountryCounts() as html
+    '''
+    return render_template('papers/seeCountryCounts.html')
+
 
 '''
                                                 AUTHORS BREAKDOWNS AND FUNCTIONS

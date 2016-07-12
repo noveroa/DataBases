@@ -49,7 +49,11 @@
             <td > <a href="{{ url_for('authoredpapers') }}"><button>Authors and their Papers</button></a></td>
             <td > <a href="{{ url_for('seeAuthorsID') }}"><button>Find Paper's Authors</button></a></td>
             <td > <a href="{{ url_for('seeAuthorsName') }}"><button>Author's Papers</button></a></td>
-            <td > <a href="{{ url_for('seeAffil') }}"><button>Search Affiliations</button></a></td>
+        </tr>
+        <tr>
+         <td > <a href="{{ url_for('seeCountryCounts') }}"><button>Table of Country Counts</button></a></td>
+         <td > <a href="{{ url_for('seeCountries') }}"><button>Visualize Country Counts</button></a></td>
+         <td > <a href="{{ url_for('seeAffil') }}"><button>Search Affiliations by Term</button></a></td>
         </tr>
     </table>
 

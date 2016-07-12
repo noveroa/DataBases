@@ -42,9 +42,8 @@ def getBar(df, conference, xaxis, yaxis, orientation, ylabel = 'count', xlabel =
     fig.set_ylabel(ylabel)
     fig.set_xlabel(xlabel)
     
-    #for l in fig.get_ymajorticklabels():
-        #l.set_visible(False)
     io = StringIO()
+    plt.tight_layout()
     plt.savefig(io, format='png')
     img = base64.encodestring(io.getvalue())
    
@@ -58,7 +57,7 @@ def getBar(df, conference, xaxis, yaxis, orientation, ylabel = 'count', xlabel =
 
 def getHeatMap(data_frame, indexCol = 'confName', cols = 'pubYear', vals = 'counts', annotation = False):
     plt.cla()
-    
+    plt.xticks(rotation=90)
     fig = sns.heatmap(data_frame.pivot_table(index=indexCol, 
                                              columns=cols, 
                                              values=vals),
@@ -66,7 +65,9 @@ def getHeatMap(data_frame, indexCol = 'confName', cols = 'pubYear', vals = 'coun
                                              cmap = 'Blues')
     
     
+    
     io = StringIO()
+    plt.tight_layout()
     plt.savefig(io, format='png')
     img = base64.encodestring(io.getvalue())
    
@@ -83,7 +84,7 @@ def getLine(data_frame, xaxis = 'confName', yaxis = 'counts'):
                         x=xaxis, 
                         y = yaxis,
                         palette = 'Blues')
-    
+   
     io = StringIO()
     plt.savefig(io, format='png')
     img = base64.encodestring(io.getvalue())
@@ -95,6 +96,26 @@ def getLine(data_frame, xaxis = 'confName', yaxis = 'counts'):
     return script.format(data)
 
 
+def getaffilbar(xaxis, yaxis):
+    plt.figure()
+    plt.xticks(rotation=90)
+   
+    image = sns.barplot(x = xaxis, 
+                        y = yaxis,
+                        palette='Blues')
+    for p in image.patches:
+        image.annotate(
+            s='{:.0f}'.format(p.get_height()), #label
+            xy=(p.get_x()+p.get_width()/2.,p.get_height()), #position
+            ha='center',va='center',
+            xytext=(0,10),
+            textcoords='offset points'
+            )
+    image.set_ylabel('Count')
+    image.set_xlabel("Country")
+    plt.tight_layout()
+    plt.savefig(('static/Images/countryaffiliation.png'))
+    return image
 
 ##DRAFTS##
 def getPie2():
