@@ -1,4 +1,4 @@
-<!-- Index template and html, extends master.html, visualization of affiliation countries and counts-->
+<!-- Index template and html, extends master.html, Bubble Chartvisualization of affiliation countries and counts grouped by Conference-->
 
 {% extends "master.html" %}
 
@@ -33,10 +33,10 @@ img {
 </style>
 
 
-<h2>Affilations by Country</h2>
+<h2>Affilations by Country and Conference</h2>
 
 <a target="_blank">
-  <img src="static/Images/countryaffiliation.png" width="1000" height="1000">
+  <img src="static/Images/testCtsGroup.png" width="1000" height="1000">
 </a>
 
 
@@ -45,8 +45,8 @@ img {
         <tr> 
              <td > <a href="{{ url_for('seeCountryCounts') }}"><button>Table of Country Counts</button></a></td>
              <td > <a href="{{ url_for('seeAffil') }}"><button>Search Affiliations by Term</button></a></td>
-             <td > <a href="{{ url_for('seeCountriesGR') }}"><button>Bubble Chart Broken Down by Conference</button></a></td>
-             <td > <a href="{{ url_for('seeCountriesAreaPlot') }}"><button>Area Plot Broken Down by Conference</button></a></td>
+             <td > <a href="{{ url_for('seeCountries') }}"><button>Visualize Total Counts</button></a></td>
+             <td > <a href="{{ url_for('seeCountriesAreaPlot') }}"><button>Area Plot Country Counts by Conference</button></a></td>
         </tr>
 </table>
 {% endblock %}

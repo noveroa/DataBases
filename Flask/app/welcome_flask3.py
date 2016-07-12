@@ -721,6 +721,50 @@ def seeCountryCounts():
     '''
     return render_template('papers/seeCountryCounts.html')
 
+def countryGr():
+    '''
+    : param : NONE
+    : output : pandas DataFrame count and country grouped by Conferences
+    '''
+    from pycountry import countries 
+    with sqlite3.connect(mydb) as con:
+        sqlcmd = "SELECT affiliation, confName FROM PAPER"
+        
+        affildf = pd.read_sql_query(sqlcmd, con)
+        
+        gr = affildf.groupby('confName')
+        countries = [country.name for country in countries]
+        grouped = {}
+        for group in gr.groups.keys():
+            temp = gr.get_group(group)
+            counted = {}
+            for c in countries:
+                count = len(temp[temp['affiliation'].str.contains(c)==True])
+                if count > 0 :
+                    counted[c] = count
+            grouped[group] = counted
+        
+        return pd.DataFrame.from_dict(grouped)
+    
+@App.route('/seeCountriesGR', methods=('GET',))
+def seeCountriesGR():
+    '''
+    Renders countryGr() as a Bubble Chart and as html
+    '''
+    image = images.createSpotAffil(countryGr())
+    
+    return render_template('papers/seeCountriesGR.html')
+
+@App.route('/seeCountriesAreaPlot', methods=('GET',))
+def seeCountriesAreaPlot():
+    '''
+    Renders countryGr() as an AreaPlot and as html
+    '''
+    image = images.areaPlot(countryGr())
+    
+    return render_template('papers/seeCountriesAreaPlot.html')
+
+
 
 '''
                                                 AUTHORS BREAKDOWNS AND FUNCTIONS

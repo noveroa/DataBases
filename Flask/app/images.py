@@ -96,7 +96,9 @@ def getLine(data_frame, xaxis = 'confName', yaxis = 'counts'):
     return script.format(data)
 
 
-def getaffilbar(xaxis, yaxis):
+def getaffilbar(xaxis, yaxis, filename = 'static/Images/countryaffiliation.png'):
+    
+    plt.cla()
     plt.figure()
     plt.xticks(rotation=90)
    
@@ -114,9 +116,51 @@ def getaffilbar(xaxis, yaxis):
     image.set_ylabel('Count')
     image.set_xlabel("Country")
     plt.tight_layout()
-    plt.savefig(('static/Images/countryaffiliation.png'))
+    plt.savefig((filename))
     return image
 
+
+
+def createSpotAffil(data_frame, xlabel = 'Country', ylabel = 'Counts', filename = 'static/Images/testCtsGroup.png'):
+    
+    plt.cla()
+    #set the labels
+    plt.xticks( np.arange(len(data_frame)), data_frame.index, rotation = 90)
+    plt.xlim(-.5,len(data_frame))
+    plt.ylim(0, max(data_frame.max(axis = 1)) + 5)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    
+    plt.grid(False)
+    
+    colors = sns.color_palette('GnBu_d')
+    #plot!
+    for i,column in enumerate(data_frame.columns):
+        image = plt.scatter(x = data_frame.reset_index().index, 
+                            y = data_frame[column], 
+                            s = data_frame[column], 
+                            c = colors[i])
+    
+    
+    #format the legend
+    plt.legend(list (map(str,data_frame.columns)), 
+               loc = 'upper left')
+               
+    plt.tight_layout()
+    
+    plt.savefig((filename))
+    
+        
+    return image
+
+def areaPlot(data_frame, filename = 'static/Images/countryAP.png'):
+    plt.cla()
+    fig = data_frame.plot.area(cmap = 'Blues', stacked = False)
+    plt.tight_layout()
+    
+    plt.savefig((filename))
+    return fig
+    
 ##DRAFTS##
 def getPie2():
     import matplotlib.pyplot as plt
