@@ -4,6 +4,8 @@ import flask
 import os
 import sqlite3
 import pandas as pd
+import numpy as np
+
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
 from flask import abort,  jsonify
 
@@ -751,7 +753,7 @@ def seeCountriesGR():
     '''
     Renders countryGr() as a Bubble Chart and as html
     '''
-    image = images.createSpotAffil(countryGr())
+    image = images.createSpot(countryGr())
     
     return render_template('papers/seeCountriesGR.html')
 
@@ -953,7 +955,6 @@ def confYrAuthor2(conf, year):
                    }
         return jsonify(dict(data = mytable))
 
-    
 @App.route("/jsonconfyrAuthorbd/<conf>/<year>", methods = ('GET',))
 def jsonconfyrAuthorbd(conf, year):
     '''
@@ -961,6 +962,64 @@ def jsonconfyrAuthorbd(conf, year):
     '''
     
     return render_template('authors/seeAuthorsCYbd.html', entry = [conf, year]) 
+
+def getAuthorTop20(top = 20, column = 'authorName'):
+    
+    with sqlite3.connect(mydb) as con:
+        
+        sqlcmd = "SELECT * FROM PAPERAUTHOR"
+        papaudf = pd.read_sql_query(sqlcmd, con)
+        
+        sqlcmd2 = "SELECT paperID, confName FROM PAPER"
+        pap  = pd.read_sql_query(sqlcmd2, con)
+        
+        merged = papaudf.merge(pap, on =  'paperID')
+        merged['counts'] = merged.groupby([column])[column].transform('count')
+        
+        ap = merged.sort_values(by = ['counts',column], ascending = False).drop_duplicates(column)[:20]
+        
+        temp = merged.groupby('confName')
+        selection = np.array(ap[column])
+        
+        return temp, selection
+    
+def getGrCts(data_frame, selection, column):
+    
+    grouped = {}
+    for group in data_frame.groups.keys():
+        temp = data_frame.get_group(group)
+        counted = {}
+        for au in selection:
+            count = len(temp[temp[column].str.contains(au)==True])
+            if count > 0 :
+                counted[au] = count
+            grouped[group] = counted
+    return pd.DataFrame.from_dict(grouped)
+
+@App.route('/seeAuthorsSpot', methods=('GET',))
+def seeAuthorsSpot():
+    '''
+    Renders countryGr() as an AreaPlot and as html
+    '''
+    topauthors, selection = getAuthorTop20(top = 20)
+    groupedAu = getGrCts(topauthors, selection, column = 'authorName')
+    image = images.createSpot(groupedAu, xlabel = 'Author', filename = 'static/Images/authorBubble.png')
+    
+    return render_template('authors/seeAuthorsSpot.html')
+
+@App.route('/seeAuthorsArea', methods=('GET',))
+def seeAuthorsArea():
+    '''
+    Renders countryGr() as an AreaPlot and as html
+    '''
+    topauthors, selection = getAuthorTop20(top = 20)
+    groupedAu = getGrCts(topauthors, selection, column = 'authorName')
+    image = images.areaPlot(groupedAu, filename = 'static/Images/authorAP.png')
+    
+    
+    return render_template('authors/seeAuthorsArea.html')
+
+
 
 if __name__ == '__main__':
    

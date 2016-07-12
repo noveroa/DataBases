@@ -121,7 +121,7 @@ def getaffilbar(xaxis, yaxis, filename = 'static/Images/countryaffiliation.png')
 
 
 
-def createSpotAffil(data_frame, xlabel = 'Country', ylabel = 'Counts', filename = 'static/Images/testCtsGroup.png'):
+def createSpot(data_frame, xlabel = 'Country', ylabel = 'Counts', filename = 'static/Images/testCtsGroup.png'):
     
     plt.cla()
     #set the labels
@@ -155,6 +155,8 @@ def createSpotAffil(data_frame, xlabel = 'Country', ylabel = 'Counts', filename 
 
 def areaPlot(data_frame, filename = 'static/Images/countryAP.png'):
     plt.cla()
+    plt.xticks( np.arange(len(data_frame)), data_frame.index, rotation = 90)
+    plt.xlim(-.5,len(data_frame))
     fig = data_frame.plot.area(cmap = 'Blues', stacked = False)
     plt.tight_layout()
     
