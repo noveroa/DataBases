@@ -195,7 +195,8 @@ def getContentsconf():
         
         
             subDF = df.query('Conf == "%s"' % conf).groupby('year').count()
-            entry['counts'] = subDF.to_html()
+            
+            entry['counts'] = subDF.reset_index().to_html(classes = 'counts')
             
             image = images.getPieOne(subDF, conf)
             entry['Pie']  = image
@@ -417,7 +418,7 @@ def confYrKeywords(year, conf, top = 10):
         resetKW = pd.DataFrame(kwdftop).rename(columns = {'keyword' : 'count'})
         entry = {}
         entry['Group'] = group
-        entry['Counts'] = resetKW.to_html()
+        entry['Counts'] = resetKW.reset_index().to_html(classes = 'counts')
         
         image = images.getPieOne(resetKW, group)
         entry['Pie'] = image
@@ -549,26 +550,37 @@ def seeKWTrend(kw, grouper = 'keyword'):
     data_frame.query(query2, inplace = True)
     new = data_frame.copy()
     
-    def findKWTrend(df, KWgrouper = ["pubYear", "confName"]):
+    def findKWTrend(df, kw, KWgrouper = ["pubYear", "confName"]):
         #labels = {'ECSA' : 0,
                   #'QoSA' : 1,
                   #'WICSA' : 2}
         df = df.groupby(KWgrouper)['keyword'].count().reset_index(name="counts")
         #df['confCode'] = df.confName.apply(lambda name: labels[name])
         try:
-            return df, images.getHeatMap(df, annotation = True)
+            image = images.getHeatMap2(df, annotation = True, filename = "static/Images/test.png")
+            html = "http://127.0.0.1:5000/kwHeattrend"
+            return df, images.getHeatMap(df, annotation = True), html
         except:
-            return df, 'no data'
+            return df, 'no data', 'error'
         
     
-    df, image = findKWTrend(new)
+    df, image, html = findKWTrend(new, kw)
     
-    myentry = [{'table' : new.to_html(),
-               'cts' : df.to_html(),
-               'trend'  : image
+    myentry = [{'table' : new.to_html(classes = 'counts'),
+               'cts' : df.to_html(classes = 'counts'),
+               'trend'  : image,
+               'url' : "<a href='%s'<button>SeeHeatMap</button>></a>" %html  
                }]
     
     return jsonify(dict(data = myentry))    
+
+@App.route('/kwHeattrend', methods=('GET',))
+def seeKWTrendheat():
+    '''
+    Renders seeKWTrend() as html
+    '''
+    
+    return render_template('keywords/kwHeattrend.html')
 
 @App.route('/seeKWTrends', methods=('GET',))
 def seeKWTrends():
@@ -593,9 +605,11 @@ def seeKWTop(top = 20):
     
     mTop['counts'] = mTop.groupby(['confName', 'pubYear', 'keyword'])['keyword'].transform('count')
     
-    image = images.getHeatMap(mTop, indexCol='keyword', 
-                              cols = ['confName', 'pubYear'], vals = 'counts')
+    image = images.getHeatMap2(mTop, indexCol='keyword', cols = ['confName', 'pubYear'], 
+                               vals = 'counts', 
+                               filename = 'static/Images/topheat.png')
     
+    html = "http://127.0.0.1:5000/topheat"
     topWds.reset_index(inplace = True)
     topWds.rename(columns = {'confName' : 'OverallCount'}, inplace = True)
     cts = topWds[['keyword', 'OverallCount']]
@@ -603,8 +617,8 @@ def seeKWTop(top = 20):
     
     
     return jsonify(dict(data = 
-                        [{'Top' : cts.to_html(),
-                       'HeatMap' : image}]
+                        [{'Top' : cts.to_html(classes = 'counts'),
+                       'HeatMap' : "<a href='%s'<button>SeeHeatMap</button>></a>" %html}]
                        )
                     )
 
@@ -615,17 +629,25 @@ def topKW():
     '''
     return render_template('keywords/topKW.html')
 
+@App.route('/topheat', methods=('GET',))
+def topheat():
+    '''
+    Renders getBasicAffiliationCount() as html
+    '''
+    
+    return render_template('keywords/topheat.html')
+
 @App.route('/KWcloud', methods=('GET',))
 def KWcloud():
     '''
     Renders KWs word cloud in html - creates and SAVES a newimage eachtime
     '''
-    wordCloud =  wcg.KWcloud("static/Images/pawtest2.png")
+    wordCloud =  wcg.cloud('kw', "static/Images/kwCloud.png")
     return render_template('keywords/wordcloudrender.html')
 
 def getAffiliation():
     
-    with sqlite3.connect(mydb.db) as con:
+    with sqlite3.connect(mydb) as con:
         sqlcmd = "SELECT paperID, affiliation, confName, pubYear FROM PAPER "
         
         paperdf = pd.read_sql_query(sqlcmd, con)
@@ -762,7 +784,10 @@ def seeCountriesAreaPlot():
     '''
     Renders countryGr() as an AreaPlot and as html
     '''
-    image = images.areaPlot(countryGr())
+    image = images.areaPlot(countryGr(), 
+                            xlabel = 'Countries', 
+                            ylabel = 'Counts', 
+                            filename = 'static/Images/countryAP.png')
     
     return render_template('papers/seeCountriesAreaPlot.html')
 
@@ -771,7 +796,13 @@ def seeCountriesAreaPlot():
 '''
                                                 AUTHORS BREAKDOWNS AND FUNCTIONS
 ''' 
-
+def getAuthorsTotal():
+    with sqlite3.connect(mydb) as con:
+        sqlcmd = "SELECT authorName FROM PAPERAUTHOR "
+        
+        return pd.read_sql_query(sqlcmd, con)
+    
+    
 def AuthoredPapersDF(boolean):
     '''
     : param boolean: control flow boolean
@@ -996,10 +1027,19 @@ def getGrCts(data_frame, selection, column):
             grouped[group] = counted
     return pd.DataFrame.from_dict(grouped)
 
+@App.route('/auCloud', methods=('GET',))
+def auCloud():
+    '''
+    Renders Authors word cloud in html - creates and SAVES a newimage eachtime
+    '''
+    wordCloud =  wcg.cloud('au', "static/Images/auCloud.png")
+    return render_template('authors/wordcloudrenderer_au.html')
+
+
 @App.route('/seeAuthorsSpot', methods=('GET',))
 def seeAuthorsSpot():
     '''
-    Renders countryGr() as an AreaPlot and as html
+    Renders countryGr() as an Bubble and as html
     '''
     topauthors, selection = getAuthorTop20(top = 20)
     groupedAu = getGrCts(topauthors, selection, column = 'authorName')
@@ -1014,12 +1054,28 @@ def seeAuthorsArea():
     '''
     topauthors, selection = getAuthorTop20(top = 20)
     groupedAu = getGrCts(topauthors, selection, column = 'authorName')
-    image = images.areaPlot(groupedAu, filename = 'static/Images/authorAP.png')
+    image = images.areaPlot(groupedAu, xlabel = 'Authors', ylabel = 'counts', filename = 'static/Images/authorAP.png')
     
     
     return render_template('authors/seeAuthorsArea.html')
 
+@App.route('/show_tables', methods=('GET',))
+def show_tables():
+    data =  getAffiliation()
+    
+    data.index.name=None
+    ECSA = data.loc[data.confName=='ECSA']
+    WICSA = data.loc[data.confName=='WICSA']
+    QoSA = data.loc[data.confName == 'QoSA']
+    return render_template('view.html',tables=[ECSA.to_html(classes='ECSA'),
+                                               WICSA.to_html(classes='WICSA'), 
+                                               QoSA.to_html(classes='QoSA')],
+    titles = ['na', 'ECSA', 'WICSA', 'QoSA'])
 
+@App.route('/show_tables2')
+def analysis():
+    data =  getAffiliation()
+    return render_template("show2.html", name='tables', data=data)
 
 if __name__ == '__main__':
    

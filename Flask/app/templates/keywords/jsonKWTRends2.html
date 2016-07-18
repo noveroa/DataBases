@@ -4,6 +4,7 @@
 {% block title %}KeywordTrend{% endblock %}
 
 {% block contents %}
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style_tables.css') }}"width="100%">
 <body>
   <div id="confyr-container" class="absolute panel panel-default">
 
@@ -16,6 +17,7 @@
                 <th>Table</th>
                 <th>Counts</th>
                 <th>Trend</th>
+                <th>url</th>
             </tr>
         </thead>
         
@@ -100,7 +102,8 @@ $(document).ready(function () {
       "columns": [
             { "data": "table" },
             { "data": "cts" },
-            { "data": "trend" }
+            { "data": "trend" },
+            { "data": "url" }
          ],
     } );  
 

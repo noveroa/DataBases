@@ -4,6 +4,7 @@
 {% block title %}BreakDownKeywords{% endblock %}
 
 {% block contents %}
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style_tables.css') }}"width="100%">
 <h2> Conference: {{entry[0]}} Year: {{entry[1]}} </h2>
 <h3> Top 10 Keywords </h3>
   <body>

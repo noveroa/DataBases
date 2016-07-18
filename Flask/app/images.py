@@ -11,7 +11,7 @@ def getPieOne(df, conference):
     fig = plt.figure()
     fig = df.plot(kind = 'pie', 
                   colormap = 'Blues', 
-                  title = conference, 
+                  title = '', 
                   subplots = True, 
                   legend = False, 
                   labels = ['' for x in np.arange(len(df))])
@@ -77,6 +77,26 @@ def getHeatMap(data_frame, indexCol = 'confName', cols = 'pubYear', vals = 'coun
     script = '''<img src="data:image/png;base64,{}";/>'''
     plt.close()
     return script.format(data)
+
+def getHeatMap2(data_frame, indexCol = 'confName', cols = 'pubYear', vals = 'counts', 
+                annotation = False, filename = 'static/Images/test.png'):
+    plt.cla()
+    plt.xticks(rotation=90)
+    fig = sns.heatmap(data_frame.pivot_table(index=indexCol, 
+                                             columns=cols, 
+                                             values=vals),
+                                             annot = annotation,
+                                             cmap = 'Blues')
+    
+    
+   
+               
+    plt.tight_layout()
+    
+    plt.savefig((filename))
+    
+    plt.close()
+    return fig
 
 def getLine(data_frame, xaxis = 'confName', yaxis = 'counts'):
     plt.cla()
@@ -153,15 +173,21 @@ def createSpot(data_frame, xlabel = 'Country', ylabel = 'Counts', filename = 'st
         
     return image
 
-def areaPlot(data_frame, filename = 'static/Images/countryAP.png'):
+def areaPlot(data_frame, xlabel, ylabel, filename = 'static/Images/countryAP.png'):
     plt.cla()
+    fig = plt.figure()
+    fig = data_frame.plot(kind = 'area',  colormap = 'Blues', stacked = False)
+    fig.patch.set_facecolor('lightgray')
     plt.xticks( np.arange(len(data_frame)), data_frame.index, rotation = 90)
-    plt.xlim(-.5,len(data_frame))
-    fig = data_frame.plot.area(cmap = 'Blues', stacked = False)
+    plt.xlim(0,len(data_frame))
+    plt.ylim(0, max(data_frame.max(axis = 1)) + 5)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.grid(False)
+    
     plt.tight_layout()
     
     plt.savefig((filename))
-    return fig
     
 ##DRAFTS##
 def getPie2():

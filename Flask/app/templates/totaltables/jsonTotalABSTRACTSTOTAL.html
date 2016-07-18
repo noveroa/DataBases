@@ -1,16 +1,20 @@
 <!-- extend tablej layout -->
+
 {% extends "tablej.html" %}
 
-{% block title %}Abstracts{% endblock %}
+{% block title %}Total Database{% endblock %}
 
 {% block contents %}
   <body>
       <table id="ABSTRACTS" class="dataTable sig-datatable" width="100%">
       <thead>
-        <th>title</th>
-        <th>pubYear</th>
-        <th>conf</th>  
-        <th>abstract</th>
+        <th>Abstract</th>
+        <th>Author affiliation</th>
+        <th>Authors</th>  
+        <th>Conf</th>
+        <th>Title</th>
+        <th>terms</th>
+        <th>year</th>
       </thead>
       <tbody>
       </tbody>
@@ -30,15 +34,18 @@
             "bJQueryUI": true,
             "bAutoWidth": true,
             "columns":  [
-                ,
-                { "data": "title" },
-                { "data": "pubYear" },
-                { "data": "conf" },
-                { "data": "abstract" },
+                
+                { "data": "Abstract" },
+                { "data": "Author affiliation" },
+                { "data": "Authors" },
+                { "data": "Conf" },
+                { "data": "Title" },
+                { "data": "terms" },
+                { "data": "year" },
                 
             ],
             "ajax": {
-        "url":"http://127.0.0.1:5000/jsonTotal/ABSTRACTS",
+        "url":"http://127.0.0.1:5000/jsonTotal/ABSTRACTSTOTAL",
             },
          });   
         });   
