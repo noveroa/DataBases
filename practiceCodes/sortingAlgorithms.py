@@ -1,3 +1,14 @@
+'''SORTING ALGORITHMS
+- - sequential search is O(n) for ordered and unordered lists.
+- - A binary search of an ordered list is O(logn) in the worst case.
+- - Hash tables can provide constant time searching.
+- - A bubble sort, a selection sort, and an insertion sort are O(n2) algorithms.
+
+- - A merge sort is O(nlogn), but requires additional space for the merging process.
+- - A quick sort is O(nlogn), but may degrade to O(n2) if the split points are not near the middle of the list. It does not require additional space.
+'''
+
+
 def binary_search(myOrderedArray, item):
     
     ''' Taking an already ordered list. O(logn) -> halving search each time!
@@ -107,7 +118,65 @@ def mergeSort(alist):
             k = k + 1
         print("Merging ",alist)
         
+def bubbleSort(mylist):
+    '''  O(n^2) 
+        A bubble sort is often considered the most inefficient sorting method since it must 
+        exchange items before the final locatioN is known. These wasted exchange operations 
+        are very costly. However, because the bubble sort makes passes through the entire unsorted 
+        portion of the list, it has the capability to do something most sorting algorithms cannot
+    
+    : param mylist python list/array
+    '''
+    for passnum in range(len(mylist)-1,0,-1):
+        for i in range(passnum):
+            if mylist[i]>mylist[i+1]:
+                mylist[i], mylist[i+1] = mylist[i+1], mylist[i]
 
+
+def shortBubbleSort(mylist):
+    '''  O(n^2) way to get out of the entire 'wasted exchanges'
+    
+    : param mylist python list/array
+    '''
+    exchanges = True
+    passnum = len(mylist)-1
+    while passnum > 0 and exchanges:
+        exchanges = False
+        for i in range(passnum):
+            if mylist[i]>mylist[i+1]:
+                exchanges = True
+                mylist[i], mylist[i+1] = mylist[i+1], mylist[i]
+                
+        passnum = passnum-1
+        
+def selectionSort(mylist):
+    '''  O(n^2) but one exchange per pass and thus runs quicker than Bubble
+    
+    : param mylist python list/array
+    '''
+    for fillslot in range(len(mylist)-1,0,-1):
+        positionOfMax=0
+        for location in range(1,fillslot+1):
+            if mylist[location]>mylist[positionOfMax]:
+                positionOfMax = location
+
+        mylist[fillslot], mylist[positionOfMax] = mylist[positionOfMax], mylist[fillslot]
+
+def insertionSort(mylist):
+    '''  O(n^2) but one exchange and maintains a sorted sublist
+    
+    : param mylist python list/array
+    '''
+    for index in range(1,len(mylistt)):
+        currentvalue = mylist[index]
+        position = index
+
+        while position>0 and mylist[position-1]>currentvalue:
+            mylist[position]=mylist[position-1]
+            position = position-1
+
+        mylist[position]=currentval
+        
 def kthSmallest(mylist, k):
     '''Kth Smallest O(nlogn) becuase of sorting
     : param mylist : python list/array
