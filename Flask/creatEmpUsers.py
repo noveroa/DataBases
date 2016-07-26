@@ -10,9 +10,11 @@ with sqlite3.connect("EmpData.sql") as con:
         #and recreates it
     cur.execute("CREATE TABLE User(\
         userID INTEGER PRIMARY KEY AUTOINCREMENT, \
-        userName TEXT NOT NULL,\
-        password TEXT NOT NULL)") 
-        
-    cur.execute("INSERT INTO User VALUES(3,'Admin', 'admin')")
+        Name TEXT NOT NULL,\
+        Role TEXT NOT NULL,\
+        Contact TEXT NOT NULL)") 
+    
+    cur.execute("INSERT INTO User VALUES(0,'Aileen Novero', 'Masters Student, Site Author', 'novero.a@gmail.com')")
+    cur.execute("INSERT INTO User VALUES(1,'Dr. Ian Gorton', 'NEU Dept Director, Supevisor', 'i.gorton@northeastern.edu')")
     con.commit() 
     print("Table created successfully");

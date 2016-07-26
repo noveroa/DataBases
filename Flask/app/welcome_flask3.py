@@ -18,6 +18,7 @@ App = flask.Flask(__name__)
 
 
 mydb = '../../sqlStart/Abstracts_DB2.db'
+
 def connect_db():
     """
     Connects to the specific database.

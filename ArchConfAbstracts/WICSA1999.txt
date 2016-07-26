@@ -1,3 +1,4 @@
+
 1. Architecture Design Recovery of a Family of
 Embedded Software Systems
 An Experience Report
@@ -18,8 +19,6 @@ times as much as producing the same set of documentation during the original
 development project. By applying a common architectural style for all
 members of the product family, the component reuse made possible decreased
 source code volume by 65%.
-
-
 
 2. A Software Architecture Reconstruction Method
 George Yanbing Guo1, Joanne M. Atlee1 & Rick Kazman2
@@ -45,9 +44,6 @@ architectures based on the recognition of patterns. Once the system' s actual
 architecture has been reconstructed, we can analyze conformance of the
 software to the documented design patterns.
 
-
-
-
 3. Behaviour Analysis of Software Architectures
 Jeff Magee, Jeff Kramer, and Dimitra Giannakopoulou
 Department of Computing, Imperial College of Science, Technology and Medicine,
@@ -64,9 +60,6 @@ description of a system is used directly in the construction of the model used
 for analysis. Analysis allows a designer to check whether an architecture
 satisfies the properties required of it. The paper uses examples to illustrate the
 approach and discusses some open questions arising from the work.
-
-
-
 
 4. Rearchitecting Legacy Systems-Concepts and Case
 Study
@@ -87,10 +80,6 @@ understood, modified and combined. Reflection together with a high-level
 definition of semantic aspects allow the construction of partially selfconfiguring
 components. A case study corroborates that this constitutes a
 viable approach for rearchitecting legacy systems in practice.
-
-
-
-
 
 5. Checking the Correctness of Architectural
 Transformation Steps via Proof-Carrying
@@ -118,10 +107,6 @@ the desired result. It allows the use of transformations that have not been
 generally verified, even ones that are known to sometimes produce incorrect
 results, by showing that they work in the particular case.
 
-
-
-
-
 6. Developing Dependable Systems Using Software
 Architecture
 Titos Saridakis & Valerie Issamy
@@ -140,9 +125,6 @@ as well as to organize the repository of corresponding architectures into a
 refinement-based lattice structure.
 Key words: Dependability, formal specification, software architecture, software reuse,
 specification refinement.
-
-
-
 
 7. Specification and Refinement of Dynamic Software
 Architectures
@@ -167,9 +149,6 @@ be safely composed. A notion of polymorphism of behaviour is used to extend
 and refine components while maintaining their compatibility, allowing the
 parameterisation of architectures, and encouraging reuse of architectural
 designs.
-
-
-
 
 8. Modeling Software Architectures and Styles with
 Graph Grammars and Constraint Solving
@@ -196,9 +175,6 @@ systems, and a unique language to describe the style (but still a clear
 separation of coordination and configuration). With these we have a direct way
 of following the evolution of the system and proving its properties.
 
-
-
-
 9. Describing Software Architecture with UML
 C. Hofmeister, R. L. Nord, D. Soni
 Siemens Corporate Research, Princeton, New Jersey, USA
@@ -212,10 +188,6 @@ These static properties are much more readily described with it than the
 dynamic properties. We could easily describe a particular sequence of
 activities, but not a general sequence. In addition, the ability to show peer-topeer
 communication is missing from UML.
-
-
-
-
 
 10. Assessing the Suitability of a Standard Design Method
 for Modeling Software Architectures
@@ -239,9 +211,6 @@ could also hamper wide adoption of the approach. This paper attempts to
 assess the suitability of a standard design method "as is " for modeling
 software architectures
 
-
-
-
 11. Software Architecture and Java Beans
 Sylvia Stuurman
 Delft University of Technology
@@ -262,9 +231,6 @@ architecture description : may Java Beans simply be used as ready-to-use
 implementations of a software architecture? What restrictions do they impose
 on the software architecture? Where are the mismatches?
 
-
-
-
 12. Architectural Styles as Adaptors1
 Don Batory i, Yannis Smaragdakis; & Lou Coglianese;;
 Department of Computer Sciences, The University of Texas, Austin, TX 78712 i &
@@ -281,10 +247,6 @@ of the 00 concept of adaptors. By implementing adaptors as program transformatio
 complex architectural styles can be realized in GenVoca that simply could not be
 expressed using less powerful implementation techniques (e.g., object adaptors). Examples
 from avionics are given.
-
-
-
-
 
 13. Attribute-Based Architecture Styles
 Mark H. Klein, Rick Kazman, Len Bass, Jeromy Carriere, Mario Barbacci, and
