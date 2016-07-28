@@ -15,7 +15,7 @@ import wordcloud_generator as wcg
 wcg = reload(wcg)
 
 App = flask.Flask(__name__)
-
+#ip = "http://" + str(request.remote_addr) + ":5000"
 
 mydb = '../../sqlStart/Abstracts_DB2.db'
 
@@ -67,6 +67,9 @@ def index():
     """
     return flask.render_template('index.html')
 
+@App.route("/get_my_ip", methods=["GET"])
+def get_my_ip():
+    return request.remote_addr
 @App.route('/aboutme/')
 def aboutme():
     """ 
@@ -152,7 +155,7 @@ def getContents():
             table_entry = {}
             table_name = x[0]
             table_entry['name'] = table_name
-            html = 'http://127.0.0.1:5000/totals/%s' % table_name
+            html = "http://127.0.0.1:5000/totals/%s" % table_name
             table_entry['html'] = "<a href='%s'<button>click</button>></a>" %html
             table_entry['count'] = cursor.execute("SELECT COUNT(*) FROM %s"%table_name).fetchone()[0]
         
@@ -1082,4 +1085,3 @@ if __name__ == '__main__':
    
     App.debug=True
     App.run()
-    
