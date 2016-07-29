@@ -14,7 +14,9 @@
       </tbody>
     </table>
   </body>
+
   <script>
+
         $(document).ready(function(){
             $('#TopKW').dataTable( {  
             "colReorder" : true,
@@ -32,7 +34,7 @@
                 { "data": "count"},
             ],
             "ajax": {
-        "url":"/getCountryCounts"
+        "url":"/getCountryCounts"         
             },
          });   
         });   
