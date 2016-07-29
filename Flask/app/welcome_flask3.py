@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import flask
-import os
+import sys, os
 import sqlite3
 import pandas as pd
 import numpy as np
@@ -69,7 +69,7 @@ def index():
 
 @App.route("/get_my_ip", methods=["GET"])
 def get_my_ip():
-    return request.remote_addr
+    return str(request.remote_addr)
 @App.route('/aboutme/')
 def aboutme():
     """ 
