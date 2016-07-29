@@ -155,7 +155,7 @@ def getContents():
             table_entry = {}
             table_name = x[0]
             table_entry['name'] = table_name
-            html = "http://127.0.0.1:5000/totals/%s" % table_name
+            html = "/totals/%s" % table_name
             table_entry['html'] = "<a href='%s'<button>click</button>></a>" %html
             table_entry['count'] = cursor.execute("SELECT COUNT(*) FROM %s"%table_name).fetchone()[0]
         
@@ -288,11 +288,11 @@ def getPapersConfYrTable():
             entry['conference'] = conf
             entry['year'] = year
             
-            html = "http://127.0.0.1:5000/confyrpapers/" + str(year) + '/' + conf
+            html = "/confyrpapers/" + str(year) + '/' + conf
             entry['paperbreakdown'] =  "<a href='%s'<button>See Papers</button>></a>" %html
-            html2 = "http://127.0.0.1:5000/confKWbreakdown/"+ conf + '/' + str(year)
+            html2 = "/confKWbreakdown/"+ conf + '/' + str(year)
             entry['kwbreakdown'] =  "<a href='%s'<button>Top 10 Keywords</button>></a>" %html2
-            html3 = "http://127.0.0.1:5000/jsonconfyrAuthorbd/"+ conf + '/' + str(year)
+            html3 = "/jsonconfyrAuthorbd/"+ conf + '/' + str(year)
             entry['authors'] =  "<a href='%s'<button>Authors</button>></a>" %html3
             
             entries.append(entry)
@@ -473,7 +473,7 @@ def getPaperKW():
         entry = {}
         entry['paperID'] = each
         entry['keywords'] = [key for key in data_frame.get_group(each)['keyword']]
-        html2 = "http://127.0.0.1:5000/PaperID/"+ str(each)
+        html2 = "/PaperID/"+ str(each)
         entry['getPaper'] =  "<a href='%s'<button>Paper Information</button>></a>" %html2  
         entries.append(entry)
     return jsonify(dict(data = entries))
@@ -562,7 +562,7 @@ def seeKWTrend(kw, grouper = 'keyword'):
         #df['confCode'] = df.confName.apply(lambda name: labels[name])
         try:
             image = images.getHeatMap2(df, annotation = True, filename = "static/Images/test.png")
-            html = "http://127.0.0.1:5000/kwHeattrend"
+            html = "/kwHeattrend"
             return df, images.getHeatMap(df, annotation = True), html
         except:
             return df, 'no data', 'error'
@@ -613,7 +613,7 @@ def seeKWTop(top = 20):
                                vals = 'counts', 
                                filename = 'static/Images/topheat.png')
     
-    html = "http://127.0.0.1:5000/topheat"
+    html = "/topheat"
     topWds.reset_index(inplace = True)
     topWds.rename(columns = {'confName' : 'OverallCount'}, inplace = True)
     cts = topWds[['keyword', 'OverallCount']]
@@ -681,7 +681,7 @@ def searchAffiliation(term):
             entry = {}
             entry['paperID'] = datadf.loc[idx]['paperID']
             entry['affiliation'] = datadf.loc[idx]['affiliation']
-            html2 = "http://127.0.0.1:5000/PaperID/"+ str(datadf.loc[idx]['paperID'])
+            html2 = "/PaperID/"+ str(datadf.loc[idx]['paperID'])
             entry['getPaper'] =  "<a href='%s'<button>Paper Information</button>></a>" %html2  
             
             mytable.append(entry)
