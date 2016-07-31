@@ -33,7 +33,7 @@ def createHDF(filenames, errors, dfs):
     e = pd.Series.from_array(errors)
     totalDF = pd.concat(dfs, axis = 0)
     
-    store = HDFStore('DFstore6test.h5')
+    store = HDFStore('DFstoretest6.h5')
     
     
     store['files'] = s

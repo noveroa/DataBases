@@ -8,9 +8,10 @@ import pandas as pd
 ''' Some Starting Point Scripts for creating a SQL DB based on the 
     Abstracts Data parsed into a DataFrame'''
 
-DEFAULTDB = 'Abstracts_DB2.db'
-DEFAULTHDF = '../DataBaseParsing/DFstore5.h5'
-
+#DEFAULTDB = 'Abstracts_DB2.db'
+#DEFAULTHDF = '../DataBaseParsing/DFstore5.h5'
+DEFAULTDB = 'Abstracts_DB3.db'
+DEFAULTHDF = '../DataBaseParsing/DFstoretest6.h5'
 
 def getPatentDataFrame(hdffile = DEFAULTHDF, 
                        key = 'df'):

@@ -31,11 +31,13 @@ def parseFile(input, Labels = setLabels):
     with open(input, 'r+') as f:
         for line in f:
             if line[0].isdigit():
+                
                 #Only Title Lines Begin with Digit.
                 entry['terms'] = terms #cast as a string for entry to sqlite3 table
                 abstracts[i-1] = entry
                 entry = {}
                 #Title Lines are followed by Authors
+                
                 idx, title = line.split('.', 1)
                 entry['Title'] =  regXstripper.sub(' ', title).strip()
                 i = int(idx) + 1
@@ -172,10 +174,15 @@ def reparseCodes(data_frame, column = 'Classification Code'):
             return codes
         except:
             return [classcodes]
-        
-    df[column] = df[column].apply(reformatcode)
+    try:    
+        df[column] = df[column].apply(reformatcode)
     
-    return df
+        return df
+    except: 
+        df[column] = [[]] * len(df)
+
+        
+        return df
 
 def makeAbstrDF(absDictionary, fname):
     ''' Recast the abstract dictionary as a Pandas DataFrame
