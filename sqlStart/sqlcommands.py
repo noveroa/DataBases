@@ -10,8 +10,10 @@ import pandas as pd
 
 #DEFAULTDB = 'Abstracts_DB2.db'
 #DEFAULTHDF = '../DataBaseParsing/DFstore5.h5'
-DEFAULTDB = 'Abstracts_DB3.db'
-DEFAULTHDF = '../DataBaseParsing/DFstoretest6.h5'
+#DEFAULTDB = 'Abstracts_DB3.db'
+#DEFAULTHDF = '../DataBaseParsing/DFstoretest6.h5'
+DEFAULTDB = 'Abstracts__aug1.db'
+DEFAULTHDF = '../DataBaseParsing/DFstore_aug1.h5'
 
 def getPatentDataFrame(hdffile = DEFAULTHDF, 
                        key = 'df'):
