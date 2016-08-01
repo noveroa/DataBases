@@ -17,7 +17,7 @@ wcg = reload(wcg)
 App = flask.Flask(__name__)
 #ip = "http://" + str(request.remote_addr) + ":5000"
 
-mydb = '../../sqlStart/Abstracts_DB2.db'
+mydb = '../../sqlStart/Abstracts_aug1.db'
 
 def connect_db():
     """
@@ -50,7 +50,7 @@ def getTotalPD(db):
     with sqlite3.connect(db) as con:
         sqlcmd = "SELECT * FROM ABSTRACTSTOTAL"
         df = pd.read_sql_query(sqlcmd, con)
-        print ('Datbase : ', df.shape)
+        print ('Database : ', df.shape)
         
     return df
 

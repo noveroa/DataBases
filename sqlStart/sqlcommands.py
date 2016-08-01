@@ -12,7 +12,7 @@ import pandas as pd
 #DEFAULTHDF = '../DataBaseParsing/DFstore5.h5'
 #DEFAULTDB = 'Abstracts_DB3.db'
 #DEFAULTHDF = '../DataBaseParsing/DFstoretest6.h5'
-DEFAULTDB = 'Abstracts__aug1.db'
+DEFAULTDB = 'Abstracts_aug1.db'
 DEFAULTHDF = '../DataBaseParsing/DFstore_aug1.h5'
 
 def getPatentDataFrame(hdffile = DEFAULTHDF, 
@@ -90,6 +90,7 @@ def createTOTALTable(db = DEFAULTDB,
                        schema=None, if_exists='append', 
                        index=False, index_label=None,
                        chunksize=None, dtype=None)
+        print("Records %s created successfully" %table);
         
         sql = "SELECT * FROM " + table
         df = pd.read_sql_query(sql, con)
@@ -130,13 +131,12 @@ def createConfTable(data_frame,
         confName TEXT NOT NULL)") 
     
         dfConf = pd.DataFrame(data_frame[DFCol].unique(), columns = tableCol)
-        print ('Created DataFrame')
     
         dfConf.to_sql(table, con, flavor='sqlite', 
                     schema=None, if_exists='append', 
                     index=False, index_label=None,
                     chunksize=None, dtype=None)
-        print("Records created successfully");
+        print("Records %s created successfully"%table);
         
     sql = "SELECT * FROM " + table
     df = pd.read_sql_query(sql, con)
@@ -184,13 +184,13 @@ def createPublicationsTable(data_frame,
         print('Created %s table' %table);
         data = list(data_frame.groupby(DFCol).count().index.get_values())
         dfPubs = pd.DataFrame(data, columns = tableCol)
-        print('Created DataFrame')
+        
         #insert into the table
         dfPubs.to_sql(table, con, flavor='sqlite', 
                     schema=None, if_exists='append', 
                     index=False, index_label=None,
                     chunksize=None, dtype=None)
-        print("Records created successfully");
+        print("Records %s created successfully"%table);
         
     sql = "SELECT * FROM " + table
     dfPubs = pd.read_sql_query(sql, con)
@@ -255,14 +255,13 @@ def createKEYSTable(data_frame,
         
         keyDF1 = findTermSet(data_frame)
         
-        print keyDF1.head()
-        print('Created DataFrame')
+        
         #insert into the table
         keyDF1.to_sql(table, con, flavor='sqlite', 
                     schema=None, if_exists='append', 
                     index=False, index_label=None,
                     chunksize=None, dtype=None)
-        print("Records created successfully");
+        print("Records %s created successfully"%table);
         
     sql = "SELECT * FROM " + table
     dfKeys = pd.read_sql_query(sql, con)
@@ -318,6 +317,7 @@ def createAUTHORSTable(data_frame,
         authors = [anew.strip(' ') for anew in authors]
         #need to reset becuase of the white space
         return list(set(authors))
+    
     with sqlite3.connect(db) as con:
         print ("Opened %s database successfully" %db); 
         cur = con.cursor() 
@@ -339,7 +339,7 @@ def createAUTHORSTable(data_frame,
                     schema=None, if_exists='append', 
                     index=False, index_label=None,
                     chunksize=None, dtype=None)
-        print("Records created successfully");
+        print("Records %s created successfully"%table);
         
     sql = "SELECT * FROM " + table
     dfAuthors = pd.read_sql_query(sql, con)
@@ -398,13 +398,13 @@ def createAFFILIATIONTable(data_frame,
         affiliation TEXT NOT NULL)") 
         
         affilDF = findAffiliationSet(data_frame)
-        print('Created DataFrame')
+        
         #insert into the table
         affilDF.to_sql(table, con, flavor='sqlite', 
                     schema=None, if_exists='append', 
                     index=False, index_label=None,
                     chunksize=None, dtype=None)
-        print("Records created successfully");
+        print("Records %s created successfully"%table);
         
     sql = "SELECT * FROM " + table
     dfAffil = pd.read_sql_query(sql, con)
@@ -457,17 +457,16 @@ def createPAPERTable(data_frame,
                     FOREIGN KEY(confName) REFERENCES '%s'(confID))" % (foreignKey[0], foreignKey[1])
                     ); ##authors ids?
         
-        print('Created %s table' %table);
         
         data = list(data_frame.groupby(DFCol).count().index.get_values())
         dfPaper = pd.DataFrame(data, columns = tableCol)
-        print('Created DataFrame')
+        
         #insert into the table
         dfPaper.to_sql(table, con, flavor='sqlite', 
                     schema=None, if_exists='append', 
                     index=False, index_label=None,
                     chunksize=None, dtype=None)
-        print("Records created successfully");
+        print("Records %s created successfully"%table);
         
     sql = "SELECT * FROM " + table
     dfpaperkey = pd.read_sql_query(sql, con)
@@ -521,7 +520,7 @@ def createAFFILIATIONPAPERTable(data_frameP, data_frameA,
                     schema=None, if_exists='append', 
                     index=False, index_label=None,
                     chunksize=None, dtype=None)
-        print("Records created successfully");
+        print("Records %s created successfully"%table);
         
     sql = "SELECT * FROM " + table
     paperAffiliationDF = pd.read_sql_query(sql, con)
@@ -591,7 +590,7 @@ def createPAPERKEYTable(data_frame,
                 else:
                     cur.execute("INSERT INTO " + table  + " VALUES(?,?)",(paperID, term))
         
-        print("Records created successfully");
+        print("Records %s created successfully"%table);
         
     sql = "SELECT * FROM " + table
     paperKeys = pd.read_sql_query(sql, con)
@@ -669,7 +668,7 @@ def createPAPERAUTHORTable(data_frame,
                 else:
                     cur.execute("INSERT INTO " + table  + " VALUES(?,?)",(paperID, author))
         
-        print("Records created successfully");
+        print("Records %s created successfully"%table);
         
     sql = "SELECT * FROM " + table
     paperAuthors = pd.read_sql_query(sql, con)
@@ -763,7 +762,7 @@ def createPAPERAUTHORTable2( db = DEFAULTDB, table = "PAPERAUTHOR"):
                         schema=None, if_exists='append', 
                         index=False, index_label=None,
                         chunksize=None, dtype=None)
-        print("Records created successfully");
+        print("Records %s created successfully"%table);
         
         sql = "SELECT * FROM " + table
         testerDF = pd.read_sql_query(sql, con)
