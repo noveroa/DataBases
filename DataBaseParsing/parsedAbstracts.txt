@@ -1,0 +1,29 @@
+ArchConfAbstracts22/ECSA2007.txt
+ArchConfAbstracts22/ECSA2008.txt
+ArchConfAbstracts22/ECSA2009.txt
+ArchConfAbstracts22/ECSA2010.txt
+ArchConfAbstracts22/ECSA2011.txt
+ArchConfAbstracts22/ECSA2012.txt
+ArchConfAbstracts22/ECSA2013.txt
+ArchConfAbstracts22/ECSA2014.txt
+ArchConfAbstracts22/QoSA2005.txt
+ArchConfAbstracts22/QoSA2006.txt
+ArchConfAbstracts22/QoSA2007.txt
+ArchConfAbstracts22/QoSA2008.txt
+ArchConfAbstracts22/QoSA2009.txt
+ArchConfAbstracts22/QoSA2010.txt
+ArchConfAbstracts22/QoSA2011.txt
+ArchConfAbstracts22/QoSA2012.txt
+ArchConfAbstracts22/QoSA2013.txt
+ArchConfAbstracts22/QoSA2014.txt
+ArchConfAbstracts22/WICSA1999.txt
+ArchConfAbstracts22/WICSA2001.txt
+ArchConfAbstracts22/WICSA2005.txt
+ArchConfAbstracts22/WICSA2007.txt
+ArchConfAbstracts22/WICSA2008.txt
+ArchConfAbstracts22/WICSA2009.txt
+ArchConfAbstracts22/WICSA2011.txt
+ArchConfAbstracts22/WICSA2012.txt
+ArchConfAbstracts22/WICSA2014.txt
+Entered successfully:  27 27
+Found error:  0
