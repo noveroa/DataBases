@@ -649,6 +649,20 @@ def KWcloud():
     wordCloud =  wcg.cloud('kw', outputFile = "static/Images/kwCloud.png")
     return render_template('keywords/wordcloudrender.html')
 
+@App.route('/create_KWCloudGroup/<grouper>/<grouptype>', methods=('GET',))
+def create_KWCloudGroup(grouper, grouptype):
+    if grouper == 'pubYear':
+        grouptype = int(grouptype)
+        
+    wordCloud = wcg.cloud(cloudtext = 'kw',
+                    grouper = grouper, 
+                    group = grouptype, 
+                    outputFile = 'static/Images/kwGroupedCloud.png',
+                    grouped = True
+                    )
+    
+    return render_template('keywords/wordcloudGrouprender.html', entry = grouptype)
+
 def getAffiliation():
     
     with sqlite3.connect(mydb) as con:
@@ -1038,7 +1052,6 @@ def auCloud():
     '''
     wordCloud =  wcg.cloud('au', outputFile = "static/Images/auCloud.png")
     return render_template('authors/wordcloudrenderer_au.html')
-
 
 @App.route('/seeAuthorsSpot', methods=('GET',))
 def seeAuthorsSpot():

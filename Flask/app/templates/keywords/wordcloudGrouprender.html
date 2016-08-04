@@ -1,4 +1,4 @@
-<!-- Index template and html, extends master.html, generates a broken link icon -->
+<!-- Index template and html, extends master.html -->
 
 {% extends "master.html" %}
 
@@ -33,11 +33,11 @@ img {
 </style>
 
 
-<h2>Keyword Word Cloud</h2>
+<h2>Keyword Word Cloud : {{entry}} </h2>
 <h3>Press Refresh To Ensure Correct Image</h3>
 
 <a target="_blank">
-  <img src="{{ url_for('static', filename = 'Images/kwCloud.png') }}" width="1000" height="300" 
+  <img src="{{ url_for('static', filename = 'Images/kwGroupedCloud.png') }}" width="1000" height="300" 
        lowsrc="{{ url_for('static', filename = 'Images/loading.gif') }}">
 </a>
 
