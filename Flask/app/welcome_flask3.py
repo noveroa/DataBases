@@ -649,6 +649,7 @@ def KWcloud():
     wordCloud =  wcg.cloud('kw', outputFile = "static/Images/kwCloud.png")
     return render_template('keywords/wordcloudrender.html')
 
+
 @App.route('/create_KWCloudGroup/<grouper>/<grouptype>', methods=('GET',))
 def create_KWCloudGroup(grouper, grouptype):
     if grouper == 'pubYear':
@@ -660,9 +661,15 @@ def create_KWCloudGroup(grouper, grouptype):
                     outputFile = 'static/Images/kwGroupedCloud.png',
                     grouped = True
                     )
+    print(grouper, grouptype)
     
     return render_template('keywords/wordcloudGrouprender.html', entry = grouptype)
 
+@App.route('/wordCloudSearcher2')
+def directionstoSearchCloud():
+    return render_template("keywords/directions.html")
+
+    
 def getAffiliation():
     
     with sqlite3.connect(mydb) as con:
