@@ -669,7 +669,34 @@ def create_KWCloudGroup(grouper, grouptype):
 def directionstoSearchCloud():
     return render_template("keywords/directions.html")
 
+@App.route('/create_KWCloudGroup2/<grouptype>', methods=('GET',))
+def create_KWCloudGroup2(grouptype):
     
+    #if grouper == 'pubYear':
+        #grouptype = int(grouptype)
+    
+    try:
+        image = wcg.cloud2(cloudtext = 'kw',
+                    grouper = 'confName', 
+                    group = grouptype,
+                    grouped = True
+                    )
+        print(image)
+        return jsonify(dict(data = [{'KWCloud'  : image}]))
+    
+    except:
+        image = 'static/Images/colorBars.png'
+        print('error')
+        return jsonify(dict(data = [{'KWCloud'  : image}]))
+
+@App.route('/wordCloudSearcher3', methods=('GET',))
+def wordCloudSearcher3():
+    '''
+    Renders create_KWCloudGroup2() as html
+    '''
+    
+    return render_template('keywords/wordCloudSearcher3.html')
+        
 def getAffiliation():
     
     with sqlite3.connect(mydb) as con:
