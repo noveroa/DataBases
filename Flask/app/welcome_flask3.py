@@ -11,7 +11,7 @@ from flask import abort,  jsonify
 
 import images as images
 images = reload(images)
-import wordcloud_generator as wcg
+import wordcloud_generator2 as wcg
 wcg = reload(wcg)
 
 App = flask.Flask(__name__)
@@ -646,7 +646,7 @@ def KWcloud():
     '''
     Renders KWs word cloud in html - creates and SAVES a newimage eachtime
     '''
-    wordCloud =  wcg.cloud('kw', "static/Images/kwCloud.png")
+    wordCloud =  wcg.cloud('kw', outputFile = "static/Images/kwCloud.png")
     return render_template('keywords/wordcloudrender.html')
 
 def getAffiliation():
@@ -1036,7 +1036,7 @@ def auCloud():
     '''
     Renders Authors word cloud in html - creates and SAVES a newimage eachtime
     '''
-    wordCloud =  wcg.cloud('au', "static/Images/auCloud.png")
+    wordCloud =  wcg.cloud('au', outputFile = "static/Images/auCloud.png")
     return render_template('authors/wordcloudrenderer_au.html')
 
 
