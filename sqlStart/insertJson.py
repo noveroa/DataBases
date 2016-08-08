@@ -165,12 +165,14 @@ def entryintotables(db, jsonfile):
     '''
     f = open(jsonfile, "r+")
     jdf = pd.read_json(f, orient='index')
-    jdf.Conf = 'WAKA'
+
     #TOTALABSTRACTS, check and then insert if needed, uniqueness based on Abstract column
-    #insertcheckRecord(db, jdf, table = 'ABSTRACTSTOTAL', un =  'Abstract')
+    insertcheckRecord(db, jdf, table = 'ABSTRACTSTOTAL', un =  'Abstract')
     
     #renaming of columns
     jdf.rename(columns = {'Conf':'confName'}, inplace= True)
+    jdf.rename(columns = {'Author affiliation' : 'affiliation'}, inplace = True)
+    jdf.rename(columns = {'Authors' : 'authors'}, inplace = True)
     
     #CONFERENCES, check and then insert if needed, uniqueness based on Abstract column
     insertcheckRecord(db, jdf, table = 'CONFERENCES', un = 'confName' )
@@ -188,5 +190,8 @@ def entryintotables(db, jsonfile):
     #AUTHORS
     enterValueCheck_nested(db=db, table = 'AUTHORS', values = jdf.Authors, cn = 'authorName')
     
-    #enter
+    #PAPER
+    jdf.rename(columns = {'year' : 'pubYear'}, inplace = True)
+    insert_toTable(mydb, jdf, 'PAPER')
+    
     return jdf
