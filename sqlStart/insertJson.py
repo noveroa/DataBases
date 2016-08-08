@@ -75,10 +75,9 @@ def insertcheckRecord(db, df, table = 'CONFERENCES', un = 'confName' ):
     t = sqlCMDToPD(table, mydb)
     if df[un][0] not in t[un].unique():
         insert_toTable(db, df[un], table)
-        return True
     else:
         print(" %s already exists, try upserting with key value or deleting" %df[un][0])
-        return False  
+
     
 def insertcheckRecordTWO(db, df, table = 'PUBLICATIONS', un = 'confName', un1 = 'year' ):
     '''Check to insert a new record into a database table, inserts if does not exist, checks for multiple
@@ -94,7 +93,7 @@ def insertcheckRecordTWO(db, df, table = 'PUBLICATIONS', un = 'confName', un1 = 
         print df[un][0], 'is new'
         insert_toTable(db, df[[un, un1]], table)
     else:
-        
+        conf = df[un][0]
         tmp = t.query('@conf == confName') 
         
         if df[un1][0] not in tmp[un1].unique():
@@ -104,15 +103,20 @@ def insertcheckRecordTWO(db, df, table = 'PUBLICATIONS', un = 'confName', un1 = 
             print(" %s already exists, try upserting with key value or deleting" %df[[un, un1]].values)
 
 
-def insertValue(db, table, value):
+def insertValues(db, table, value1, value2):
     '''Insert a new record by value into a database table
     param  db str : Database name to connect to
     param table str : Table Name to insert into, if does not exist will create
     param value str : unique value entered into table
     '''
     with sql.connect(db) as con:
-        con.execute("INSERT INTO {tn} VALUES(NULL,'%s')".format(tn=table)%value)
-        print('%s inserted into %s')%(value, table)
+        try:
+            con.execute("INSERT INTO {tn} VALUES('%s','%s')".format(tn=table)%(value1, value2))
+            print('%s %s inserted into %s')%(value1, value2, table)
+        except:
+            con.execute("INSERT INTO {tn} VALUES(Null,'%s')".format(tn=table)%(value2))
+            print('%s inserted into %s, single entry')%(value2, table)
+
         
 def enterValueCheck_nested(db, table, values, cn):
     '''Check to insert a new record into a database table, inserts if does not exist
@@ -121,15 +125,49 @@ def enterValueCheck_nested(db, table, values, cn):
     param values python series : series being parsed and formated to inspection and entry into table
     param cn str : column name to check for entry to create a new pk
     '''
+    keys = []
     tableDF = sqlCMDToPD(table, db)
     for i, ky in enumerate(values):
         for key in ky.split(','):
             if key not in tableDF[cn].unique():
                 print key, 'is new'
-                insertValue(db, table, key)
+                insertValues(db, table, None, key)
             else:
                 print key, 'already exists in table'
-                
+            
+            keys.append(key)
+        return keys
+
+def compositeCreation(db, table1, col, values, parentID, comptable):
+    '''Creating Composite Tables 
+    First, find the values needed to insert from first table based on query
+    then insert each (parentID, value) pair into the composite table 
+    param  db str : Database name to connect to
+    param table1 str : Table Name to query for multiple values
+    param col str : column name of value to retrieve iteratively 
+    param values list : list of values to insert into the composite
+    param parentID int : integer value (Primary Key Value) of parent table to enter
+    param comptable str : Table Name of composite table
+    '''
+    t = sqlCMDToPD(table1, db)
+    tmp = t.query('{cn} in @values'.format(cn = col))[col]
+    for v in tmp.values:
+        print v, paperK
+        insertValues(db, comptable, parentID, v)
+        
+def getPK(db, table, pkCol):
+    '''retrieve the PRIMARY KEY
+    param  db str : Database name to connect to
+    param table str : Table Name to delete from
+    param pkcol str : primary column name being used, 
+    '''
+    with sql.connect(db) as c:
+        cursor = c.cursor()
+        cursor.execute("SELECT {idf} FROM {tn} ORDER BY {idf} DESC LIMIT 1".format(tn=table, idf=pkCol))
+        key = cursor.fetchone()[0]
+
+        return key
+    
 def deleteRowPK(db, table, pkcol, entryID):
     '''Deleting a Record by PRIMARY KEY
     param  db str : Database name to connect to
@@ -155,8 +193,6 @@ def deleteRowOTHER(db, table, cn, entry):
         con.execute("DELETE FROM {tn} WHERE {idf}='%s'".format(tn=table, idf=cn)%entry)
 
         con.commit()
-
-
         
 def entryintotables(db, jsonfile):
     '''Inserting a Record from a JsonFile
@@ -165,10 +201,11 @@ def entryintotables(db, jsonfile):
     '''
     f = open(jsonfile, "r+")
     jdf = pd.read_json(f, orient='index')
-
     #TOTALABSTRACTS, check and then insert if needed, uniqueness based on Abstract column
-    insertcheckRecord(db, jdf, table = 'ABSTRACTSTOTAL', un =  'Abstract')
+    insert_toTable(db, jdf, table = 'ABSTRACTSTOTAL')
     
+
+
     #renaming of columns
     jdf.rename(columns = {'Conf':'confName'}, inplace= True)
     jdf.rename(columns = {'Author affiliation' : 'affiliation'}, inplace = True)
@@ -181,17 +218,30 @@ def entryintotables(db, jsonfile):
     insertcheckRecordTWO(db, jdf, table = 'PUBLICATIONS', un = 'confName', un1 = 'year' )
     
     #AFFILIATIONS
-    jdf.rename(columns = {'Author affiliation' : 'affiliation'}, inplace = True)
     insertcheckRecord(db = db, df = jdf, table = 'AFFILIATIONS', un = 'affiliation')
     
     #For the nested: authors, keywords, and need to reparse/reformat, also to show numerous ways to insert:
     #KEYS
-    enterValueCheck_nested(db=db, table = 'KEYS', values = jdf.terms, cn = 'keyword')
+    keys = enterValueCheck_nested(db=db, table = 'KEYS', values = jdf.terms, cn = 'keyword')
+    
     #AUTHORS
-    enterValueCheck_nested(db=db, table = 'AUTHORS', values = jdf.Authors, cn = 'authorName')
+    authors = enterValueCheck_nested(db=db, table = 'AUTHORS', values = jdf.authors, cn = 'authorName')
     
     #PAPER
     jdf.rename(columns = {'year' : 'pubYear'}, inplace = True)
     insert_toTable(mydb, jdf, 'PAPER')
+    paperID  = getPK(db, 'PAPER', 'paperID') 
     
-    return jdf
+    #COMPOSITE TABLE UPDATES
+    #PAPERKEY
+    compositeCreation(db, 'KEYS', 'keyword', keys, paperID, 'PAPERKEY')
+    
+    #PAPERAUTHOR
+    compositeCreation(db, 'AUTHORS', 'authorName', authors, paperID, 'PAPERAUTHOR')
+    
+    #AFFILIATIONPAPER
+    affilationID = getPK(db, 'AFFILIATIONS', 'affilID' )
+    insertValues(mydb, "AFFILIATIONPAPER", paperID, affilationID)
+    
+    
+    return jdf, keys, authors
