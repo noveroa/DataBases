@@ -1163,7 +1163,7 @@ def analysis():
     data =  getAffiliation()
     return render_template("show2.html", name='tables', data=data)
 
-import insertJson as RESTful
+import RESTful
 
 def openJfile(jfile):
     '''
