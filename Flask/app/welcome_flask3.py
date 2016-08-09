@@ -142,8 +142,9 @@ def jasonhtml(table):
 def getContents():
     '''
     : param NONE
-    : output : Returns a json dictionary of the table names, entry counts, and links to tables 
-                of all table names in the database
+    : output : Returns a json dictionary of the table names, 
+               entry counts, and links to tables 
+               of all table names in the database
     ''' 
     with sqlite3.connect(mydb) as con:
     
@@ -229,9 +230,10 @@ def jsonContentsconf():
 @App.route("/jsonconfyrpapers/<year>/<conf>", methods=('GET',))
 def getPapersConfYr(year, conf):
     '''
-    : param year str/int : Year of a conference within range of database 2004 - 2014
+    : param year str/int : Year of a conference
     : param conf str : Valid Conference Name (WICSA, ECSA, QoSA)
-    : output : Returns a json dictionary of paperID, title, Abstract for given conf, year
+    : output : Returns a json dictionary of paperID, 
+               title, Abstract for given conf, year
     '''  
     with sqlite3.connect(mydb) as con:
         sqlcmd = "SELECT pubYear, confName, paperID, title, abstract FROM PAPER"
@@ -267,15 +269,17 @@ def jsonConfYrPaper(year, conf):
     '''
     Renders getPapersConfYr(year, conf) as html
     '''
-    return render_template('/conferences/ConfYrPaper.html', entry = [year, conf])
+    return render_template('/conferences/ConfYrPaper.html', 
+                           entry = [year, conf])
 
 
 @App.route("/jsonconfyrbreakdown", methods=('GET',))
 def getPapersConfYrTable():
     '''
     : param NONE
-    : output : Returns a json dictionary of conferences, publication years, 
-                links to each conf/yr papers, top keywords, and authors
+    : output : Returns a json dictionary of conferences, 
+               publication years, links to each conf/yr 
+               papers, top keywords, and authors
     '''    
     with sqlite3.connect(mydb) as con:
         sqlcmd = "SELECT pubYear, confName, paperID, title, abstract FROM PAPER"
@@ -310,9 +314,10 @@ def confbreakdown():
 @App.route('/search/<year>/<conf>', methods=('GET',))
 def search_params(year, conf):
     '''
-    : param year str/int : Year of a conference within range of database 2004 - 2014
+    : param year str/int : Year of a conference
     : param conf str : Valid Conference Name (WICSA, ECSA, QoSA)
-    : output : Returns a json dictionary of publication year, name, paperIDs, titles
+    : output : Returns a json dictionary of publication 
+               year, name, paperIDs, titles
     '''    
     print "publication year", year
     print "conference", conf
@@ -357,7 +362,8 @@ def search():
 '''       
 def getPapersKWgroup(grouper):
     '''
-    : param grouper: parameters to group paper keyword merged table by (ie. [confName, pubYear])
+    : param grouper: parameters to group paper keyword 
+                     merged table by (ie. [confName, pubYear])
     : output : Returns two python Pandas DataFrames . 
             merged: PAPER and PAPERKEY merged on paperID
             subgroup : merged grouped by given grouper
@@ -402,10 +408,11 @@ def PaperID(paperid):
 def confYrKeywords(year, conf, top = 10):
     '''
     : param conf str : Valid Conference Name (WICSA, ECSA, QoSA)
-    : param year str/int : Year of a conference within range of database 2004 - 2014
+    : param year str/int : Year of a conference
     : param top int : number of keywords to return, default 10
-    : output : Returns a json dictionary of the top 10 keywords for the given conference/year. 
-                And a bie and bar graph representation
+    : output : Returns a json dictionary of the top 10 keywords 
+               for the given conference/year. 
+               pie and bar graph representation
     '''    
     print 'Conf: ', conf, 'Year' , year
     grouper = ['confName', 'pubYear']
@@ -459,13 +466,15 @@ def jsonConfYrKW(conf, year):
     '''
     Renders confYrKeywords() as html
     '''
-    return render_template('/keywords/jsonContentsconfyrkw.html', entry = [conf, year])
+    return render_template('/keywords/jsonContentsconfyrkw.html', 
+                           entry = [conf, year])
 
 @App.route("/papers/keywords", methods = ('GET',))
 def getPaperKW():
     '''
     : param NONE
-    : output : Returns a json dictionary of paperIDs and their keywords
+    : output : Returns a json dictionary of 
+               paperIDs and their keywords
     '''
     m, data_frame = getPapersKWgroup('paperID')
     entries = []
@@ -496,7 +505,8 @@ def search_kw():
 def search_kw_params(param):
     '''
     : param param str: keyword string to be searched for
-    : output : Returns a json dictionary of papers associated to the given keyword
+    : output : Returns a json dictionary of papers 
+               associated to the given keyword
     '''
     print "keyword search: ", param
     
@@ -528,10 +538,10 @@ def search_kw_params(param):
     except:
         print (param, 'subgroupfail')
         entry = {'paperID': 'No Keyword Found',
-                     'Title': 'No Keyword Found',
-                     'Conference': 'No Keyword Found',
-                     'PublicationYear': 'No Keyword Found'
-                     }
+                 'Title': 'No Keyword Found',
+                 'Conference': 'No Keyword Found',
+                 'PublicationYear': 'No Keyword Found'
+                }
         mytable = [entry]
         return jsonify(dict(data = mytable))
 
@@ -539,9 +549,10 @@ def search_kw_params(param):
 def seeKWTrend(kw, grouper = 'keyword'):
     '''
     : param param str: keyword string to be searched for
-    : output : Returns a json dicitonary of a table with the given keyword's associated 
-                papers, counts per conference and year,
-                and a heatmap represenation
+    : output : Returns a json dicitonary of a table with 
+               the given keyword's associated 
+               papers, counts per conference and year,
+               and a heatmap represenation
     '''
     print('My keyword: ' , kw)
     m, f = getPapersKWgroup(grouper)
@@ -555,13 +566,12 @@ def seeKWTrend(kw, grouper = 'keyword'):
     new = data_frame.copy()
     
     def findKWTrend(df, kw, KWgrouper = ["pubYear", "confName"]):
-        #labels = {'ECSA' : 0,
-                  #'QoSA' : 1,
-                  #'WICSA' : 2}
+        
         df = df.groupby(KWgrouper)['keyword'].count().reset_index(name="counts")
-        #df['confCode'] = df.confName.apply(lambda name: labels[name])
         try:
-            image = images.getHeatMap2(df, annotation = True, filename = "static/Images/test.png")
+            image = images.getHeatMap2(df, 
+                                       annotation = True, 
+                                       filename = "static/Images/test.png")
             html = "/kwHeattrend"
             return df, images.getHeatMap(df, annotation = True), html
         except:
@@ -603,19 +613,22 @@ def seeKWTop(top = 20):
     '''
     m, f = getPapersKWgroup('keyword')
     
-    topWds = f.count().sort_values(by = 'confName', ascending = False)[:top]
+    topWds = f.count().sort_values(by = 'confName', 
+                                   ascending = False)[:top]
     
     mTop = m[m['keyword'].isin(topWds.index)]
     
     mTop['counts'] = mTop.groupby(['confName', 'pubYear', 'keyword'])['keyword'].transform('count')
     
-    image = images.getHeatMap2(mTop, indexCol='keyword', cols = ['confName', 'pubYear'], 
+    image = images.getHeatMap2(mTop, indexCol='keyword', 
+                               cols = ['confName', 'pubYear'], 
                                vals = 'counts', 
                                filename = 'static/Images/topheat.png')
     
     html = "/topheat"
     topWds.reset_index(inplace = True)
-    topWds.rename(columns = {'confName' : 'OverallCount'}, inplace = True)
+    topWds.rename(columns = {'confName' : 'OverallCount'}, 
+                  inplace = True)
     cts = topWds[['keyword', 'OverallCount']]
     
     
@@ -644,9 +657,11 @@ def topheat():
 @App.route('/KWcloud', methods=('GET',))
 def KWcloud():
     '''
-    Renders KWs word cloud in html - creates and SAVES a newimage eachtime
+    Renders KWs word cloud in html 
+    - creates and SAVES a newimage eachtime
     '''
-    wordCloud =  wcg.cloud('kw', outputFile = "static/Images/kwCloud.png")
+    wordCloud =  wcg.cloud('kw', 
+                           outputFile = "static/Images/kwCloud.png")
     return render_template('keywords/wordcloudrender.html')
 
 
@@ -663,7 +678,8 @@ def create_KWCloudGroup(grouper, grouptype):
                     )
     print(grouper, grouptype)
     
-    return render_template('keywords/wordcloudGrouprender.html', entry = grouptype)
+    return render_template('keywords/wordcloudGrouprender.html', 
+                           entry = grouptype)
 
 @App.route('/wordCloudSearcher2')
 def directionstoSearchCloud():
@@ -671,10 +687,7 @@ def directionstoSearchCloud():
 
 @App.route('/create_KWCloudGroup2/<grouptype>', methods=('GET',))
 def create_KWCloudGroup2(grouptype):
-    
-    #if grouper == 'pubYear':
-        #grouptype = int(grouptype)
-    
+
     try:
         image = wcg.cloud2(cloudtext = 'kw',
                     grouper = 'confName', 
@@ -713,8 +726,10 @@ def getAffiliation():
 @App.route('/searchAffiliation/<term>', methods=('GET',))
 def searchAffiliation(term):
     '''
-    : param term: term by which to search Affiliations (ie country, number, abbreviation)
-    : output : json dictionary of paperID, affilation, and link to the PaperID Info 
+    : param term: term by which to search Affiliations 
+                 (ie country, number, abbreviation)
+    : output : json dictionary of paperID, affilation, 
+                  and link to the PaperID Info 
     '''
    
     with sqlite3.connect(mydb) as con:
@@ -746,7 +761,7 @@ def seeAffil():
 def getBasicAffiliationCount():
     '''
     : param NONE:
-    : output : Dictionary of the found countries and their counts, barchart too
+    : output : Dictionary of the found countries,their counts, barchart
     '''
     from pycountry import countries 
     with sqlite3.connect(mydb) as con:
@@ -800,7 +815,8 @@ def seeCountryCounts():
 def countryGr():
     '''
     : param : NONE
-    : output : pandas DataFrame count and country grouped by Conferences
+    : output : pandas DataFrame count and 
+               country grouped by Conferences
     '''
     from pycountry import countries 
     with sqlite3.connect(mydb) as con:
@@ -858,7 +874,8 @@ def getAuthorsTotal():
 def AuthoredPapersDF(boolean):
     '''
     : param boolean: control flow boolean
-    : output : Returns a python Pandas DataFrane of total database of paperIDs merged to authors 
+    : output : Returns a python Pandas DataFrane of total 
+               database of paperIDs merged to authors 
     '''
     if boolean == 'start':
     
@@ -867,7 +884,7 @@ def AuthoredPapersDF(boolean):
         
             papaudf = pd.read_sql_query(sqlcmd, con)
         
-            sqlcmd2 = "SELECT paperID,title,confName, pubYear FROM PAPER"
+            sqlcmd2 = "SELECT paperID, title, confName, pubYear FROM PAPER"
         
             pap  = pd.read_sql_query(sqlcmd2, con)
         
@@ -882,8 +899,10 @@ def AuthoredPapersDF(boolean):
 def AuthoredPapers():
     '''
     : param NONE:
-    : output : Returns a json dictionary of Authors and their associated papers by conference and year.
-               The count is the total number of papers the author has been ascribed over the entirety of the database 
+    : output : Returns a json dictionary of Authors and their 
+               associated papers by conference and year.
+               The count is the total number of papers the author 
+               has been ascribed over the entirety of the database 
     '''
     ap = AuthoredPapersDF('start')
     entries = []
@@ -905,9 +924,12 @@ def authoredpapers():
 def getauthorsbyID(paperID):
     '''
         : param paperID int: integer corresponding to the paperID
-        : output : Given a valid paperID returns a json dictionary of authors ascribed to the given paper, 
-                   Though redundant, paper title, conference, year is also returned.
-                   The count is the total number of papers the author has been ascribed over the entirety of the database
+        : output : Given a valid paperID returns a json dictionary 
+                   of authors ascribed to the given paper, 
+                   Though redundant, paper title, conference, 
+                   year is also returned.
+                   The count is the total number of papers the author has 
+                   been ascribed over the entirety of the database
     '''
     print paperID
     ap = AuthoredPapersDF('start')
@@ -931,9 +953,11 @@ def seeAuthorsID():
 @App.route('/getauthorsbyname/<name>', methods=('GET',))
 def getauthorsbyname(name):
     '''
-        : param name str: string corresponding to an authors name. SPACE SENSITIVE
-        : output : Given a valid author name returns a json dictionary of papers ascribed to the author, 
-                    the conference, title, and year.
+        : param name str: string corresponding to an authors name. 
+                          SPACE SENSITIVE
+        : output : Given a valid author name returns a json dictionary of 
+                          papers ascribed to the author, 
+                          the conference, title, and year.
     '''
     print name
     ap = AuthoredPapersDF('start')
@@ -958,8 +982,9 @@ def seeAuthorsName():
 def confYrAuthor():
     '''
         : param NONE
-        : output : Returns a json dictionary containing Papers,Authors merged grouped by Conference and Year. 
-        Used for inspection
+        : output : Returns a json dictionary containing Papers,
+                   Authors merged grouped by Conference and Year. 
+                   Used for inspection
     '''
     grouper = ['confName', 'pubYear']
     f = AuthoredPapersDF('start')
@@ -995,9 +1020,12 @@ def seeAuthorsCY():
 def confYrAuthor2(conf, year):
     '''
         : param conf str : Valid Conference Name (WICSA, ECSA, QoSA)
-        : param year str/int : Year of a conference within range of database 2004 - 2014
-        : output : Returns a json dictionary containing Authors, paperIds, titles of papers published in given conf/year
-                    AuuthorYrCount is the total number of papers ascribd to a given author in the given conf/year
+        : param year str/int : Year of a conference within range of 
+                database 2004 - 2014
+        : output : Returns a json dictionary containing Authors, paperIds, 
+                titles of papers published in given conf/year
+                AuthorYrCount is the total number of papers ascribd to a given 
+                author in the given conf/year
     '''
     grouper = ['confName', 'pubYear']
     f = AuthoredPapersDF('start')
@@ -1059,7 +1087,8 @@ def getAuthorTop20(top = 20, column = 'authorName'):
         merged = papaudf.merge(pap, on =  'paperID')
         merged['counts'] = merged.groupby([column])[column].transform('count')
         
-        ap = merged.sort_values(by = ['counts',column], ascending = False).drop_duplicates(column)[:20]
+        ap = merged.sort_values(by = ['counts',column], 
+                                ascending = False).drop_duplicates(column)[:20]
         
         temp = merged.groupby('confName')
         selection = np.array(ap[column])
@@ -1082,7 +1111,8 @@ def getGrCts(data_frame, selection, column):
 @App.route('/auCloud', methods=('GET',))
 def auCloud():
     '''
-    Renders Authors word cloud in html - creates and SAVES a newimage eachtime
+    Renders Authors word cloud in html - 
+    creates and SAVES a newimage eachtime
     '''
     wordCloud =  wcg.cloud('au', outputFile = "static/Images/auCloud.png")
     return render_template('authors/wordcloudrenderer_au.html')
@@ -1094,7 +1124,9 @@ def seeAuthorsSpot():
     '''
     topauthors, selection = getAuthorTop20(top = 20)
     groupedAu = getGrCts(topauthors, selection, column = 'authorName')
-    image = images.createSpot(groupedAu, xlabel = 'Author', filename = 'static/Images/authorBubble.png')
+    image = images.createSpot(groupedAu, 
+                              xlabel = 'Author', 
+                              filename = 'static/Images/authorBubble.png')
     
     return render_template('authors/seeAuthorsSpot.html')
 
@@ -1105,7 +1137,10 @@ def seeAuthorsArea():
     '''
     topauthors, selection = getAuthorTop20(top = 20)
     groupedAu = getGrCts(topauthors, selection, column = 'authorName')
-    image = images.areaPlot(groupedAu, xlabel = 'Authors', ylabel = 'counts', filename = 'static/Images/authorAP.png')
+    image = images.areaPlot(groupedAu, 
+                            xlabel = 'Authors', 
+                            ylabel = 'counts', 
+                            filename = 'static/Images/authorAP.png')
     
     
     return render_template('authors/seeAuthorsArea.html')
@@ -1127,6 +1162,33 @@ def show_tables():
 def analysis():
     data =  getAffiliation()
     return render_template("show2.html", name='tables', data=data)
+
+import insertJson as RESTful
+
+def openJfile(jfile):
+    '''
+        : param jfile str/unicode : json file name (located in static folder/data)
+        : output : Opens and returns json file as pandas dataframe
+    '''
+    SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
+    json_url = os.path.join(SITE_ROOT, "static/data", str(jfile))
+    
+    return RESTful.jsonDF(json_url)
+
+@App.route('/queries', methods=['GET'])
+def myquery():
+    e = RESTful.retrievals(mydb, 'CONFERENCES', 'confName', 'confID', 'confID', 3)
+    
+    return jsonify(dict(data=e))
+
+@App.route('/insertJfile/<jfile>', methods=['GET'])
+def insertJFiletoDB(jfile):
+    '''
+        : param jfile str/unicode : json file name (located in static folder/data)
+        : output : Opens and renders json file as pandas dataframe in html format
+    '''
+    
+    return openJfile(jfile).to_html()
 
 if __name__ == '__main__':
    
