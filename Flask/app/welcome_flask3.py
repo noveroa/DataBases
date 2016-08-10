@@ -17,7 +17,7 @@ wcg = reload(wcg)
 App = flask.Flask(__name__)
 #ip = "http://" + str(request.remote_addr) + ":5000"
 
-mydb = '../../sqlStart/Abstracts_aug1.db'
+mydb = '../../sqlStart/Abstracts_aug4.db'
 
 def connect_db():
     """
@@ -65,7 +65,7 @@ def index():
     """ 
     Renders aboutme page html for '/' the index page
     """
-    return flask.render_template('index.html')
+    return flask.render_template('index.html', entry = mydb)
 
 @App.route("/get_my_ip", methods=["GET"])
 def get_my_ip():
@@ -1173,7 +1173,7 @@ def openJfile(jfile):
     SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
     json_url = os.path.join(SITE_ROOT, "static/data", str(jfile))
     
-    return RESTful.jsonDF(json_url)
+    return json_url
 
 @App.route('/queries', methods=['GET'])
 def myquery():
@@ -1181,14 +1181,25 @@ def myquery():
     
     return jsonify(dict(data=e))
 
+@App.route('/seeJfile/<jfile>', methods=['GET'])
+def seeJsonDF(jfile):
+    '''
+        : param jfile str/unicode : json file name (located in static folder/data)
+        : output : Opens and renders json file as pandas dataframe in html format
+    '''
+    f = openJfile(jfile)
+    
+    return RESTful.jsonDF(f).to_html()
+
 @App.route('/insertJfile/<jfile>', methods=['GET'])
 def insertJFiletoDB(jfile):
     '''
         : param jfile str/unicode : json file name (located in static folder/data)
         : output : Opens and renders json file as pandas dataframe in html format
     '''
+    f = openJfile(jfile)
     
-    return openJfile(jfile).to_html()
+    return RESTful.entryintotables(mydb, f).to_html()
 
 if __name__ == '__main__':
    
