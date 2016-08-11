@@ -111,11 +111,11 @@ def insertValues(db, table, value1, value2):
     '''
     with sql.connect(db) as con:
         if value1:
-            con.execute("INSERT INTO {tn} VALUES({val1},'%s')".format(tn=table, val1 = value1)%value2)
-            print(table, 'Composite Entry ', value1, value2)
+            print (con.execute("INSERT INTO {tn} VALUES(?, ?)".format(tn=table), (value1,value2)))
+            print('Composite Entry', value1, value2)
         else:
             con.execute("INSERT INTO {tn} VALUES(Null,{val2});".format(tn=table, val2 = value2))
-            print(table, 'Single Entry ', value2)
+            print('Single Entry ', value2)
 
         
 def enterValueCheck_nested(db, table, values, cn):
@@ -153,8 +153,9 @@ def compositeCreation(db, table1, col, values, parentID, comptable):
     t = sqlCMDToPD(table1, db)
     vals = [str(eval(u)) for u in values]
     tmp = t.query('{cn} in @vals'.format(cn = col))[col]
-    for v in tmp.values:
-        insertValues(db, comptable, parentID, v)
+    for i,v in enumerate(tmp.values):
+        print v, values[i]
+        insertValues(db, comptable, parentID, repr(values[i].strip()))
         
 def getPK(db, table, pkCol):
     '''retrieve the PRIMARY KEY
@@ -179,8 +180,9 @@ def deleteRowPK(db, table, pkcol, entryID):
     with sql.connect(db) as con:
         
         con.execute("DELETE FROM {tn} WHERE {idf}={my_id}".format(tn=table, idf=pkcol, my_id=entryID))
-
+        return 'deleted {idf} : {my_id} from {tn}'.format(tn=table, idf=pkcol, my_id=entryID)
         con.commit()
+        
 
 def deleteRowOTHER(db, table, cn, entry):
     '''Deleting a Record
@@ -190,10 +192,10 @@ def deleteRowOTHER(db, table, cn, entry):
     param entry str : the str to be used to find and remove records (removes all records
     '''
     with sql.connect(db) as con:
-        
         con.execute("DELETE FROM {tn} WHERE {idf}='%s'".format(tn=table, idf=cn)%entry)
-
+        return 'deleted {col} : {e}  from {tn}'.format(tn = table, col = cn, e = entry)
         con.commit()
+        
         
 def entryintotables(db, jsonfile):
     '''Inserting a Record from a JsonFile

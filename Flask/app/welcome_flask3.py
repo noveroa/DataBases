@@ -1201,6 +1201,29 @@ def insertJFiletoDB(jfile):
     
     return RESTful.entryintotables(mydb, f).to_html()
 
+@App.route('/delete/<table>/<cn>/<param>', methods=['GET'])
+def deletefromDB(table, cn, param):
+    '''
+        : param  db str : Database name to connect to
+        : param  table str : Table Name to delete from
+        : param  cn str : column name being used for deletion comparason
+        : param  param int/str : value to lok up and delete row
+    '''
+    
+    result = 'ERROR IN STR DELETION, look at column name or str value'
+    if str(param).isdigit():
+        try:          
+            result = RESTful.deleteRowPK(mydb, table, cn, int(param))   
+        except:
+            pass
+    else:
+        try:
+            result = RESTful.deleteRowOTHER(mydb, table, cn,  param)
+        except:
+            pass
+    return result
+
+        
 if __name__ == '__main__':
    
     App.debug=True
