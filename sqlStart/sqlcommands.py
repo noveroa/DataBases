@@ -12,7 +12,7 @@ import pandas as pd
 #DEFAULTHDF = '../DataBaseParsing/DFstore5.h5'
 #DEFAULTDB = 'Abstracts_DB3.db'
 #DEFAULTHDF = '../DataBaseParsing/DFstoretest6.h5'
-DEFAULTDB = 'Abstracts_aug5.db'
+DEFAULTDB = 'Abstracts_aug12.db'
 DEFAULTHDF = '../DataBaseParsing/DFstore_aug1.h5'
 
 def getPatentDataFrame(hdffile = DEFAULTHDF, 
