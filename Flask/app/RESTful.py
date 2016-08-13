@@ -271,6 +271,6 @@ def deleteFromDB_PaperID(paperID, db = DEFAULTDB):
     param  db str : Database name to connect to
     '''
     deletedPaper = getPaper(paperID, db)
-    delP.deletebyPaper(paperID, db)
+    delP.deletebyPaper(paperID, 'paperID', db)
     
     return deletedPaper

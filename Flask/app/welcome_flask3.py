@@ -1225,11 +1225,9 @@ def deleteRow(table, cn, param):
 
 @App.route('/deletePaper/<paperID>', methods=['GET'])
 def deletePaperfromDB(paperID):
-    '''
-        : param  db str : Database name to connect to
-        : param  table str : Table Name to delete from
-        : param  cn str : column name being used for deletion comparason
-        : param  param int/str : value to lok up and delete row
+    '''Delete  a paper from the database, (composites, CASCADE)
+        : param  paperID int/str : value to look up and delete record from database
+        : output : deleted paper as dataframe
     '''
     
     result = RESTful.deleteFromDB_PaperID(int(paperID), db = mydb)
