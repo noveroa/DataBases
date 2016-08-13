@@ -1231,11 +1231,11 @@ def deletePaperfromDB(paperID):
     '''
     
     result = RESTful.deleteFromDB_PaperID(int(paperID), db = mydb)
-    
-    return result.to_html()
+    #return render_template('view.html',tables=[result.to_html(classes='ECSA')], titles = 'deleted)
+    #return result.to_html()
 
 
-        
+    return render_template('view.html',tables=[ result.to_html(classes='QoSA')], titles = ['na', 'DELETED'])
 if __name__ == '__main__':
    
     App.debug=True
