@@ -17,7 +17,7 @@ wcg = reload(wcg)
 App = flask.Flask(__name__)
 #ip = "http://" + str(request.remote_addr) + ":5000"
 
-mydb = '../../sqlStart/Abstracts_aug4.db'
+mydb = 'scripts/Abstracts_aug12.db'
 
 def connect_db():
     """
@@ -152,7 +152,7 @@ def getContents():
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
         mytables = (cursor.fetchall())
         myt = []
-        for x in mytables[1:]:
+        for x in mytables:
             table_entry = {}
             table_name = x[0]
             table_entry['name'] = table_name
@@ -1202,7 +1202,7 @@ def insertJFiletoDB(jfile):
     return RESTful.entryintotables(mydb, f).to_html()
 
 @App.route('/delete/<table>/<cn>/<param>', methods=['GET'])
-def deletefromDB(table, cn, param):
+def deleteRow(table, cn, param):
     '''
         : param  db str : Database name to connect to
         : param  table str : Table Name to delete from
@@ -1222,6 +1222,20 @@ def deletefromDB(table, cn, param):
         except:
             pass
     return result
+
+@App.route('/deletePaper/<paperID>', methods=['GET'])
+def deletePaperfromDB(paperID):
+    '''
+        : param  db str : Database name to connect to
+        : param  table str : Table Name to delete from
+        : param  cn str : column name being used for deletion comparason
+        : param  param int/str : value to lok up and delete row
+    '''
+    
+    result = RESTful.deleteFromDB_PaperID(int(paperID), db = mydb)
+    
+    return result.to_html()
+
 
         
 if __name__ == '__main__':

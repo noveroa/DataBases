@@ -169,6 +169,21 @@ def getPK(db, table, pkCol):
         key = cursor.fetchone()[0]
 
         return key
+
+def getPaper(paperID, db = DEFAULTDB, pkcol = 'paperID', table = 'PAPER'):
+    '''return the paper as pandas dataframe
+    param paperID int : paperID
+    param  db str : Database name to connect to
+    param pkcol str : primary column name being used,
+    param table str : Table Name to delete from
+    output: paper as a pandas dataframe
+    '''
+    with sql.connect(db) as con:
+        sqlcmd = "SELECT * FROM {tn} WHERE {cn} = {my_id} ".format(tn = table , cn = pkcol, my_id = paperID)
+        
+        df = pd.read_sql_query(sqlcmd, con)
+       
+        return df    
     
 def deleteRowPK(db, table, pkcol, entryID):
     '''Deleting a Record by PRIMARY KEY
@@ -255,4 +270,7 @@ def deleteFromDB_PaperID(paperID, db = DEFAULTDB):
     param paperID int : paperID integer to delete from DataBase
     param  db str : Database name to connect to
     '''
+    deletedPaper = getPaper(paperID, db)
     delP.deletebyPaper(paperID, db)
+    
+    return deletedPaper
