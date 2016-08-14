@@ -207,9 +207,11 @@ def deleteRowOTHER(db, table, cn, entry):
     param entry str : the str to be used to find and remove records (removes all records
     '''
     with sql.connect(db) as con:
-        con.execute("DELETE FROM {tn} WHERE {idf}='%s'".format(tn=table, idf=cn)%entry)
-        return 'deleted {col} : {e}  from {tn}'.format(tn = table, col = cn, e = entry)
+        sqlcmd = "FROM {tn} WHERE {cn} = '{my_id}'".format(tn = table , cn = cn, my_id = entry)
+        df = pd.read_sql_query("SELECT *" + sqlcmd, con)
+        con.execute('DELETE ' + sqlcmd)
         con.commit()
+        return df
         
         
 def entryintotables(db, jsonfile):

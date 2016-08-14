@@ -982,6 +982,8 @@ def getauthorsbyname(name):
     
     for row in ap.as_matrix():
         entry = {key: value for (key, value) in zip(ap.columns, row)}
+        html = "/delete/AUTHORS/authorName/"+ str(entry['authorName']).replace('%',' ')
+        entry['DeleteAuthor'] = "<a href='%s'<button>Delete Author</button></a>" %html
         entries.append(entry)
     return jsonify(dict(data = entries))
 
@@ -1242,7 +1244,8 @@ def deleteRow(table, cn, param):
             result = RESTful.deleteRowOTHER(mydb, table, cn,  param)
         except:
             pass
-    return result
+    
+    return render_template('view.html', tables = [result.to_html(classes = 'QoSA')], titles = ['na', 'DELETED'])
 
 @App.route('/deletePaper/<paperID>', methods=['GET'])
 def deletePaperfromDB(paperID):
