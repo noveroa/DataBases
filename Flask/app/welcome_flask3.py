@@ -5,14 +5,14 @@ import sys, os
 import sqlite3
 import pandas as pd
 import numpy as np
+import time
 
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
 from flask import abort,  jsonify
 
 import images as images
-images = reload(images)
-import wordcloud_generator2 as wcg
-wcg = reload(wcg)
+import wordcloudmaker as wcg
+import RESTful
 
 App = flask.Flask(__name__)
 #ip = "http://" + str(request.remote_addr) + ":5000"
@@ -65,11 +65,12 @@ def index():
     """ 
     Renders aboutme page html for '/' the index page
     """
-    return flask.render_template('index.html', entry = mydb)
+    return flask.render_template('index.html',entry = time.strftime("%c"))
 
 @App.route("/get_my_ip", methods=["GET"])
 def get_my_ip():
     return str(request.remote_addr)
+
 @App.route('/aboutme/')
 def aboutme():
     """ 
@@ -98,7 +99,8 @@ def getUsers():
 
         #return df
         return render_template('extras/tables.html', 
-                               title = 'users' , rows = rows, keys = keys)
+                               title = 'users' , 
+                               rows = rows, keys = keys)
 
 def dict_factory(cursor, row):
     '''
