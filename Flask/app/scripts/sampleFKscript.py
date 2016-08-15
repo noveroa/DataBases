@@ -87,3 +87,23 @@ def retrievals(db, table_name, column_2, column_3, id_column, some_id ):
             entries.append(('5): {} does not exist'.format(some_id)))
         
         return entries
+    
+    
+    
+'''@App.route('/show_tables', methods=('GET',))
+def show_tables():
+    data =  getAffiliation()
+    
+    data.index.name=None
+    ECSA = data.loc[data.confName=='ECSA']
+    WICSA = data.loc[data.confName=='WICSA']
+    QoSA = data.loc[data.confName == 'QoSA']
+    return render_template('view.html',tables=[ECSA.to_html(classes='ECSA'),
+                                               WICSA.to_html(classes='WICSA'), 
+                                               QoSA.to_html(classes='QoSA')],
+    titles = ['na', 'ECSA', 'WICSA', 'QoSA'])
+
+@App.route('/show_tables2')
+def analysis():
+    data =  getAffiliation()
+    return render_template("show2.html", name='tables', data=data)'''

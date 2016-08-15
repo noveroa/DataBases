@@ -10,9 +10,9 @@ import time
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
 from flask import abort,  jsonify
 
-import images as images
-import wordcloudmaker as wcg
-import RESTful
+import f_images as images
+import f_wordcloudmaker as wcg
+import f_RESTful as RESTful
 
 App = flask.Flask(__name__)
 #ip = "http://" + str(request.remote_addr) + ":5000"
@@ -1163,25 +1163,6 @@ def seeAuthorsArea():
     
     return render_template('authors/seeAuthorsArea.html')
 
-@App.route('/show_tables', methods=('GET',))
-def show_tables():
-    data =  getAffiliation()
-    
-    data.index.name=None
-    ECSA = data.loc[data.confName=='ECSA']
-    WICSA = data.loc[data.confName=='WICSA']
-    QoSA = data.loc[data.confName == 'QoSA']
-    return render_template('view.html',tables=[ECSA.to_html(classes='ECSA'),
-                                               WICSA.to_html(classes='WICSA'), 
-                                               QoSA.to_html(classes='QoSA')],
-    titles = ['na', 'ECSA', 'WICSA', 'QoSA'])
-
-@App.route('/show_tables2')
-def analysis():
-    data =  getAffiliation()
-    return render_template("show2.html", name='tables', data=data)
-
-import RESTful
 
 def openJfile(jfile):
     '''
@@ -1193,11 +1174,6 @@ def openJfile(jfile):
     
     return json_url
 
-@App.route('/queries', methods=['GET'])
-def myquery():
-    e = RESTful.retrievals(mydb, 'CONFERENCES', 'confName', 'confID', 'confID', 3)
-    
-    return jsonify(dict(data=e))
 
 @App.route('/seeJfile/<jfile>', methods=['GET'])
 def seeJsonDF(jfile):
@@ -1212,6 +1188,8 @@ def seeJsonDF(jfile):
                            tables=[ result.to_html(classes='ECSA')], 
                            titles = ['na', 'jSON file'])
 
+
+
 @App.route('/insertJfile/<jfile>', methods=['GET'])
 def insertJFiletoDB(jfile):
     '''
@@ -1225,6 +1203,10 @@ def insertJFiletoDB(jfile):
     return render_template('view.html',
                            tables=[ result.to_html(classes='ECSA')], 
                            titles = ['na', 'Inserted JsonFile'])
+
+@App.route('/insertingJsonFiles')
+def directionstoInsertJFile():
+    return render_template("extras/directions.html")
 
 @App.route('/delete/<table>/<cn>/<param>', methods=['GET'])
 def deleteRow(table, cn, param):
