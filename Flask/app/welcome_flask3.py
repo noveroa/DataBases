@@ -1208,6 +1208,21 @@ def insertJFiletoDB(jfile):
 def directionstoInsertJFile():
     return render_template("extras/directions.html")
 
+@App.route('/insertmultipleJson', methods=['GET'])
+def insertMultiJFiles():
+    '''
+        : param jfile str/unicode : json file name (located in static folder/data)
+        : output : Opens and renders json file as pandas dataframe in html format
+    '''
+    SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
+    json_directory = os.path.join(SITE_ROOT, "static/data")
+    
+    result = RESTful.iterativeJsoninsert(mydb, json_directory)
+    
+    return render_template('view.html',
+                     tables=[ result.to_html(classes='WICSA')], 
+                     titles = ['na', 'Inserted JsonFiles'])
+
 @App.route('/delete/<table>/<cn>/<param>', methods=['GET'])
 def deleteRow(table, cn, param):
     '''

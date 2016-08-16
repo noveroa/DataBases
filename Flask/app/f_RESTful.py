@@ -1,12 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 '''Scripts to insert/delete json file into database'''
-import sys
+import sys, os
 import sqlite3 as sql
 import pandas as pd
 import f_deletionbyPaperID as delP
 DEFAULTDB = 'scripts/Abstracts_aug14.db'
-
+DEFAULTJSONDIRECTORY = 'static/data'
 
 def jsonDF(jsonFile):
     '''Create a pandas dataframe from a Json File
@@ -129,7 +129,7 @@ def enterValueCheck_nested(db, table, values, cn):
     tableDF = sqlCMDToPD(table, db)
     for i, l in enumerate(values):
         for v in l.split(','):
-            if eval(v) not in tableDF[cn].unique():
+            if eval(v).replace("'", "") not in tableDF[cn].unique():
                 print v, 'is new'
                 insertValues(db, table, None, v)
             else:
@@ -266,6 +266,23 @@ def entryintotables(db, jsonfile):
     
     return sqlCMDToPD('ABSTRACTSTOTAL', db).tail()
 
+def iterativeJsoninsert(db, directory = DEFAULTJSONDIRECTORY):
+    '''Inserting Mulitple Json Files from the given directory
+    param  db str : Database name to connect to
+    param directory str : Path to the location of the Json files to be inserted
+    output : list of files entered into the database.
+    '''
+    entries = []
+    for subdir, dirs, files in os.walk(directory):
+        for f in files:
+            filepath = subdir + os.sep + f
+            if filepath.endswith(".json"):
+                print ("Entering : %s")%filepath
+                entryintotables(db,filepath)
+                
+                entries.append(f)
+        
+        return pd.DataFrame(entries).rename(columns = {0:'File Entered'})
 
 def deleteFromDB_PaperID(paperID, db = DEFAULTDB):
     '''Deleting a Record from given Database by PaperID
