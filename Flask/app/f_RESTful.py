@@ -5,6 +5,7 @@ import sys, os
 import sqlite3 as sql
 import pandas as pd
 import f_deletionbyPaperID as delP
+import f_SqlScripts as sqlCMDS
 DEFAULTDB = 'scripts/Abstracts_aug14.db'
 DEFAULTJSONDIRECTORY = 'static/data'
 
@@ -179,11 +180,12 @@ def getPaper(paperID, db = DEFAULTDB, pkcol = 'paperID', table = 'PAPER'):
     output: paper as a pandas dataframe
     '''
     with sql.connect(db) as con:
-        sqlcmd = "SELECT * FROM {tn} WHERE {cn} = {my_id} ".format(tn = table , cn = pkcol, my_id = paperID)
+        sqlcmd = sqlCMDS.sqlSelectRowbyID(table, pkcol, paperID)
         
         df = pd.read_sql_query(sqlcmd, con)
        
         return df    
+    
     
 def deleteRowPK(db, table, pkcol, entryID):
     '''Deleting a Record by PRIMARY KEY
@@ -223,8 +225,6 @@ def entryintotables(db, jsonfile):
     
     #TOTALABSTRACTS, check and then insert if needed, uniqueness based on Abstract column
     insert_toTable(db, jdf, table = 'ABSTRACTSTOTAL')
-    
-
 
     #renaming of columns
     jdf.rename(columns = {'Conf':'confName'}, inplace= True)
@@ -289,6 +289,7 @@ def deleteFromDB_PaperID(paperID, db = DEFAULTDB):
     param paperID int : paperID integer to delete from DataBase
     param  db str : Database name to connect to
     '''
+    paperID = int(paperID)
     deletedPaper = getPaper(paperID, db)
     delP.deletebyPaper(paperID, 'paperID', db)
     

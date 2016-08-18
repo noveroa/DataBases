@@ -253,8 +253,10 @@ def getPapersConfYr(year, conf):
                 entry['paperID'] = subgroup.loc[idx]['paperID']
                 entry['Title'] = subgroup.loc[idx]['title']
                 entry['Abstract'] = subgroup.loc[idx]['abstract']  
-                html = "/deletePaper/"+ str(subgroup.loc[idx]['paperID'])
-                entry['DeletePaper'] =  "<a href='%s'<button>Delete Paper!</button></a>" %html
+                html1 = "/PaperID/"+ str(subgroup.loc[idx]['paperID'])
+                entry['viewpaper'] =  "<a href='%s'<button>View Paper</button></a>" %html1
+                html2 = "/deletePaper/"+ str(subgroup.loc[idx]['paperID'])
+                entry['DeletePaper'] =  "<a href='%s'<button>Delete Paper!</button></a>" %html2
                 mytable.append(entry)
        
             return jsonify( dict(data = mytable))
@@ -264,6 +266,7 @@ def getPapersConfYr(year, conf):
             entry = {'paperID': 'NoConference',
                      'Title': 'NoConference',
                      'Abstract': 'NoConference',
+                     'viewpaper': 'NoConference',
                      'DeletePaper' : 'NoConference'
                      }
             mytable = [entry]
@@ -343,8 +346,10 @@ def search_params(year, conf):
                 entry['paperID'] = subgroup.loc[idx]['paperID']
                 entry['Title'] = subgroup.loc[idx]['title']
                 entry['Abstract'] = subgroup.loc[idx]['abstract']  
-                html = "/deletePaper/"+ str(subgroup.loc[idx]['paperID'])
-                entry['DeletePaper'] =  "<a href='%s'<button>Delete Paper!</button></a>" %html
+                html1 = "/PaperID/"+ str(subgroup.loc[idx]['paperID'])
+                entry['viewpaper'] =  "<a href='%s'<button>View Paper</button></a>" %html1
+                html2 = "/deletePaper/"+ str(subgroup.loc[idx]['paperID'])
+                entry['DeletePaper'] =  "<a href='%s'<button>Delete Paper!</button></a>" %html2
                 mytable.append(entry)
        
             return jsonify( dict(data = mytable))
@@ -353,6 +358,7 @@ def search_params(year, conf):
             entry = {'paperID': 'NoConference',
                      'Title': 'NoConference',
                      'Abstract': 'NoConference',
+                     'viewpaper' : 'NoConference',
                      'DeletePaper': 'NoConference'
                      }
             mytable = [entry]
@@ -403,6 +409,12 @@ def getpaperbyID(paperid):
         cur = con.cursor()
         cur.execute(sqlcmd)
         entries = cur.fetchall()
+        html1 = '/seeauthorsbyID/' + str(paperid)
+        aref1 =  "<a href='%s'<button>View Authors</button></a>" %html1  
+        entries[0]['authors'] = aref1
+        html2 = "/deletePaper/"+ str(paperid)
+        aref2 =  "<a href='%s'<button>Delete Paper!</button></a>" %html2  
+        entries[0]['paperID'] = aref2
     return jsonify(dict(data=entries))
 
 @App.route("/PaperID/<paperid>", methods = ('GET',))
@@ -410,6 +422,7 @@ def PaperID(paperid):
     '''
     Renders jsonPaperID(id) as html
     '''
+    
     return render_template('/papers/paperbyID.html', entry = paperid)
     
 @App.route("/jsonContentskeys/<conf>/<year>", methods = ('GET',))
@@ -540,6 +553,8 @@ def search_kw_params(param):
             entry['Title'] = subgroup.loc[idx]['title']
             entry['Conference'] = subgroup.loc[idx]['confName']   
             entry['PublicationYear'] = subgroup.loc[idx]['pubYear'] 
+            html1 = "/PaperID/"+ str(subgroup.loc[idx]['paperID'])
+            entry['viewpaper'] =  "<a href='%s'<button>View Paper</button></a>" %html1
             html2 = "/deletePaper/"+ str(subgroup.loc[idx].paperID)
             entry['DeletePaper'] =  "<a href='%s'<button>Delete Paper!</button></a>" %html2  
             
@@ -552,6 +567,7 @@ def search_kw_params(param):
                  'Title': 'No Keyword Found',
                  'Conference': 'No Keyword Found',
                  'PublicationYear': 'No Keyword Found',
+                 'viewpaper': 'No Keyword Found',
                  'DeletePaper': 'No Keyword Found'
                 }
         mytable = [entry]
@@ -954,10 +970,19 @@ def getauthorsbyID(paperID):
     
     for row in ap.as_matrix():
         entry = {key: value for (key, value) in zip(ap.columns, row)}
-        html = "/deletePaper/"+ paperID
-        entry['DeletePaper'] =  "<a href='%s'<button>Delete Paper!</button></a>" %html 
+        html1 = "/PaperID/"+ paperID
+        entry['viewpaper'] =  "<a href='%s'<button>Paper Information</button>></a>" %html1  
+        html2 = "/deletePaper/"+ paperID
+        entry['DeletePaper'] =  "<a href='%s'<button>Delete Paper!</button></a>" %html2 
         entries.append(entry)
     return jsonify(dict(data = entries))
+
+@App.route('/seeauthorsbyID/<paperID>', methods=('GET',))
+def seeauthorsbyID(paperID):
+    '''
+    Renders getAuthors() as non search
+    '''
+    return render_template('authors/nosearchseeAuthorsID.html', entry = paperID)
 
 @App.route('/authors/seeAuthorsID', methods=('GET',))
 def seeAuthorsID():
@@ -1184,7 +1209,7 @@ def seeJsonDF(jfile):
     f = openJfile(jfile)
     result =  RESTful.jsonDF(f)
 
-    return render_template('view.html',
+    return render_template('extras/view.html',
                            tables=[ result.to_html(classes='ECSA')], 
                            titles = ['na', 'jSON file'])
 
@@ -1200,7 +1225,7 @@ def insertJFiletoDB(jfile):
     
     result =  RESTful.entryintotables(mydb, f)
     
-    return render_template('view.html',
+    return render_template('extras/view.html',
                            tables=[ result.to_html(classes='ECSA')], 
                            titles = ['na', 'Inserted JsonFile'])
 
@@ -1219,7 +1244,7 @@ def insertMultiJFiles():
     
     result = RESTful.iterativeJsoninsert(mydb, json_directory)
     
-    return render_template('view.html',
+    return render_template('extras/view.html',
                      tables=[ result.to_html(classes='WICSA')], 
                      titles = ['na', 'Inserted JsonFiles'])
 
@@ -1244,10 +1269,12 @@ def deleteRow(table, cn, param):
         except:
             pass
     
-    return render_template('view.html', tables = [result.to_html(classes = 'QoSA')], titles = ['na', 'DELETED'])
+    return render_template('extras/view.html', 
+                           tables = [result.to_html(classes = 'QoSA')], 
+                           titles = ['na', 'DELETED'])
 
 @App.route('/deletePaper/<paperID>', methods=['GET'])
-def deletePaperfromDB(paperID):
+def deletePaper(paperID):
     '''Delete  a paper from the database, (composites, CASCADE)
         : param  paperID int/str : value to look up and delete record from database
         : output : deleted paper as dataframe
@@ -1255,7 +1282,9 @@ def deletePaperfromDB(paperID):
     
     result = RESTful.deleteFromDB_PaperID(int(paperID), db = mydb)
     
-    return render_template('view.html',tables=[ result.to_html(classes='ECSA')], titles = ['na', 'DELETED'])
+    return render_template('extras/view.html',
+                           tables=[ result.to_html(classes='ECSA')], 
+                           titles = ['na', 'DELETED'])
 
 if __name__ == '__main__':
    
