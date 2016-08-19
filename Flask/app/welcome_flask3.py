@@ -1094,7 +1094,11 @@ def confYrAuthor2(conf, year):
             entry['Author'] = merged.loc[idx]['authorName']
             entry['paperID'] = merged.loc[idx]['paperID']
             entry['Title'] = merged.loc[idx]['title']
-            entry['AuthorYrCount'] = merged.loc[idx]['IndivCt']    
+            entry['AuthorYrCount'] = merged.loc[idx]['IndivCt']   
+            html1 = "/PaperID/"+ str(merged.loc[idx]['paperID'])
+            entry['viewpaper'] =  "<a href='%s'<button>Paper Information</button>></a>" %html1  
+            html2 = "/deletePaper/"+ str(merged.loc[idx]['paperID'])
+            entry['DeletePaper'] =  "<a href='%s'<button>Delete Paper!</button></a>" %html2 
             
             mytable.append(entry)
         
@@ -1105,7 +1109,10 @@ def confYrAuthor2(conf, year):
         mytable = {entry['Author'] : 'No Conference Data',
                    entry['paperID'] : 'No Conference Data',
                    entry['Title'] : 'No Conference Data',
-                   entry['AuthorYrCount'] : 'No Conference Data'
+                   entry['AuthorYrCount'] : 'No Conference Data',
+                   entry['viewpaper'] : 'No Conference Data',
+                   entry['DeletePaper'] : 'No Conference Data'
+                   
                    }
         return jsonify(dict(data = mytable))
 
